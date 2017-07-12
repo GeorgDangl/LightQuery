@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.26430.14
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery", "src\LightQuery\LightQuery.csproj", "{33650DEE-5957-45BA-AFE4-2AFEA731DA4D}"
 EndProject
@@ -9,7 +9,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6526DECE-851
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7F628AED-CB88-45FF-BF48-8EA02C691700}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightQuery.Tests", "test\LightQuery.Tests\LightQuery.Tests.csproj", "{CBADC358-8605-4A47-972C-3E180FEF1138}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Tests", "test\LightQuery.Tests\LightQuery.Tests.csproj", "{CBADC358-8605-4A47-972C-3E180FEF1138}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A2148043-F19B-41D9-8049-C2B9A0DFABD2}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
