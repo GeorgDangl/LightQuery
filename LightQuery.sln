@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery", "src\LightQuer
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{6526DECE-8511-41B3-B5A6-C8170D362611}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{7F628AED-CB88-45FF-BF48-8EA02C691700}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightQuery.Tests", "test\LightQuery.Tests\LightQuery.Tests.csproj", "{CBADC358-8605-4A47-972C-3E180FEF1138}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,11 +21,16 @@ Global
 		{33650DEE-5957-45BA-AFE4-2AFEA731DA4D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33650DEE-5957-45BA-AFE4-2AFEA731DA4D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33650DEE-5957-45BA-AFE4-2AFEA731DA4D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CBADC358-8605-4A47-972C-3E180FEF1138}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CBADC358-8605-4A47-972C-3E180FEF1138}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CBADC358-8605-4A47-972C-3E180FEF1138}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CBADC358-8605-4A47-972C-3E180FEF1138}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{33650DEE-5957-45BA-AFE4-2AFEA731DA4D} = {6526DECE-8511-41B3-B5A6-C8170D362611}
+		{CBADC358-8605-4A47-972C-3E180FEF1138} = {7F628AED-CB88-45FF-BF48-8EA02C691700}
 	EndGlobalSection
 EndGlobal
