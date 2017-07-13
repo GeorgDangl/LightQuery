@@ -1,4 +1,5 @@
 # LightQuery
+[![Build Status](https://jenkins.dangl.me/buildStatus/icon?job=LightQuery.Tests)](https://jenkins.dangl.me/job/LightQuery.Tests)
 
 This project aims to provide a lightweight `ActionFilterAttribute`
 that takes care of sorting and paginating Asp.Net Core API results.
