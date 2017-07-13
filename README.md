@@ -15,14 +15,25 @@ _Coming soon to NuGet_
 
 Both **NETStandard 1.6** and **.Net 4.5.1** and above are supported.
 
-## Example
+## Documentation
+
+See below how to apply sorting & filtering to your API controllers. At a glance:
+    
+* Return an `ObjectResult` from your controller with an `IQueryable` value
+* Use `sort` to sort, `page` & `pageSize` for pagination in your requests
+
+You can find a demo at _test/LightQuery.Tests.Integration_ for an example of using this in an Asp.Net Core MVC application
+for sorting an filtering.
+
+### Sorting
 
 ```csharp
 using LightQuery;
 
-public class ApiController : Conttoller
+public class ApiController : Controller
 {
     [LightQuery]
+    [ProducesResponseType(typeof(IEnumerable<User>), 200)]
     public IActionResult GetValues()
     {
         var values = _repository.GetAllValuesAsQueryable();
@@ -42,6 +53,43 @@ Example:
 `http://your.api.com/values?sort=email desc`
 
 This will sort the result by it's `Email` property (note that is has been title-cased) in `descending` order.
+
+### Pagination & Sorting
+
+Paging is **active when the request includes pagination query parameters** or via explicitly setting the `forcePaginiation`
+parameter to true in the attributes' constructor. Sorting works in combination with paging.
+
+```csharp
+using LightQuery;
+
+public class ApiController : Controller
+{
+    [LightQuery(forcePagination: true, defaultPageSize: 3)]
+    [ProducesResponseType(typeof(PaginationResult<User>), 200)]
+    public IActionResult GetValues()
+    {
+        var values = _repository.GetAllValuesAsQueryable();
+        return Ok(values);  
+    }
+}
+```
+
+Example:
+`http://your.api.com/values?sort=email&page=2&pageSize=3`
+
+**Response**
+```json
+{
+    "page": 2,
+    "pageSize": 3,
+    "totalCount": 20,
+    "data": [
+        { "userName": "Dave", "email": "dave@example.com" },
+        { "userName": "Emilia", "email": "emilia@example.com" },
+        { "userName": "Fred", "email": "fred@example.com" }
+    ]
+}
+```
 
 ---
 
