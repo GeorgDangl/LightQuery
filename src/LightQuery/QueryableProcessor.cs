@@ -30,7 +30,7 @@ namespace LightQuery
             var propertyAccess = Expression.MakeMemberAccess(parameter, orderingProperty);
             var orderByExp = Expression.Lambda(propertyAccess, parameter);
             var orderMethodName = queryOptions.IsDescending ? nameof(Queryable.OrderByDescending) : nameof(Queryable.OrderBy);
-            var wrappedExpression = Expression.Call(typeof(Queryable), orderMethodName, new Type[] { queryable.ElementType, orderingProperty.PropertyType }, queryable.Expression, Expression.Quote(orderByExp));
+            var wrappedExpression = Expression.Call(typeof(Queryable), orderMethodName, new [] { queryable.ElementType, orderingProperty.PropertyType }, queryable.Expression, Expression.Quote(orderByExp));
             var result = queryable.Provider.CreateQuery(wrappedExpression);
             return result;
         }

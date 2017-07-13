@@ -7,6 +7,17 @@ namespace LightQuery
 {
     public class LightQueryAttribute :  ActionFilterAttribute
     {
+        public const int DEFAULT_PAGE_SIZE = 50;
+
+        public LightQueryAttribute(bool forcePagination = false, int defaultPageSize = DEFAULT_PAGE_SIZE)
+        {
+            _forcePagination = forcePagination;
+            _defaultPageSize = defaultPageSize;
+        }
+
+        private readonly bool _forcePagination;
+        private readonly int _defaultPageSize;
+
         public override void OnResultExecuting(ResultExecutingContext context)
         {
             if (context == null)
@@ -17,7 +28,7 @@ namespace LightQuery
             {
                 return;
             }
-            var queryOptions = QueryParser.GetQueryOptions(context.HttpContext.Request.Query);
+            var queryOptions = QueryParser.GetQueryOptions(context.HttpContext.Request.Query, _defaultPageSize);
             if (string.IsNullOrWhiteSpace(queryOptions.SortPropertyName))
             {
                 return;
@@ -28,8 +39,27 @@ namespace LightQuery
             {
                 return;
             }
-            var result = queryable.ApplySorting(queryOptions);
-            objectResult.Value = result;
+            var sortedResult = queryable.ApplySorting(queryOptions);
+            if (_forcePagination || queryOptions.QueryRequestsPagination)
+            {
+                objectResult.Value = GetPaginationResult(sortedResult, queryOptions);
+            }
+            else
+            {
+                objectResult.Value = sortedResult;
+            }
+        }
+
+        private PaginationResult<object> GetPaginationResult(IQueryable queryable, QueryOptions queryOptions)
+        {
+
+            return new PaginationResult<object>
+            {
+                Page = queryOptions.Page,
+                PageSize = queryOptions.PageSize,
+                TotalCount = queryable.Cast<object>().Count(),
+                Data = queryable.Cast<object>().Skip((queryOptions.Page - 1) * queryOptions.PageSize).Take(queryOptions.PageSize).ToList()
+            };
         }
     }
 }

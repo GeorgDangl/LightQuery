@@ -6,30 +6,36 @@ namespace LightQuery
 {
     public class QueryParser
     {
-        public static QueryOptions GetQueryOptions(IQueryCollection query)
+        public static QueryOptions GetQueryOptions(IQueryCollection query, int defaultPageSize = LightQueryAttribute.DEFAULT_PAGE_SIZE)
         {
             if (query == null)
             {
                 throw new ArgumentNullException(nameof(query));
             }
             var queryOptions = new QueryOptions();
+            ParseSortingOptions(queryOptions, query);
+            ParsePagingOptions(queryOptions, query, defaultPageSize);
+            return queryOptions;
+        }
+
+        private static void ParseSortingOptions(QueryOptions queryOptions, IQueryCollection query)
+        {
             var sortParam = query["sort"].FirstOrDefault();
             if (string.IsNullOrWhiteSpace(sortParam))
             {
-                return queryOptions;
+                return;
             }
             var paramSections = sortParam.Split(' ').ToList();
             if (paramSections.Count > 2)
             {
                 // Invalid format -> Return no decision instead of a wrong one
-                return queryOptions;
+                return;
             }
             queryOptions.SortPropertyName = CamelizeString(paramSections[0]);
             if (paramSections.Count == 2)
             {
                 queryOptions.IsDescending = IsDescendingSortParameter(paramSections[1]);
             }
-            return queryOptions;
         }
 
         private static string CamelizeString(string camelCase)
@@ -43,6 +49,28 @@ namespace LightQuery
                 .ToUpperInvariant()
                 .Contains("desc".ToUpperInvariant());
             return indicatesDescending;
+        }
+
+        private static void ParsePagingOptions(QueryOptions options, IQueryCollection query, int defaultPageSize)
+        {
+            var pageParam = query["page"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(pageParam) && Int32.TryParse(pageParam, out var parsedPage))
+            {
+                options.QueryRequestsPagination = true;
+                options.Page = Math.Max(1, parsedPage);
+            }
+            var pageSizeParam = query["pageSize"].FirstOrDefault();
+            if (!string.IsNullOrWhiteSpace(pageSizeParam) && Int32.TryParse(pageSizeParam, out var parsedPageSize))
+            {
+                options.QueryRequestsPagination = true;
+                options.PageSize = parsedPageSize > 0
+                    ? parsedPageSize
+                    : defaultPageSize;
+            }
+            else
+            {
+                options.PageSize = defaultPageSize;
+            }
         }
     }
 }
