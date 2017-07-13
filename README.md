@@ -13,7 +13,7 @@ This project was just started and is a WIP, expect a first release within the ne
 
 _Coming soon to NuGet_
 
-Both **NETStandard 1.6** and **.Net 4.5.1** and above are supported.
+Both **NETStandard 1.6** and **.Net 4.6.1** and above are supported.
 
 ## Documentation
 
