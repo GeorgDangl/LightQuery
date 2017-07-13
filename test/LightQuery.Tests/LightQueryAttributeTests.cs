@@ -5,8 +5,6 @@ namespace LightQuery.Tests
 {
     public class LightQueryAttributeTests
     {
-        private readonly LightQueryAttribute _attribute = new LightQueryAttribute();
-
         [Fact]
         public void ArgumentNullExceptionOnNullContext()
         {
