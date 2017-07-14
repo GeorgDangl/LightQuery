@@ -21,6 +21,5 @@ namespace LightQuery.Tests.Integration.Controllers
             var users = _context.Users.OrderBy(u => Guid.NewGuid());
             return Ok(users);
         }
-
     }
 }
