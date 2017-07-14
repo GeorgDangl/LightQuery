@@ -28,18 +28,16 @@ namespace LightQuery
             {
                 return;
             }
-            var queryOptions = QueryParser.GetQueryOptions(context.HttpContext.Request.Query, _defaultPageSize);
-            if (string.IsNullOrWhiteSpace(queryOptions.SortPropertyName))
-            {
-                return;
-            }
             var objectResult = context.Result as ObjectResult;
             var queryable = objectResult?.Value as IQueryable;
             if (queryable == null)
             {
                 return;
             }
-            var sortedResult = queryable.ApplySorting(queryOptions);
+            var queryOptions = QueryParser.GetQueryOptions(context.HttpContext.Request.Query, _defaultPageSize);
+            var sortedResult = string.IsNullOrWhiteSpace(queryOptions.SortPropertyName)
+                ? queryable
+                : queryable.ApplySorting(queryOptions);
             if (_forcePagination || queryOptions.QueryRequestsPagination)
             {
                 objectResult.Value = GetPaginationResult(sortedResult, queryOptions);

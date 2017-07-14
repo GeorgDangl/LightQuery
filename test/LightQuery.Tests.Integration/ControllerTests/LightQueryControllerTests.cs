@@ -113,5 +113,53 @@ namespace LightQuery.Tests.Integration.ControllerTests
             var secondAggregate = aggregateEmails(response3) + aggregateEmails(response4);
             Assert.NotEqual(firstAggregate, secondAggregate);
         }
+
+        [Fact]
+        public async Task ReturnsPaginationResultOnRequestingPageWithSortParam()
+        {
+            var url = "LightQuery?sort=userName&page=1";
+            var response = await GetResponse<PaginationResult<User>>(url);
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public async Task ReturnsPaginationResultOnRequestingPageSizeWithSortParam()
+        {
+            var url = "LightQuery?sort=userName&pageSize=2";
+            var response = await GetResponse<PaginationResult<User>>(url);
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public async Task ReturnsPaginationResultOnRequestingPageAndPageSizeWithSortParam()
+        {
+            var url = "LightQuery?sort=userName&page=2&pageSize=3";
+            var response = await GetResponse<PaginationResult<User>>(url);
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public async Task ReturnsPaginationResultOnRequestingPageWithoutSortParam()
+        {
+            var url = "LightQuery?page=1";
+            var response = await GetResponse<PaginationResult<User>>(url);
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public async Task ReturnsPaginationResultOnRequestingPageSizeWithoutSortParam()
+        {
+            var url = "LightQuery?pageSize=2";
+            var response = await GetResponse<PaginationResult<User>>(url);
+            Assert.NotNull(response);
+        }
+
+        [Fact]
+        public async Task ReturnsPaginationResultOnRequestingPageAndPageSizeWithoutSortParam()
+        {
+            var url = "LightQuery?page=2&pageSize=3";
+            var response = await GetResponse<PaginationResult<User>>(url);
+            Assert.NotNull(response);
+        }
     }
 }
