@@ -11,8 +11,11 @@ only need the most basic of operations. It's also for everyone tired of writing 
 This project was just started and is a WIP, expect a first release within the next days.
 
 ## Installation
+[![NuGet](https://img.shields.io/nuget/v/LightQuery.svg)](https://www.nuget.org/packages/LightQuery)
 
-_Coming soon to NuGet_
+[The package is available on nuget](https://www.nuget.org/packages/LightQuery).
+
+>PM> **Install-Package LightQuery**
 
 Both **NETStandard 1.6** and **.Net 4.6.1** and above are supported.
 
