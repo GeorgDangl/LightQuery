@@ -2,6 +2,18 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard1.6;net461</TargetFrameworks>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Georg Dangl</Authors>
+    <Company />
+    <Description>Asp.Net Core ActionFilter for sorting and pagination</Description>
+    <Copyright>(c) 2017 Georg Dangl</Copyright>
+    <PackageLicenseUrl>https://github.com/GeorgDangl/LightQuery/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/GeorgDangl/LightQuery</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/GeorgDangl/LightQuery.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Asp-Net-Core Querying Sorting Filtering</PackageTags>
+    <PackageReleaseNotes>1.0.0: Initial Release</PackageReleaseNotes>
+    <PackageIconUrl>https://blog.dangl.me/media/1114/gd_icon_256.png</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
