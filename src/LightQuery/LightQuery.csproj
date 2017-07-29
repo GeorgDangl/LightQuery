@@ -12,8 +12,12 @@
     <RepositoryUrl>https://github.com/GeorgDangl/LightQuery.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Asp-Net-Core Querying Sorting Filtering</PackageTags>
-    <PackageReleaseNotes>1.0.0: Initial Release</PackageReleaseNotes>
+    <PackageReleaseNotes>1.0.1: Minor Bugfix Release
+- Forced pagination was not applied when no query string at all was present in the Http request
+
+1.0.0: Initial Release</PackageReleaseNotes>
     <PackageIconUrl>https://blog.dangl.me/media/1114/gd_icon_256.png</PackageIconUrl>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <ItemGroup>
