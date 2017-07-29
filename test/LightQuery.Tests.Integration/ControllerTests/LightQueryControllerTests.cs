@@ -9,13 +9,22 @@ namespace LightQuery.Tests.Integration.ControllerTests
     public class LightQueryControllerTests : ControllerTestBase
     {
         [Fact]
+        public async Task DoesNotPaginateWithoutQuery()
+        {
+            var url = "LightQuery";
+            var actualResponse = await GetResponse<List<User>>(url);
+            Assert.NotNull(actualResponse);
+            Assert.IsType<List<User>>(actualResponse);
+        }
+
+        [Fact]
         public async Task SortById()
         {
             var url = "LightQuery?sort=id";
             var actualResponse = await GetResponse<List<User>>(url);
             for (var i = 1; i < actualResponse.Count; i++)
             {
-                var previousValueIsSmaller = actualResponse[i].Id > actualResponse[i-1].Id;
+                var previousValueIsSmaller = actualResponse[i].Id > actualResponse[i - 1].Id;
                 Assert.True(previousValueIsSmaller);
             }
         }

@@ -7,6 +7,17 @@ namespace LightQuery.Tests.Integration.ControllerTests
     public class PaginatedLightQueryControllerTests : ControllerTestBase
     {
         [Fact]
+        public async Task PaginatesWithoutQuery()
+        {
+            var url = "PaginatedLightQuery";
+            var pagedResult = await GetResponse<PaginationResult<User>>(url);
+            Assert.Equal(10, pagedResult.TotalCount);
+            Assert.Equal(1, pagedResult.Page);
+            Assert.Equal(3, pagedResult.PageSize);
+            Assert.Equal(3, pagedResult.Data.Count);
+        }
+
+        [Fact]
         public async Task SortByUserNameAndFirstPage()
         {
             var url = "PaginatedLightQuery?sort=userName&page=1";

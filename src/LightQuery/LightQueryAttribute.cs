@@ -24,10 +24,6 @@ namespace LightQuery
             {
                 throw new ArgumentNullException(nameof(context));
             }
-            if (context.HttpContext?.Request?.Query?.Any() != true)
-            {
-                return;
-            }
             var objectResult = context.Result as ObjectResult;
             var queryable = objectResult?.Value as IQueryable;
             if (queryable == null)
