@@ -8,7 +8,7 @@ This project is for you if you're still waiting for OData support in Asp.Net Cor
 only need the most basic of operations. It's also for everyone tired of writing like the 17th
 `string sort = "Username"` parameter and lines over lines of switch statements in their controller actions.
 
-This project was just started and is a WIP, expect a first release within the next days.
+It supports EntityFrameworkCores async query materialization with the optional `LightQuery.EntityFrameworkCore` package.
 
 ## Installation
 [![NuGet](https://img.shields.io/nuget/v/LightQuery.svg)](https://www.nuget.org/packages/LightQuery)
@@ -17,9 +17,19 @@ This project was just started and is a WIP, expect a first release within the ne
 
 >PM> **Install-Package LightQuery**
 
+Includes the core functionality to sort and paginate Asp.Net Core controller results
+
+>PM> **Install-Package LightQuery.EntityFrameworkCore**
+
+Includes support for EntityFramework.Core async query materialization
+
+>PM> **Install-Package LightQuery.Client**
+
+> Includes LightQuery models and the QueryBuilder utility
+
 Both **NETStandard 1.6** and **.Net 4.6.1** and above are supported.
 
-## Documentation
+## Documentation - Server
 
 See below how to apply sorting & filtering to your API controllers. At a glance:
     
@@ -94,6 +104,86 @@ Example:
     ]
 }
 ```
+
+### Async Materialization
+
+The `LightQuery.EntityFrameworkCore` package provides an `AsyncLightQueryAttribute`. This can be used
+for datasources that support async materialization of queries, e.g. `var result = await context.Users.ToListAsync()`.
+
+## Documentation - C# Client
+
+The `LightQuery.Client` package contains the `PaginationResult<T>` base class as well as a `QueryBuilder` utlity class to construct queries.
+
+**Example**
+```csharp
+using LightQuery.Client;
+
+var url = QueryBuilder.Build(page: 3, pageSize: 25, sortParam: "email");
+var response = await _client.GetAsync(url);
+var responseContent = await response.Content.ReadAsStringAsync();
+var deserializedResponse = JsonConvert.DeserializeObject<PaginationResult<User>>(responseContent);
+```
+
+## Documentation - TypeScript & Angular
+
+There is [an Angular example](AngularExample.ts) that can be used standalone or
+in combination with a [@angular/material](https://github.com/angular/material2) DataTable and it's pagination and sort functionality.
+
+**Example with Material 2 DataTable**
+```html
+<md-table [dataSource]="dataSource"
+          mdSort
+          [mdSortActive]="usersService.sort?.propertyName"
+          [mdSortDirection]="usersService.sort?.isDescending ? 'desc' : 'asc'"
+          (mdSortChange)="onSort($event)">
+    <ng-container cdkColumnDef="email">
+        <md-header-cell md-sort-header *cdkHeaderCellDef> Email </md-header-cell>
+        <md-cell *cdkCellDef="let row">
+            {{row.email}}
+        </md-cell>
+    </ng-container>
+    <md-header-row *cdkHeaderRowDef="['email']"></md-header-row>
+    <md-row *cdkRowDef="let row; columns: ['email'];"></md-row>
+</md-table>
+<md-paginator [length]="usersPaginated.totalCount"
+              [pageSize]="usersPaginated.pageSize"
+              [pageIndex]="usersPaginated.page - 1"
+              (page)="onPage($event)">
+</md-paginator>
+```
+```typescript
+export class UsersComponent implements OnInit, OnDestroy {
+
+    constructor(public userService: UserService) { }
+
+    private usersPaginatedSubscription: Subscription;
+    usersPaginated: PaginationResult<User>;
+    dataSource: DataSource<User>;
+
+    onPage(pageEvent: PageEvent) {
+        this.userService.page = pageEvent.pageIndex + 1;
+        this.userService.pageSize = pageEvent.pageSize;
+    }
+
+    onSort(event: { active: string, direction: string }) {
+        if (!event.direction) {
+            this.userService.sort = null;
+        } else {
+            this.userService.sort = { propertyName: event.active, isDescending: event.direction === 'desc' };
+        }
+    }
+
+    ngOnInit() {
+        this.dataSource = this.userService;
+        this.usersPaginatedSubscription = this.userService.paginationResult.subscribe(r => this.usersPaginated = r);
+    }
+
+    ngOnDestroy() {
+        this.usersPaginatedSubscription.unsubscribe();
+    }
+}
+```
+
 
 ---
 
