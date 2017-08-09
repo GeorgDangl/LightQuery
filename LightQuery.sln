@@ -13,6 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Tests", "test\Li
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A2148043-F19B-41D9-8049-C2B9A0DFABD2}"
 	ProjectSection(SolutionItems) = preProject
+		AngularExample.ts = AngularExample.ts
 		LICENSE.md = LICENSE.md
 		README.md = README.md
 		test.ps1 = test.ps1
@@ -30,13 +31,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Client", "src\Li
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Client.Tests", "test\LightQuery.Client.Tests\LightQuery.Client.Tests.csproj", "{1DA68F03-5B95-4C1B-B4E9-C1B5CE1DCB9E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightQuery.Client.Tests.Integration", "test\LightQuery.Client.Tests.Integration\LightQuery.Client.Tests.Integration.csproj", "{C0A82970-2123-4933-A150-2FBCB410C740}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Client.Tests.Integration", "test\LightQuery.Client.Tests.Integration\LightQuery.Client.Tests.Integration.csproj", "{C0A82970-2123-4933-A150-2FBCB410C740}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightQuery.IntegrationTestsServer", "test\LightQuery.IntegrationTestsServer\LightQuery.IntegrationTestsServer.csproj", "{8CCD27FA-22E5-41FA-A796-44290D427ED9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.IntegrationTestsServer", "test\LightQuery.IntegrationTestsServer\LightQuery.IntegrationTestsServer.csproj", "{8CCD27FA-22E5-41FA-A796-44290D427ED9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightQuery.Shared", "src\LightQuery.Shared\LightQuery.Shared.csproj", "{B2D54A8A-30DD-489C-847D-9347E4F7D436}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Shared", "src\LightQuery.Shared\LightQuery.Shared.csproj", "{B2D54A8A-30DD-489C-847D-9347E4F7D436}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightQuery.Shared.Tests", "test\LightQuery.Shared.Tests\LightQuery.Shared.Tests.csproj", "{38C64E1E-28CD-46D9-A4B2-D2E59683F8C0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Shared.Tests", "test\LightQuery.Shared.Tests\LightQuery.Shared.Tests.csproj", "{38C64E1E-28CD-46D9-A4B2-D2E59683F8C0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

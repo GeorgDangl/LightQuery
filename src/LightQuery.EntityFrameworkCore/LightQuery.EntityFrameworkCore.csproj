@@ -2,10 +2,27 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard1.6;net461</TargetFrameworks>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>Georg Dangl</Authors>
+    <Company />
+    <Description>Asp.Net Core ActionFilter for sorting and pagination with support for EntityFrameworks async materialization</Description>
+    <Copyright>(c) 2017 Georg Dangl</Copyright>
+    <PackageLicenseUrl>https://github.com/GeorgDangl/LightQuery/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/GeorgDangl/LightQuery</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/GeorgDangl/LightQuery.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Asp-Net-Core Querying Sorting Filtering EntityFramework</PackageTags>
+    <PackageReleaseNotes>
+      1.0.2: Initial Release. Version number is aligned with LightQuery package
+    </PackageReleaseNotes>
+    <PackageIconUrl>https://blog.dangl.me/media/1114/gd_icon_256.png</PackageIconUrl>
+    <Version>1.0.2</Version>
   </PropertyGroup>
   
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="1.1.2" />
+    <PackageReference Include="LightQuery.Client" Version="1.0.2" />
+    <PackageReference Include="LightQuery.Shared" Version="1.0.2" />
   </ItemGroup>
   
   <ItemGroup>
