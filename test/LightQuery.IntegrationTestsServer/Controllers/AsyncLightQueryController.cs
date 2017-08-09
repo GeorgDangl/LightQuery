@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
-using LightQuery.EntityFrameworkCore;
 
 namespace LightQuery.IntegrationTestsServer.Controllers
 {
