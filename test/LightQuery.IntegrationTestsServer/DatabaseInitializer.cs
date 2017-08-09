@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace LightQuery.Tests.Integration
+namespace LightQuery.IntegrationTestsServer
 {
     public class DatabaseInitializer
     {

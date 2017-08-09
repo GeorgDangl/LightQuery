@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace LightQuery.Tests.Integration
+namespace LightQuery.IntegrationTestsServer
 {
     public class IntegrationTestServer
     {

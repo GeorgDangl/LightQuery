@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace LightQuery.Tests.Integration
+namespace LightQuery.IntegrationTestsServer
 {
     public class LightQueryContext : DbContext
     {

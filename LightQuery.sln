@@ -20,9 +20,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Tests.Integration", "test\LightQuery.Tests.Integration\LightQuery.Tests.Integration.csproj", "{06D38407-1B0F-4D26-81AC-8F099B6C4CCC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightQuery.Client", "src\LightQuery.Client\LightQuery.Client.csproj", "{7B9CDFC9-A89F-4FC4-BE88-65BA56507CA2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightQuery.Client.Tests", "test\LightQuery.Client.Tests\LightQuery.Client.Tests.csproj", "{1DA68F03-5B95-4C1B-B4E9-C1B5CE1DCB9E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Client", "src\LightQuery.Client\LightQuery.Client.csproj", "{7B9CDFC9-A89F-4FC4-BE88-65BA56507CA2}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Client.Tests", "test\LightQuery.Client.Tests\LightQuery.Client.Tests.csproj", "{1DA68F03-5B95-4C1B-B4E9-C1B5CE1DCB9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

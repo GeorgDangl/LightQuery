@@ -1,4 +1,4 @@
-﻿namespace LightQuery.Tests.Integration
+﻿namespace LightQuery.IntegrationTestsServer
 {
     public class User
     {

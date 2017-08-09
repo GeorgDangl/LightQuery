@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using LightQuery.Client;
+using LightQuery.IntegrationTestsServer;
 using Xunit;
 
 namespace LightQuery.Tests.Integration.ControllerTests

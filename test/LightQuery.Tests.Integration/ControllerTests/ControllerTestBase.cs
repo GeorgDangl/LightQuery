@@ -1,5 +1,6 @@
 ﻿using System.Net.Http;
 using System.Threading.Tasks;
+using LightQuery.IntegrationTestsServer;
 using Newtonsoft.Json;
 using Xunit;
 

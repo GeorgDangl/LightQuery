@@ -1,21 +1,20 @@
 ﻿using System;
 using System.Linq;
+using LightQuery.IntegrationTestsServer;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LightQuery.Tests.Integration.Controllers
 {
-    [Route("PaginatedLightQuery")]
-    public class PaginatedLightQueryController : Controller
+    [Route("Values")]
+    public class ValuesController : Controller
     {
-
-        public PaginatedLightQueryController(LightQueryContext context)
+        public ValuesController(LightQueryContext context)
         {
             _context = context;
         }
 
         private readonly LightQueryContext _context;
 
-        [LightQuery(forcePagination: true, defaultPageSize: 3)]
         public IActionResult GetValues()
         {
             var users = _context.Users.OrderBy(u => Guid.NewGuid());

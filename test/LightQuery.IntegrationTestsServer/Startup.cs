@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace LightQuery.Tests.Integration
+namespace LightQuery.IntegrationTestsServer
 {
     public class Startup
     {
