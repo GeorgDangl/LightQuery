@@ -20,6 +20,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Tests.Integration", "test\LightQuery.Tests.Integration\LightQuery.Tests.Integration.csproj", "{06D38407-1B0F-4D26-81AC-8F099B6C4CCC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightQuery.Client", "src\LightQuery.Client\LightQuery.Client.csproj", "{7B9CDFC9-A89F-4FC4-BE88-65BA56507CA2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightQuery.Client.Tests", "test\LightQuery.Client.Tests\LightQuery.Client.Tests.csproj", "{1DA68F03-5B95-4C1B-B4E9-C1B5CE1DCB9E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -38,6 +42,14 @@ Global
 		{06D38407-1B0F-4D26-81AC-8F099B6C4CCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{06D38407-1B0F-4D26-81AC-8F099B6C4CCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{06D38407-1B0F-4D26-81AC-8F099B6C4CCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7B9CDFC9-A89F-4FC4-BE88-65BA56507CA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7B9CDFC9-A89F-4FC4-BE88-65BA56507CA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7B9CDFC9-A89F-4FC4-BE88-65BA56507CA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7B9CDFC9-A89F-4FC4-BE88-65BA56507CA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DA68F03-5B95-4C1B-B4E9-C1B5CE1DCB9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DA68F03-5B95-4C1B-B4E9-C1B5CE1DCB9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DA68F03-5B95-4C1B-B4E9-C1B5CE1DCB9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DA68F03-5B95-4C1B-B4E9-C1B5CE1DCB9E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -46,5 +58,7 @@ Global
 		{33650DEE-5957-45BA-AFE4-2AFEA731DA4D} = {6526DECE-8511-41B3-B5A6-C8170D362611}
 		{CBADC358-8605-4A47-972C-3E180FEF1138} = {7F628AED-CB88-45FF-BF48-8EA02C691700}
 		{06D38407-1B0F-4D26-81AC-8F099B6C4CCC} = {7F628AED-CB88-45FF-BF48-8EA02C691700}
+		{7B9CDFC9-A89F-4FC4-BE88-65BA56507CA2} = {6526DECE-8511-41B3-B5A6-C8170D362611}
+		{1DA68F03-5B95-4C1B-B4E9-C1B5CE1DCB9E} = {7F628AED-CB88-45FF-BF48-8EA02C691700}
 	EndGlobalSection
 EndGlobal

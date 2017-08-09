@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using LightQuery.Client;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -46,7 +47,6 @@ namespace LightQuery
 
         private PaginationResult<object> GetPaginationResult(IQueryable queryable, QueryOptions queryOptions)
         {
-
             return new PaginationResult<object>
             {
                 Page = queryOptions.Page,
