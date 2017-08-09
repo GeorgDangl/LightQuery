@@ -127,7 +127,7 @@ var deserializedResponse = JsonConvert.DeserializeObject<PaginationResult<User>>
 ## Documentation - TypeScript & Angular
 
 There is [an Angular example](AngularExample.ts) that can be used standalone or
-in combination with a [@angular/material](https://github.com/angular/material2) DataTable and it's pagination and sort functionality.
+in combination with a [@angular/material2](https://github.com/angular/material2) DataTable and it's pagination and sort functionality.
 
 **Example with Material 2 DataTable**
 ```html
