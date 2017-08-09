@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using LightQuery.Client;
+using LightQuery.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -8,9 +9,7 @@ namespace LightQuery
 {
     public class LightQueryAttribute :  ActionFilterAttribute
     {
-        public const int DEFAULT_PAGE_SIZE = 50;
-
-        public LightQueryAttribute(bool forcePagination = false, int defaultPageSize = DEFAULT_PAGE_SIZE)
+        public LightQueryAttribute(bool forcePagination = false, int defaultPageSize = QueryParser.DEFAULT_PAGE_SIZE)
         {
             _forcePagination = forcePagination;
             _defaultPageSize = defaultPageSize;
@@ -21,32 +20,21 @@ namespace LightQuery
 
         public override void OnResultExecuting(ResultExecutingContext context)
         {
-            if (context == null)
-            {
-                throw new ArgumentNullException(nameof(context));
-            }
-            var objectResult = context.Result as ObjectResult;
-            var queryable = objectResult?.Value as IQueryable;
-            if (queryable == null)
+            var queryContainer = ContextProcessor.GetQueryContainer(context, _defaultPageSize);
+            if (queryContainer.ObjectResult == null)
             {
                 return;
             }
-            var queryOptions = QueryParser.GetQueryOptions(context.HttpContext.Request.Query, _defaultPageSize);
-            var sortedResult = string.IsNullOrWhiteSpace(queryOptions.SortPropertyName)
-                ? queryable
-                : queryable.ApplySorting(queryOptions);
-            if (_forcePagination || queryOptions.QueryRequestsPagination)
+            if (_forcePagination || queryContainer.QueryOptions.QueryRequestsPagination)
             {
-                objectResult.Value = GetPaginationResult(sortedResult, queryOptions);
-            }
-            else
-            {
-                objectResult.Value = sortedResult;
+                queryContainer.ObjectResult.Value = GetPaginationResult(queryContainer);
             }
         }
 
-        private PaginationResult<object> GetPaginationResult(IQueryable queryable, QueryOptions queryOptions)
+        private PaginationResult<object> GetPaginationResult(QueryContainer queryContainer)
         {
+            var queryOptions = queryContainer.QueryOptions;
+            var queryable = queryContainer.Queryable;
             return new PaginationResult<object>
             {
                 Page = queryOptions.Page,

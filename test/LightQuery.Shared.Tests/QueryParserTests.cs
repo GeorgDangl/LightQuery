@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
 using Xunit;
 
-namespace LightQuery.Tests
+namespace LightQuery.Shared.Tests
 {
     public class QueryParserTests
     {

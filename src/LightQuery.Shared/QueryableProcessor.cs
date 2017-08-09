@@ -3,7 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace LightQuery
+namespace LightQuery.Shared
 {
     public static class QueryableProcessor
     {

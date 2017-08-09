@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
-namespace LightQuery.Tests
+namespace LightQuery.Shared.Tests
 {
     public class QueryableProcessorTests
     {

@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\LightQuery.Client\LightQuery.Client.csproj" />
+    <ProjectReference Include="..\..\src\LightQuery.EntityFrameworkCore\LightQuery.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\LightQuery.IntegrationTestsServer\LightQuery.IntegrationTestsServer.csproj" />
   </ItemGroup>
 

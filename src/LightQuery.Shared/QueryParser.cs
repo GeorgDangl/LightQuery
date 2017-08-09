@@ -2,11 +2,13 @@
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 
-namespace LightQuery
+namespace LightQuery.Shared
 {
     public class QueryParser
     {
-        public static QueryOptions GetQueryOptions(IQueryCollection query, int defaultPageSize = LightQueryAttribute.DEFAULT_PAGE_SIZE)
+        public const int DEFAULT_PAGE_SIZE = 50;
+
+        public static QueryOptions GetQueryOptions(IQueryCollection query, int defaultPageSize = DEFAULT_PAGE_SIZE)
         {
             if (query == null)
             {

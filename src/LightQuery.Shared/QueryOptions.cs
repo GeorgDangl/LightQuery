@@ -1,4 +1,4 @@
-﻿namespace LightQuery
+﻿namespace LightQuery.Shared
 {
     public class QueryOptions
     {

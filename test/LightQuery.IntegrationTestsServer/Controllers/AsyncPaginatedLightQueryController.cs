@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace LightQuery.IntegrationTestsServer.Controllers
 {
-    [Route("PaginatedLightQuery")]
-    public class PaginatedLightQueryController : Controller
+    [Route("AsyncPaginatedLightQuery")]
+    public class AsyncPaginatedLightQueryController : Controller
     {
 
-        public PaginatedLightQueryController(LightQueryContext context)
+        public AsyncPaginatedLightQueryController(LightQueryContext context)
         {
             _context = context;
         }
@@ -18,7 +18,7 @@ namespace LightQuery.IntegrationTestsServer.Controllers
         [LightQuery(forcePagination: true, defaultPageSize: 3)]
         public IActionResult GetValues()
         {
-            var users = _context.Users.OrderBy(u => Guid.NewGuid());
+            var users = Queryable.OrderBy<User, Guid>(_context.Users, u => Guid.NewGuid());
             return Ok(users);
         }
     }

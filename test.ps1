@@ -1,4 +1,4 @@
-$testProjects = "LightQuery.Tests", "LightQuery.Tests.Integration"
+$testProjects = "LightQuery.Client.Tests", "LightQuery.Client.Tests.Integration", "LightQuery.EntityFrameworkCore.Tests", "LightQuery.EntityFrameworkCore.Tests.Integration", "LightQuery.Shared.Tests", "LightQuery.Tests", "LightQuery.Tests.Integration"
 $testFrameworks = "net461", "netcoreapp1.1"
 $testRuns = 1;
 

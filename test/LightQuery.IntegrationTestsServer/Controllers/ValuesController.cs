@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Linq;
-using LightQuery.IntegrationTestsServer;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LightQuery.Tests.Integration.Controllers
+namespace LightQuery.IntegrationTestsServer.Controllers
 {
     [Route("Values")]
     public class ValuesController : Controller

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
-using LightQuery.IntegrationTestsServer;
 using Microsoft.AspNetCore.Mvc;
+using LightQuery;
 
-namespace LightQuery.Tests.Integration.Controllers
+namespace LightQuery.IntegrationTestsServer.Controllers
 {
     [Route("LightQuery")]
     public class LightQueryController : Controller
