@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 
 namespace LightQuery.Shared
 {
-    public class QueryParser
+    public static class QueryParser
     {
         public const int DEFAULT_PAGE_SIZE = 50;
 

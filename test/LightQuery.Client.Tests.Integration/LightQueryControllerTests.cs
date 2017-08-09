@@ -9,11 +9,11 @@ namespace LightQuery.Client.Tests.Integration
     public class LightQueryControllerTests
     {
 
-        private HttpClient _Client = IntegrationTestServer.GetTestServer().CreateClient();
+        private readonly HttpClient _client = IntegrationTestServer.GetTestServer().CreateClient();
 
         private async Task<PaginationResult<T>> GetResponse<T>(string query)
         {
-            var response = await _Client.GetAsync($"LightQuery{query}");
+            var response = await _client.GetAsync($"LightQuery{query}");
             Assert.True(response.IsSuccessStatusCode, "The HttpResponse indicates a non-success status code");
             var responseContent = await response.Content.ReadAsStringAsync();
             var deserializedResponse = JsonConvert.DeserializeObject<PaginationResult<T>>(responseContent);

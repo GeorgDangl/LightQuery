@@ -37,7 +37,7 @@ namespace LightQuery.Shared.Tests
         public void ArgumentNullExceptionOnNullQueryOptions()
         {
             var queryable = new[] {string.Empty}.AsQueryable();
-            Assert.Throws<ArgumentNullException>("queryOptions", () => QueryableProcessor.ApplySorting(queryable, null));
+            Assert.Throws<ArgumentNullException>("queryOptions", () => queryable.ApplySorting(null));
         }
 
         [Fact]

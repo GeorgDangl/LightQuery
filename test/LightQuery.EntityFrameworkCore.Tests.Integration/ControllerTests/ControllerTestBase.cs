@@ -8,11 +8,11 @@ namespace LightQuery.EntityFrameworkCore.Tests.Integration.ControllerTests
 {
     public abstract class ControllerTestBase
     {
-        private HttpClient _Client = IntegrationTestServer.GetTestServer().CreateClient();
+        private readonly HttpClient _client = IntegrationTestServer.GetTestServer().CreateClient();
 
         protected async Task<T> GetResponse<T>(string url)
         {
-            var response = await _Client.GetAsync(url);
+            var response = await _client.GetAsync(url);
             Assert.True(response.IsSuccessStatusCode, "The HttpResponse indicates a non-success status code");
             var responseContent = await response.Content.ReadAsStringAsync();
             var deserializedResponse = JsonConvert.DeserializeObject<T>(responseContent);

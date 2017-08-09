@@ -18,7 +18,7 @@ namespace LightQuery.IntegrationTestsServer.Controllers
         [LightQuery(forcePagination: true, defaultPageSize: 3)]
         public IActionResult GetValues()
         {
-            var users = Queryable.OrderBy<User, Guid>(_context.Users, u => Guid.NewGuid());
+            var users = _context.Users.OrderBy(u => Guid.NewGuid());
             return Ok(users);
         }
     }
