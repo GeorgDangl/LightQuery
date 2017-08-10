@@ -27,7 +27,7 @@ Includes support for EntityFramework.Core async query materialization
 
 > Includes LightQuery models and the QueryBuilder utility
 
-Both **NETStandard 1.6** and **.Net 4.6.1** and above are supported.
+Both **NETStandard 1.6** and **.Net 4.6.1** are supported.
 
 ## Documentation - Server
 
@@ -36,8 +36,8 @@ See below how to apply sorting & filtering to your API controllers. At a glance:
 * Return an `ObjectResult` from your controller with an `IQueryable` value
 * Use `sort` to sort, `page` & `pageSize` for pagination in your requests
 
-You can find a demo at _test/LightQuery.Tests.Integration_ for an example of using this in an Asp.Net Core MVC application
-for sorting an filtering.
+You can find a demo in the integration test projects for an example of using this in an Asp.Net Core MVC application
+for sorting and filtering.
 
 ### Sorting
 
@@ -66,11 +66,11 @@ and it will simply be ignored.
 Example:
 `http://your.api.com/values?sort=email desc`
 
-This will sort the result by it's `Email` property (note that is has been title-cased) in `descending` order.
+This will sort the result by its `Email` property (note that is has been title-cased) in `descending` order.
 
 ### Pagination & Sorting
 
-Paging is **active when the request includes pagination query parameters** or via explicitly setting the `forcePaginiation`
+Paging is **active when the request includes pagination query parameters** or via explicitly setting the `forcePagination`
 parameter to true in the attributes' constructor. Sorting works in combination with paging.
 
 ```csharp
@@ -108,7 +108,7 @@ Example:
 ### Async Materialization
 
 The `LightQuery.EntityFrameworkCore` package provides an `AsyncLightQueryAttribute`. This can be used
-for datasources that support async materialization of queries, e.g. `var result = await context.Users.ToListAsync()`.
+for data sources that support async materialization of queries, e.g. `var result = await context.Users.ToListAsync()`.
 
 ## Documentation - C# Client
 
@@ -127,7 +127,7 @@ var deserializedResponse = JsonConvert.DeserializeObject<PaginationResult<User>>
 ## Documentation - TypeScript & Angular
 
 There is [an Angular example](AngularExample.ts) that can be used standalone or
-in combination with a [@angular/material2](https://github.com/angular/material2) DataTable and it's pagination and sort functionality.
+in combination with a [@angular/material2](https://github.com/angular/material2) DataTable and its pagination and sort functionality.
 
 **Example with Material 2 DataTable**
 ```html
