@@ -66,7 +66,7 @@ and it will simply be ignored.
 Example:
 `http://your.api.com/values?sort=email desc`
 
-This will sort the result by its `Email` property (note that is has been title-cased) in `descending` order.
+This will sort the result by its `Email` property (it is title-cased if no `email` property is found) in `descending` order.
 
 ### Pagination & Sorting
 

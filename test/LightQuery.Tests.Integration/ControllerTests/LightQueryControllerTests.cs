@@ -32,6 +32,18 @@ namespace LightQuery.Tests.Integration.ControllerTests
         }
 
         [Fact]
+        public async Task SortByIdWithCamelCase()
+        {
+            var url = "LightQuery?sort=Id";
+            var actualResponse = await GetResponse<List<User>>(url);
+            for (var i = 1; i < actualResponse.Count; i++)
+            {
+                var previousValueIsSmaller = actualResponse[i].Id > actualResponse[i - 1].Id;
+                Assert.True(previousValueIsSmaller);
+            }
+        }
+
+        [Fact]
         public async Task SortByIdDescending()
         {
             var url = "LightQuery?sort=id desc";
@@ -56,9 +68,33 @@ namespace LightQuery.Tests.Integration.ControllerTests
         }
 
         [Fact]
+        public async Task SortByUserNameWithCamelCase()
+        {
+            var url = "LightQuery?sort=UserName";
+            var actualResponse = await GetResponse<List<User>>(url);
+            for (var i = 1; i < actualResponse.Count; i++)
+            {
+                var previousValueIsSmaller = actualResponse[i].UserName.CompareTo(actualResponse[i - 1].UserName) > 0;
+                Assert.True(previousValueIsSmaller);
+            }
+        }
+
+        [Fact]
         public async Task SortByUserNameDescending()
         {
             var url = "LightQuery?sort=userName desc";
+            var actualResponse = await GetResponse<List<User>>(url);
+            for (var i = 1; i < actualResponse.Count; i++)
+            {
+                var previousValueIsSmaller = actualResponse[i].UserName.CompareTo(actualResponse[i - 1].UserName) > 0;
+                Assert.False(previousValueIsSmaller);
+            }
+        }
+
+        [Fact]
+        public async Task SortByUserNameDescendingWithCamelCase()
+        {
+            var url = "LightQuery?sort=UserName desc";
             var actualResponse = await GetResponse<List<User>>(url);
             for (var i = 1; i < actualResponse.Count; i++)
             {

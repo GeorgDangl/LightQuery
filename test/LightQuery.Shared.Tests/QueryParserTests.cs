@@ -58,22 +58,24 @@ namespace LightQuery.Shared.Tests
         }
 
         [Fact]
-        public void CamelizeSortPropertyName()
+        public void DoNotCamelizeSortPropertyName()
         {
+            // Camelization is done when the query is applied, not when the options are parsed
             var propertyName = "email";
             _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "sort", new Microsoft.Extensions.Primitives.StringValues(propertyName) } });
             ParseQuery();
-            var expectedPropertyName = "Email";
+            var expectedPropertyName = "email";
             Assert.Equal(expectedPropertyName, _result.SortPropertyName);
         }
 
         [Fact]
-        public void CamelizeLongerSortPropertyName()
+        public void DoNotCamelizeLongerSortPropertyName()
         {
+            // Camelization is done when the query is applied, not when the options are parsed
             var propertyName = "userName";
             _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "sort", new Microsoft.Extensions.Primitives.StringValues(propertyName) } });
             ParseQuery();
-            var expectedPropertyName = "UserName";
+            var expectedPropertyName = "userName";
             Assert.Equal(expectedPropertyName, _result.SortPropertyName);
         }
 

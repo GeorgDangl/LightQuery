@@ -6,13 +6,13 @@ using Xunit;
 
 namespace LightQuery.Client.Tests.Integration
 {
-    public class LightQueryControllerTests
+    public class AsyncLightQueryControllerTests
     {
         private readonly HttpClient _client = IntegrationTestServer.GetTestServer().CreateClient();
 
         private async Task<PaginationResult<T>> GetResponse<T>(string query)
         {
-            var response = await _client.GetAsync($"LightQuery{query}");
+            var response = await _client.GetAsync($"AsyncLightQuery{query}");
             Assert.True(response.IsSuccessStatusCode, "The HttpResponse indicates a non-success status code");
             var responseContent = await response.Content.ReadAsStringAsync();
             var deserializedResponse = JsonConvert.DeserializeObject<PaginationResult<T>>(responseContent);
@@ -98,35 +98,9 @@ namespace LightQuery.Client.Tests.Integration
         }
 
         [Fact]
-        public async Task SortByEmailWithPascalCase()
-        {
-            var query = QueryBuilder.Build(sortParam: "Email");
-            var actualResponse = await GetResponse<User>(query);
-            Assert.NotNull(actualResponse);
-            for (var i = 1; i < actualResponse.Data.Count; i++)
-            {
-                var previousValueIsSmaller = actualResponse.Data[i].Email.CompareTo(actualResponse.Data[i - 1].Email) > 0;
-                Assert.True(previousValueIsSmaller);
-            }
-        }
-
-        [Fact]
         public async Task SortByEmailDescending()
         {
             var query = QueryBuilder.Build(sortParam: "email", sortDescending: true);
-            var actualResponse = await GetResponse<User>(query);
-            Assert.NotNull(actualResponse);
-            for (var i = 1; i < actualResponse.Data.Count; i++)
-            {
-                var previousValueIsSmaller = actualResponse.Data[i].Email.CompareTo(actualResponse.Data[i - 1].Email) > 0;
-                Assert.False(previousValueIsSmaller);
-            }
-        }
-
-        [Fact]
-        public async Task SortByEmailDescendingWithPascalCase()
-        {
-            var query = QueryBuilder.Build(sortParam: "Email", sortDescending: true);
             var actualResponse = await GetResponse<User>(query);
             Assert.NotNull(actualResponse);
             for (var i = 1; i < actualResponse.Data.Count; i++)

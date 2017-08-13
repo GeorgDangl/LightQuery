@@ -33,16 +33,11 @@ namespace LightQuery.Shared
                 // Invalid format -> Return no decision instead of a wrong one
                 return;
             }
-            queryOptions.SortPropertyName = CamelizeString(paramSections[0]);
+            queryOptions.SortPropertyName = paramSections[0];
             if (paramSections.Count == 2)
             {
                 queryOptions.IsDescending = IsDescendingSortParameter(paramSections[1]);
             }
-        }
-
-        private static string CamelizeString(string camelCase)
-        {
-            return camelCase.Substring(0, 1).ToUpperInvariant() + camelCase.Substring(1);
         }
 
         private static bool IsDescendingSortParameter(string sortIndicator)

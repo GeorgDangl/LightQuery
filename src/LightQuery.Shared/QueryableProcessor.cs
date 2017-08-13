@@ -21,7 +21,8 @@ namespace LightQuery.Shared
             {
                 return queryable;
             }
-            var orderingProperty = queryable.ElementType.GetTypeInfo().GetProperty(queryOptions.SortPropertyName);
+            var orderingProperty = queryable.ElementType.GetTypeInfo().GetProperty(CamelizeString(queryOptions.SortPropertyName))
+                                   ?? queryable.ElementType.GetTypeInfo().GetProperty(queryOptions.SortPropertyName);
             if (orderingProperty == null)
             {
                 return queryable;
@@ -33,6 +34,11 @@ namespace LightQuery.Shared
             var wrappedExpression = Expression.Call(typeof(Queryable), orderMethodName, new [] { queryable.ElementType, orderingProperty.PropertyType }, queryable.Expression, Expression.Quote(orderByExp));
             var result = queryable.Provider.CreateQuery(wrappedExpression);
             return result;
+        }
+
+        private static string CamelizeString(string camelCase)
+        {
+            return camelCase.Substring(0, 1).ToUpperInvariant() + camelCase.Substring(1);
         }
     }
 }

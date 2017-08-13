@@ -17,11 +17,12 @@ namespace LightQuery.Shared.Tests
         {
             return new[]
                 {
+                    new User {UserName = "Joe", Email = "Joe@example.com"},
                     new User {UserName = "Alice", Email = "BettyAlice@example.com"},
                     new User {UserName = "Hank", Email = "Arthur.Hank@example.com"},
-                    new User {UserName = "Zack", Email = "Zack@example.com"}
+                    new User {UserName = "Zack", Email = "Zack@example.com"},
+                    new User {UserName = "Dan", Email = "Hammerdan@example.com"}
                 }
-                .OrderBy(u => Guid.NewGuid()) // Get a bit of test randomization
                 .ToList()
                 .AsQueryable();
         }
@@ -89,6 +90,62 @@ namespace LightQuery.Shared.Tests
             var queryOptions = new QueryOptions
             {
                 SortPropertyName = "Email",
+                IsDescending = true
+            };
+            var actual = users.ApplySorting(queryOptions).Cast<User>();
+            Assert.Equal("Zack@example.com", actual.First().Email);
+            Assert.Equal("Arthur.Hank@example.com", actual.Last().Email);
+        }
+
+        [Fact]
+        public void ApplySortByUsernameAscendingWithCamelCase()
+        {
+            var users = GetUsers();
+            var queryOptions = new QueryOptions
+            {
+                SortPropertyName = "userName",
+                IsDescending = false
+            };
+            var actual = users.ApplySorting(queryOptions).Cast<User>();
+            Assert.Equal("Alice", actual.First().UserName);
+            Assert.Equal("Zack", actual.Last().UserName);
+        }
+
+        [Fact]
+        public void ApplySortByUsernameDescendingWithCamelCase()
+        {
+            var users = GetUsers();
+            var queryOptions = new QueryOptions
+            {
+                SortPropertyName = "userName",
+                IsDescending = true
+            };
+            var actual = users.ApplySorting(queryOptions).Cast<User>();
+            Assert.Equal("Zack", actual.First().UserName);
+            Assert.Equal("Alice", actual.Last().UserName);
+        }
+
+        [Fact]
+        public void ApplySortByEmailAscendingWithCamelCase()
+        {
+            var users = GetUsers();
+            var queryOptions = new QueryOptions
+            {
+                SortPropertyName = "email",
+                IsDescending = false
+            };
+            var actual = users.ApplySorting(queryOptions).Cast<User>();
+            Assert.Equal("Arthur.Hank@example.com", actual.First().Email);
+            Assert.Equal("Zack@example.com", actual.Last().Email);
+        }
+
+        [Fact]
+        public void ApplySortByEmailDescendingWithCamelCase()
+        {
+            var users = GetUsers();
+            var queryOptions = new QueryOptions
+            {
+                SortPropertyName = "email",
                 IsDescending = true
             };
             var actual = users.ApplySorting(queryOptions).Cast<User>();
