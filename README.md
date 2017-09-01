@@ -12,8 +12,12 @@ It supports EntityFrameworkCores async query materialization with the optional `
 
 ## Installation
 [![NuGet](https://img.shields.io/nuget/v/LightQuery.svg)](https://www.nuget.org/packages/LightQuery)
+[![MyGet](https://img.shields.io/myget/dangl/v/LightQuery.svg)]()
 
 [The package is available on nuget](https://www.nuget.org/packages/LightQuery).
+[Daily builds are on myget](https://www.myget.org/feed/dangl/package/nuget/LightQuery).
+
+MyGet feed: `https://www.myget.org/F/dangl/api/v3/index.json`
 
 >PM> **Install-Package LightQuery**
 
