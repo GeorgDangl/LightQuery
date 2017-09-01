@@ -16,7 +16,8 @@
       1.0.2: Initial Release. Version number is aligned with LightQuery package
     </PackageReleaseNotes>
     <PackageIconUrl>https://blog.dangl.me/media/1114/gd_icon_256.png</PackageIconUrl>
-    <Version>1.0.2</Version>
+    <VersionPrefix>1.0.3</VersionPrefix>
+    <VersionSuffix Condition=" '$(GIT_BRANCH)' == 'origin/dev'">build-$(BUILD_NUMBER)</VersionSuffix>
   </PropertyGroup>
 
 </Project>
