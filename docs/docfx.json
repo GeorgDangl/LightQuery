@@ -76,7 +76,8 @@
       "_appFooter":"&copy; <a href=\"https://www.dangl-it.com\" target=\"_blank\">Dangl IT - Georg Dangl</a>",
       "_appLogoPath":"app-logo.png",
       "_appFaviconPath":"app-logo.png",
-      "_enableSearch":true
+      "_enableSearch":true,
+      "_gitUrlPattern": "github"
     },
     "dest":"../generated_docs"
   }
