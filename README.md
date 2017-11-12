@@ -29,7 +29,7 @@ Includes support for EntityFramework.Core async query materialization
 
 >PM> **Install-Package LightQuery.Client**
 
-> Includes LightQuery models and the QueryBuilder utility
+Includes LightQuery models and the QueryBuilder utility
 
 Both **NETStandard 1.6** and **.Net 4.6.1** are supported.
 
