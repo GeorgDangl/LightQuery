@@ -17,7 +17,7 @@ $docsFolder = "$PSScriptRoot/generated_docs"
 
 Get-ChildItem -Path "$docsFolder" -Filter "*.html" -Recurse |
     Foreach-Object {
-		(Get-Content $_.FullName).replace('blob/origin/', 'blob/') | Set-Content $_.FullName
+		(Get-Content $_.FullName).replace("blob/$env:GIT_BRANCH", "blob/$env:GIT_COMMIT") | Set-Content $_.FullName
 	}
 
 # Getting version number from NuGet package
