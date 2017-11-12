@@ -1,12 +1,12 @@
 - name: Home
   href: index.md
-- name: Documentation
+- name: API Documentation
   href: lightquery/
-- name: Client Documentation
+- name: Client
   href: client/
-- name: Entity Framework Core Documentation
+- name: EF Core
   href: efcore/
-- name: Shared Documentation
+- name: Shared
   href: shared/
 - name: DanglDocu
   href: https://docs.dangl-it.com
