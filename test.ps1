@@ -1,5 +1,5 @@
 $testProjects = "LightQuery.Client.Tests", "LightQuery.Client.Tests.Integration", "LightQuery.EntityFrameworkCore.Tests", "LightQuery.EntityFrameworkCore.Tests.Integration", "LightQuery.Shared.Tests", "LightQuery.Tests", "LightQuery.Tests.Integration"
-$testFrameworks = "net461", "netcoreapp1.1"
+$testFrameworks = "net461", "netcoreapp1.1", "netcoreapp2.0"
 $testRuns = 1;
 
 & dotnet restore
