@@ -608,7 +608,7 @@ namespace LightQuery.Client.Tests
             [Fact]
             public void ArgumentExceptionForNonPropertyAccessorForSortPropertyViaExpression()
             {
-                Assert.Throws<ArgumentException>("sortProperty", () => _service.SetSortProperty(x => x.GetType()));
+                Assert.Throws<ArgumentException>("property", () => _service.SetSortProperty(x => x.GetType()));
             }
 
             [Fact]

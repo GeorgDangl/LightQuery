@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Net.Http;
 using System.Reactive.Linq;
@@ -17,12 +16,22 @@ namespace LightQuery.Client
     {
         private readonly string _baseUrl;
         private readonly Func<string, Task<HttpResponseMessage>> _getHttpAsync;
+        private int _page = 1;
+        private int _pageSize = 20;
+        private string _sortProperty;
+        private bool _sortDescending;
+        private readonly Dictionary<string, string> _additionalQueryParameters = new Dictionary<string, string>();
+        private readonly BehaviorSubject<string> _requestUrl = new BehaviorSubject<string>(null);
+        private readonly ReplaySubject<PaginationResult<T>> _paginationResultSource = new ReplaySubject<PaginationResult<T>>(1);
+        private readonly BehaviorSubject<bool> _requestRunningSource = new BehaviorSubject<bool>(false);
+        private readonly Subject<string> _forceRefreshSource = new Subject<string>();
+        private IDisposable _querySubscription;
         
         public PaginationBaseService(string baseUrl, Func<string, Task<HttpResponseMessage>> getHttpAsync, DefaultPaginationOptions options = null)
         {
             _baseUrl = baseUrl ?? string.Empty;
             _getHttpAsync = getHttpAsync ?? throw new ArgumentNullException(nameof(getHttpAsync));
-            
+
             PaginationResult = _paginationResultSource.AsObservable();
             RequestRunning = _requestRunningSource.AsObservable();
 
@@ -64,22 +73,42 @@ namespace LightQuery.Client
                 });
             BuildUrl();
         }
-        private int _page = 1;
-        private int _pageSize = 20;
-        private string _sortProperty;
-        private bool _sortDescending;
-        private readonly Dictionary<string, string> _additionalQueryParameters = new Dictionary<string, string>();
-        private readonly Subject<string> _requestUrl = new Subject<string>();
-        private readonly ReplaySubject<PaginationResult<T>> _paginationResultSource = new ReplaySubject<PaginationResult<T>>(1);
-        public IObservable<PaginationResult<T>> PaginationResult { get; }
-        private BehaviorSubject<bool> _requestRunningSource = new BehaviorSubject<bool>(false);
-        public IObservable<bool> RequestRunning { get; }
-        private Subject<string> _forceRefreshSource = new Subject<string>();
 
-        private IDisposable _querySubscription;
-
+        public event PropertyChangedEventHandler PropertyChanged;
         public string BaseUrl => _baseUrl;
+        public IObservable<PaginationResult<T>> PaginationResult { get; }
+        public IObservable<bool> RequestRunning { get; }
+
+        public int Page
+        {
+            get => _page;
+            set => SetProperty(ref _page, value < 1 ? 1 : value);
+        }
+
+        public int PageSize
+        {
+            get => _pageSize;
+            set => SetProperty(ref _pageSize, value < 1 ? 1 : value);
+        }
+
+        public string SortProperty => _sortProperty;
         
+        public bool SortDescending
+        {
+            get => _sortDescending;
+            set => SetProperty(ref _sortDescending, value);
+        }
+
+        private void SetProperty<TProperty>(ref TProperty storage, TProperty value, [CallerMemberName] string propertyName = null)
+        {
+            if (!Equals(value, storage))
+            {
+                storage = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+                BuildUrl();
+            }
+        }
+
         private async Task<PaginationResult<T>> DeserializeResponse(HttpResponseMessage response)
         {
             if (response?.Content == null || !response.IsSuccessStatusCode)
@@ -124,64 +153,16 @@ namespace LightQuery.Client
             Page = lastPageWithItems;
         }
 
-        public int Page
-        {
-            get
-            {
-                return _page;
-            }
-            set
-            {
-                if (_page != value)
-                {
-                    _page = value < 1 ? 1 : value;
-                    OnPropertyChanged();
-                    BuildUrl();
-                }
-            }
-        }
-
-        public int PageSize
-        {
-            get
-            {
-                return _pageSize;
-            }
-            set
-            {
-                if (_pageSize != value)
-                {
-                    _pageSize = value < 1 ? 1 : value;
-                    OnPropertyChanged();
-                    BuildUrl();
-                }
-            }
-        }
-
-        public string SortProperty
-        {
-            get
-            {
-                return _sortProperty;
-            }
-        }
-
         public void SetSortProperty(string propertyName)
         {
-            var previousSortProperty = _sortProperty;
             if (propertyName == null)
             {
-                _sortProperty = null;
+                SetProperty(ref _sortProperty, null, nameof(SortProperty));
             }
             else
             {
                 CheckSortPropertyValidity(propertyName);
-                _sortProperty = propertyName;
-            }
-            if (_sortProperty != previousSortProperty)
-            {
-                OnPropertyChanged(nameof(SortProperty));
-                BuildUrl();
+                SetProperty(ref _sortProperty, propertyName, nameof(SortProperty));
             }
         }
 
@@ -193,55 +174,18 @@ namespace LightQuery.Client
             }
             else
             {
-                var parameterName = string.Empty;
-                var expressionBody = sortProperty.Body;
-                if (expressionBody is MemberExpression memberExpression)
-                {
-                    parameterName = memberExpression.Member.Name;
-                }
-                if (expressionBody is UnaryExpression unaryExpression && unaryExpression.Operand is MemberExpression unaryMemberExpression)
-                {
-                    parameterName = unaryMemberExpression.Member.Name;
-                }
-                if (string.IsNullOrWhiteSpace(parameterName))
-                {
-                    var typeName = typeof(T).GetTypeInfo().Name;
-                    throw new ArgumentException($"The expression must be a property accessor on {typeName}, e.g. \"t => t.Property\"", nameof(sortProperty));
-                }
+                var parameterName = ExpressionPropertyAccessor.GetPropertyNameFromExpression(sortProperty);
                 SetSortProperty(parameterName);
             }
         }
 
         private void CheckSortPropertyValidity(string propertyName)
         {
-            var propertyExistsOnType = PropertyExistsOnType(propertyName);
+            var propertyExistsOnType = ExpressionPropertyAccessor.PropertyExistsOnType<T>(propertyName);
             if (!propertyExistsOnType)
             {
                 var typeName = typeof(T).GetTypeInfo().Name;
                 throw new ArgumentException($"The property \"{propertyName}\" does not exist on type {typeName}", nameof(propertyName));
-            }
-        }
-
-        private static bool PropertyExistsOnType(string parameterName)
-        {
-            var propertyExists = typeof(T).GetTypeInfo().DeclaredProperties.Any(p => p.Name == parameterName);
-            return propertyExists;
-        }
-
-        public bool SortDescending
-        {
-            get
-            {
-                return _sortDescending;
-            }
-            set
-            {
-                if (_sortDescending != value)
-                {
-                    _sortDescending = value;
-                    OnPropertyChanged();
-                    BuildUrl();
-                }
             }
         }
 
@@ -269,13 +213,6 @@ namespace LightQuery.Client
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         private void BuildUrl()
         {
             var query = QueryBuilder.Build(Page, PageSize, SortProperty, SortDescending, _additionalQueryParameters);
@@ -285,9 +222,8 @@ namespace LightQuery.Client
 
         public void ForceRefresh()
         {
-            var query = QueryBuilder.Build(Page, PageSize, SortProperty, SortDescending, _additionalQueryParameters);
-            var url = $"{_baseUrl}{query}";
-            _forceRefreshSource.OnNext(url);
+            var lastUrl = _requestUrl.Value;
+            _forceRefreshSource.OnNext(lastUrl);
         }
     }
 }
