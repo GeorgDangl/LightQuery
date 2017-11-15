@@ -47,6 +47,14 @@ namespace LightQuery.Client.Tests
         }
 
         [Fact]
+        public void OmitsEmptySortParam()
+        {
+            var expectedQueryString = "?page=1&pageSize=20";
+            var actualQueryString = QueryBuilder.Build(sortParam: string.Empty);
+            Assert.Equal(expectedQueryString, actualQueryString);
+        }
+
+        [Fact]
         public void AddsSortDescendingParameter()
         {
             var expectedQueryString = "?page=1&pageSize=20&sort=username%20desc";

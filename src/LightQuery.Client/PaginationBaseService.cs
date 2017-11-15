@@ -41,7 +41,6 @@ namespace LightQuery.Client
                     try
                     {
                         _requestRunningSource.OnNext(true);
-                        url = "https://budgeteria.dangl.me" + url;
                         return await _getHttpAsync(url);
                     }
                     catch
@@ -57,7 +56,7 @@ namespace LightQuery.Client
                 })
                 .Subscribe(paginationResult =>
                 {
-                    if (paginationResult != null)
+                    if (paginationResult?.Data != null)
                     {
                         CheckPaginationResponseIfPageOutOfRange(paginationResult);
                         _paginationResultSource.OnNext(paginationResult);
@@ -83,13 +82,20 @@ namespace LightQuery.Client
         
         private async Task<PaginationResult<T>> DeserializeResponse(HttpResponseMessage response)
         {
-            if (response?.Content == null)
+            if (response?.Content == null || !response.IsSuccessStatusCode)
             {
                 return null;
             }
             var responseContent = await response.Content.ReadAsStringAsync();
-            var deserializedResponse = JsonConvert.DeserializeObject<PaginationResult<T>>(responseContent);
-            return deserializedResponse;
+            try
+            {
+                var deserializedResponse = JsonConvert.DeserializeObject<PaginationResult<T>>(responseContent);
+                return deserializedResponse;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private void CheckPaginationResponseIfPageOutOfRange(PaginationResult<T> paginationResult)
@@ -110,7 +116,11 @@ namespace LightQuery.Client
             {
                 return;
             }
-            var lastPageWithItems = paginationResult.TotalCount / paginationResult.PageSize + 1;
+            var lastPageWithItems = paginationResult.TotalCount / paginationResult.PageSize;
+            if (paginationResult.TotalCount % paginationResult.PageSize != 0)
+            {
+                lastPageWithItems++;
+            }
             Page = lastPageWithItems;
         }
 
@@ -124,7 +134,7 @@ namespace LightQuery.Client
             {
                 if (_page != value)
                 {
-                    _page = value;
+                    _page = value < 1 ? 1 : value;
                     OnPropertyChanged();
                     BuildUrl();
                 }
@@ -141,7 +151,7 @@ namespace LightQuery.Client
             {
                 if (_pageSize != value)
                 {
-                    _pageSize = value;
+                    _pageSize = value < 1 ? 1 : value;
                     OnPropertyChanged();
                     BuildUrl();
                 }
@@ -158,7 +168,6 @@ namespace LightQuery.Client
 
         public void SetSortProperty(string propertyName)
         {
-            CheckSortPropertyValidity(propertyName);
             var previousSortProperty = _sortProperty;
             if (propertyName == null)
             {
@@ -166,6 +175,7 @@ namespace LightQuery.Client
             }
             else
             {
+                CheckSortPropertyValidity(propertyName);
                 _sortProperty = propertyName;
             }
             if (_sortProperty != previousSortProperty)
