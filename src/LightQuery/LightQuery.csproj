@@ -25,11 +25,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LightQuery.Client" Version="1.0.2" />
-    <PackageReference Include="LightQuery.Shared" Version="1.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\LightQuery.Client\LightQuery.Client.csproj" />
     <ProjectReference Include="..\LightQuery.Shared\LightQuery.Shared.csproj" />
   </ItemGroup>
