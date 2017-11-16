@@ -13,10 +13,11 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Asp-Net-Core Querying Sorting Filtering</PackageTags>
     <PackageReleaseNotes>
+      1.1.0: Client now contains a PaginationBaseService
       1.0.2: Initial Release. Version number is aligned with LightQuery package
     </PackageReleaseNotes>
     <PackageIconUrl>https://blog.dangl.me/media/1114/gd_icon_256.png</PackageIconUrl>
-    <VersionPrefix>1.0.3</VersionPrefix>
+    <VersionPrefix>1.1.0</VersionPrefix>
     <VersionSuffix Condition=" '$(GIT_BRANCH)' == 'origin/dev'">build-$(BUILD_NUMBER)</VersionSuffix>
   </PropertyGroup>
 

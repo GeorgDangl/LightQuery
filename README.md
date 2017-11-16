@@ -12,6 +12,10 @@ only need the most basic of operations. It's also for everyone tired of writing 
 
 It supports EntityFrameworkCores async query materialization with the optional `LightQuery.EntityFrameworkCore` package.
 
+[![npm](https://img.shields.io/npm/v/npm.svg)]()
+
+In addition to the C# client, there's also a client for Angular 5+ on npm: `ng-lightquery`
+
 ## Installation
 [![NuGet](https://img.shields.io/nuget/v/LightQuery.svg)](https://www.nuget.org/packages/LightQuery)
 [![MyGet](https://img.shields.io/myget/dangl/v/LightQuery.svg)]()
