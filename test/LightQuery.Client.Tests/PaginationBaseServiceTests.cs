@@ -118,6 +118,47 @@ namespace LightQuery.Client.Tests
             }
         }
 
+        public class RequestRunningNotifications
+        {
+            private readonly MockPaginationService _service;
+            private readonly List<bool> _isRunningEvents = new List<bool>();
+
+            public RequestRunningNotifications()
+            {
+                _service = new MockPaginationService(string.Empty, x => Task.FromResult(new HttpResponseMessage()));
+                _service.RequestRunning.Subscribe(isRunning => _isRunningEvents.Add(isRunning));
+            }
+
+            [Fact]
+            public void HasOneInitialEventWhichIsFalse()
+            {
+                Assert.Single(_isRunningEvents);
+                Assert.False(_isRunningEvents.First());
+            }
+
+            [Fact]
+            public void RaisesIsRunningAndReleasesOnForceRefresh()
+            {
+                _isRunningEvents.Clear();
+                Assert.Empty(_isRunningEvents);
+                _service.ForceRefresh();
+                Assert.Equal(2, _isRunningEvents.Count);
+                Assert.True(_isRunningEvents[0]); // First notification about is running
+                Assert.False(_isRunningEvents[1]); // Second to indicate request is finished
+            }
+
+            [Fact]
+            public void RaisesIsRunningAndReleasesOnUrlChange()
+            {
+                _isRunningEvents.Clear();
+                Assert.Empty(_isRunningEvents);
+                _service.Page++;
+                Assert.Equal(2, _isRunningEvents.Count);
+                Assert.True(_isRunningEvents[0]); // First notification about is running
+                Assert.False(_isRunningEvents[1]); // Second to indicate request is finished
+            }
+        }
+
         public class Disposable
         {
             private readonly MockPaginationService _service;
