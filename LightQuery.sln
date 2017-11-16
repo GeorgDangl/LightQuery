@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.27004.2006
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery", "src\LightQuery\LightQuery.csproj", "{33650DEE-5957-45BA-AFE4-2AFEA731DA4D}"
 EndProject
@@ -14,6 +14,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A2148043-F19B-41D9-8049-C2B9A0DFABD2}"
 	ProjectSection(SolutionItems) = preProject
 		AngularExample.ts = AngularExample.ts
+		AppendxUnitFramework.ps1 = AppendxUnitFramework.ps1
+		GenerateAndDeployDocs.ps1 = GenerateAndDeployDocs.ps1
 		LICENSE.md = LICENSE.md
 		README.md = README.md
 		test.ps1 = test.ps1
@@ -110,5 +112,8 @@ Global
 		{8CCD27FA-22E5-41FA-A796-44290D427ED9} = {7F628AED-CB88-45FF-BF48-8EA02C691700}
 		{B2D54A8A-30DD-489C-847D-9347E4F7D436} = {6526DECE-8511-41B3-B5A6-C8170D362611}
 		{38C64E1E-28CD-46D9-A4B2-D2E59683F8C0} = {7F628AED-CB88-45FF-BF48-8EA02C691700}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A225AC12-BAEB-44E1-8A7E-CE6E82AF1756}
 	EndGlobalSection
 EndGlobal

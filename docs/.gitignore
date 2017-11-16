@@ -1,0 +1,9 @@
+api/**/*
+obj/**/*
+lightquery**/*
+client**/*
+models**/*
+shared**/*
+efcore**/*
+LICENSE.md
+AngularExample.ts

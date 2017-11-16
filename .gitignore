@@ -261,3 +261,9 @@ __pycache__/
 *.pyc
 
 *.testresults
+
+generated_docs/**/*
+docs.zip
+
+docs/docfx.console.**/*
+docs/index.md

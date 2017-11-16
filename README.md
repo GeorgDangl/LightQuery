@@ -1,6 +1,8 @@
 # LightQuery
 [![Build Status](https://jenkins.dangl.me/buildStatus/icon?job=LightQuery.Tests)](https://jenkins.dangl.me/job/LightQuery.Tests)
 
+[Online Documentation](https://docs.dangl-it.com/Projects/LightQuery)
+
 This project aims to provide a lightweight `ActionFilterAttribute`
 that takes care of sorting and paginating Asp.Net Core API results.
 
@@ -10,10 +12,18 @@ only need the most basic of operations. It's also for everyone tired of writing 
 
 It supports EntityFrameworkCores async query materialization with the optional `LightQuery.EntityFrameworkCore` package.
 
+[![npm](https://img.shields.io/npm/v/npm.svg)]()
+
+In addition to the C# client, there's also a client for Angular 5+ on npm: `ng-lightquery`
+
 ## Installation
 [![NuGet](https://img.shields.io/nuget/v/LightQuery.svg)](https://www.nuget.org/packages/LightQuery)
+[![MyGet](https://img.shields.io/myget/dangl/v/LightQuery.svg)]()
 
 [The package is available on nuget](https://www.nuget.org/packages/LightQuery).
+[Daily builds are on myget](https://www.myget.org/feed/dangl/package/nuget/LightQuery).
+
+MyGet feed: `https://www.myget.org/F/dangl/api/v3/index.json`
 
 >PM> **Install-Package LightQuery**
 
@@ -25,7 +35,7 @@ Includes support for EntityFramework.Core async query materialization
 
 >PM> **Install-Package LightQuery.Client**
 
-> Includes LightQuery models and the QueryBuilder utility
+Includes LightQuery models and the QueryBuilder utility
 
 Both **NETStandard 1.6** and **.Net 4.6.1** are supported.
 
@@ -123,6 +133,11 @@ var response = await _client.GetAsync(url);
 var responseContent = await response.Content.ReadAsStringAsync();
 var deserializedResponse = JsonConvert.DeserializeObject<PaginationResult<User>>(responseContent);
 ```
+
+### PaginationBaseService
+
+The `LightQuery.Client` package contains an abstract class `PaginationBaseService<T>` that can be used in reactive clients. It is similar in functionality
+to the TypeScript client.
 
 ## Documentation - TypeScript & Angular
 
