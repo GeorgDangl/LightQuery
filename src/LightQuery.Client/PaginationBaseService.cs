@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 
 namespace LightQuery.Client
 {
-    public class PaginationBaseService<T> : INotifyPropertyChanged
+    public class PaginationBaseService<T> : INotifyPropertyChanged, IDisposable
     {
         private readonly string _baseUrl;
         private readonly Func<string, Task<HttpResponseMessage>> _getHttpAsync;
@@ -97,6 +97,11 @@ namespace LightQuery.Client
         {
             get => _sortDescending;
             set => SetProperty(ref _sortDescending, value);
+        }
+
+        public void Dispose()
+        {
+            _querySubscription.Dispose();
         }
 
         private void SetProperty<TProperty>(ref TProperty storage, TProperty value, [CallerMemberName] string propertyName = null)

@@ -118,6 +118,45 @@ namespace LightQuery.Client.Tests
             }
         }
 
+        public class Disposable
+        {
+            private readonly MockPaginationService _service;
+            private bool _hasCalled = false;
+
+            public Disposable()
+            {
+                _service = new MockPaginationService(string.Empty, x =>
+                {
+                    _hasCalled = true;
+                    return Task.FromResult(new HttpResponseMessage());
+                });
+            }
+
+            [Fact]
+            public void DoesNotCallAfterForceRefreshWhenDisposed()
+            {
+                _hasCalled = false;
+                _service.ForceRefresh();
+                Assert.True(_hasCalled);
+                _hasCalled = false;
+                _service.Dispose();
+                _service.ForceRefresh();
+                Assert.False(_hasCalled);
+            }
+
+            [Fact]
+            public void DoesNotCallOnUrlChangeWhenDisposed()
+            {
+                _hasCalled = false;
+                _service.Page++;
+                Assert.True(_hasCalled);
+                _hasCalled = false;
+                _service.Dispose();
+                _service.Page++;
+                Assert.False(_hasCalled);
+            }
+        }
+
         public class Refreshing
         {
             private MockPaginationService _service;
