@@ -8,7 +8,6 @@ using System.Reactive.Subjects;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 
 namespace LightQuery.Client
 {
@@ -26,7 +25,7 @@ namespace LightQuery.Client
         private readonly BehaviorSubject<bool> _requestRunningSource = new BehaviorSubject<bool>(false);
         private readonly Subject<string> _forceRefreshSource = new Subject<string>();
         private IDisposable _querySubscription;
-        
+
         public PaginationBaseService(string baseUrl, Func<string, Task<HttpResponseMessage>> getHttpAsync, DefaultPaginationOptions options = null)
         {
             _baseUrl = baseUrl ?? string.Empty;
@@ -42,41 +41,16 @@ namespace LightQuery.Client
                 SetSortProperty(options.SortProperty);
                 SortDescending = options.SortDescending;
             }
-
-            _querySubscription = _forceRefreshSource
-                .Merge(_requestUrl.DistinctUntilChanged())
-                .SelectMany(async url =>
-                {
-                    try
-                    {
-                        _requestRunningSource.OnNext(true);
-                        return await _getHttpAsync(url);
-                    }
-                    catch
-                    {
-                        return await Task.FromResult<HttpResponseMessage>(null);
-                    }
-                })
-                .SelectMany(async httpResponse => await DeserializeResponse(httpResponse))
-                .Select(result =>
-                {
-                    _requestRunningSource.OnNext(false);
-                    return result;
-                })
-                .Subscribe(paginationResult =>
-                {
-                    if (paginationResult?.Data != null)
-                    {
-                        CheckPaginationResponseIfPageOutOfRange(paginationResult);
-                        _paginationResultSource.OnNext(paginationResult);
-                    }
-                });
+            SetupQuerySubscription();
             BuildUrl();
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
         public string BaseUrl => _baseUrl;
+
         public IObservable<PaginationResult<T>> PaginationResult { get; }
+
         public IObservable<bool> RequestRunning { get; }
 
         public int Page
@@ -92,7 +66,7 @@ namespace LightQuery.Client
         }
 
         public string SortProperty => _sortProperty;
-        
+
         public bool SortDescending
         {
             get => _sortDescending;
@@ -104,6 +78,46 @@ namespace LightQuery.Client
             _querySubscription.Dispose();
         }
 
+        private void SetupQuerySubscription()
+        {
+            _querySubscription = _forceRefreshSource
+                .Merge(_requestUrl.DistinctUntilChanged())
+                .SelectMany(async url =>
+                {
+                    try
+                    {
+                        _requestRunningSource.OnNext(true);
+                        return await _getHttpAsync(url);
+                    }
+                    catch
+                    {
+                        return await Task.FromResult<HttpResponseMessage>(null);
+                    }
+                })
+                .Subscribe(async httpResponse =>
+                {
+                    _requestRunningSource.OnNext(false);
+                    var responseData = new HttpResponseMessageData
+                    {
+                        RequestedPage = Page,
+                        Response = httpResponse
+                    };
+                    var readResponse = await ResponseDeserializer<T>.DeserializeResponse(responseData);
+                    if (readResponse == null)
+                    {
+                        return;
+                    }
+                    if (readResponse.NewPageSuggestion != 0)
+                    {
+                        Page = readResponse.NewPageSuggestion;
+                    }
+                    if (readResponse.DeserializedValue?.Data != null)
+                    {
+                        _paginationResultSource.OnNext(readResponse.DeserializedValue);
+                    }
+                });
+        }
+
         private void SetProperty<TProperty>(ref TProperty storage, TProperty value, [CallerMemberName] string propertyName = null)
         {
             if (!Equals(value, storage))
@@ -112,50 +126,6 @@ namespace LightQuery.Client
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
                 BuildUrl();
             }
-        }
-
-        private async Task<PaginationResult<T>> DeserializeResponse(HttpResponseMessage response)
-        {
-            if (response?.Content == null || !response.IsSuccessStatusCode)
-            {
-                return null;
-            }
-            var responseContent = await response.Content.ReadAsStringAsync();
-            try
-            {
-                var deserializedResponse = JsonConvert.DeserializeObject<PaginationResult<T>>(responseContent);
-                return deserializedResponse;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        private void CheckPaginationResponseIfPageOutOfRange(PaginationResult<T> paginationResult)
-        {
-            if (paginationResult.Data.Count > 0)
-            {
-                return;
-            }
-            if (paginationResult.Page == 1)
-            {
-                return;
-            }
-            if (paginationResult.TotalCount == 0)
-            {
-                return;
-            }
-            if (PageSize <= 0)
-            {
-                return;
-            }
-            var lastPageWithItems = paginationResult.TotalCount / paginationResult.PageSize;
-            if (paginationResult.TotalCount % paginationResult.PageSize != 0)
-            {
-                lastPageWithItems++;
-            }
-            Page = lastPageWithItems;
         }
 
         public void SetSortProperty(string propertyName)
