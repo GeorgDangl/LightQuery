@@ -12,7 +12,11 @@
     <RepositoryUrl>https://github.com/GeorgDangl/LightQuery.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Asp-Net-Core Querying Sorting Filtering</PackageTags>
-    <PackageReleaseNotes>1.0.2: Minor Release
+    <PackageReleaseNotes>
+      1.1.0: Release
+      - Include PaginationBaseService in client
+      
+      1.0.2: Minor Release
 - Update version to align with new releases of LightQuery.EntityFrameworkCore and LightQuery.Client
 
 1.0.1: Minor Bugfix Release
