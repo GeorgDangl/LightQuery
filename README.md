@@ -130,6 +130,11 @@ var responseContent = await response.Content.ReadAsStringAsync();
 var deserializedResponse = JsonConvert.DeserializeObject<PaginationResult<User>>(responseContent);
 ```
 
+### PaginationBaseService
+
+The `LightQuery.Client` package contains an abstract class `PaginationBaseService<T>` that can be used in reactive clients. It is similar in functionality
+to the TypeScript client.
+
 ## Documentation - TypeScript & Angular
 
 There is [an Angular example](AngularExample.ts) that can be used standalone or
