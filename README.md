@@ -12,7 +12,7 @@ only need the most basic of operations. It's also for everyone tired of writing 
 
 It supports EntityFrameworkCores async query materialization with the optional `LightQuery.EntityFrameworkCore` package.
 
-[![npm](https://img.shields.io/npm/v/npm.svg)]()
+[![npm](https://img.shields.io/npm/v/ng-lightquery.svg)]()
 
 In addition to the C# client, there's also a client for Angular 5+ on npm: `ng-lightquery`
 
