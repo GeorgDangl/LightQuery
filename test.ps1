@@ -26,3 +26,7 @@ foreach ($testProject in $testProjects){
 $resultsGlobPattern = "results_*.testresults"
 $prependFrameworkScript = ".\AppendxUnitFramework.ps1"
 & $prependFrameworkScript $resultsGlobPattern "$PSScriptRoot"
+
+"Running TypeScript tests for ng-lightquery"
+cd "$PSScriptRoot/src/ng-lightquery"
+& "./test.ps1"
