@@ -12,13 +12,13 @@ only need the most basic of operations. It's also for everyone tired of writing 
 
 It supports EntityFrameworkCores async query materialization with the optional `LightQuery.EntityFrameworkCore` package.
 
-[![npm](https://img.shields.io/npm/v/ng-lightquery.svg)]()
+[![npm](https://img.shields.io/npm/v/ng-lightquery.svg)](https://www.npmjs.com/package/ng-lightquery)
 
 In addition to the C# client, there's also a client for Angular 5+ on npm: `ng-lightquery`
 
 ## Installation
 [![NuGet](https://img.shields.io/nuget/v/LightQuery.svg)](https://www.nuget.org/packages/LightQuery)
-[![MyGet](https://img.shields.io/myget/dangl/v/LightQuery.svg)]()
+[![MyGet](https://img.shields.io/myget/dangl/v/LightQuery.svg)](https://www.myget.org/feed/dangl/package/nuget/LightQuery)
 
 [The package is available on nuget](https://www.nuget.org/packages/LightQuery).
 [Daily builds are on myget](https://www.myget.org/feed/dangl/package/nuget/LightQuery).
