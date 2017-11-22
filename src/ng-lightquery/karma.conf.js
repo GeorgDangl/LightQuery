@@ -4,10 +4,6 @@
 module.exports = function(config) {
   config.set({
 
-    // base path that will be used to resolve all patterns (eg. files, exclude)
-    //basePath: '',
-
-
     // frameworks to use
     // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
     frameworks: ['jasmine', 'karma-typescript'],
@@ -19,11 +15,9 @@ module.exports = function(config) {
       { pattern: 'src/**/*.ts' }
     ],
 
-
-    // list of files to exclude
-    //exclude: [
-    //],
-
+    client: {
+      clearContext: false // leave Jasmine Spec Runner output visible in browser
+    },
 
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
@@ -43,7 +37,7 @@ module.exports = function(config) {
     // test results reporter to use
     // possible values: 'dots', 'progress'
     // available reporters: https://npmjs.org/browse/keyword/karma-reporter
-    reporters: ['progress', 'karma-typescript', 'junit'],
+    reporters: ['progress', 'dots', 'karma-typescript', 'kjhtml', 'junit'],
 
 
     // web server port
