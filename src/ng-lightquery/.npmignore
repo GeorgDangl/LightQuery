@@ -7,3 +7,5 @@ tsconfig.json
 karma.conf.js
 *.spec.js
 *.spec.js.map
+coverage/**/*
+karma-results.xml
