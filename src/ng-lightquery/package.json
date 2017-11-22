@@ -8,6 +8,7 @@
   "typings": "./dist/index",
   "scripts": {
     "test": "karma start",
+    "test:dev": "karma start --singleRun false --browsers Chrome",
     "build": "tsc"
   },
   "dependencies": {
@@ -24,8 +25,10 @@
     "@types/node": "^7.0.13",
     "jasmine-core": "~2.8.0",
     "karma": "~1.7.1",
+    "karma-chrome-launcher": "2.2.0",
     "karma-cli": "~1.0.1",
     "karma-jasmine": "~1.1.0",
+    "karma-jasmine-html-reporter": "^0.2.2",
     "karma-junit-reporter": "~1.2.0",
     "karma-phantomjs-launcher": "1.0.4",
     "karma-typescript": "~3.0.8",
