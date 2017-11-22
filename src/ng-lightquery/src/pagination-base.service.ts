@@ -7,25 +7,37 @@ import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/switchMap';
 import 'rxjs/add/operator/distinctUntilChanged';
 import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/filter';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/merge';
+import 'rxjs/add/observable/empty';
 
 @Injectable()
 export abstract class PaginationBaseService<T> {
-    
+
     protected paginationResultSource = new ReplaySubject<PaginationResult<T>>(1);
     protected lastPaginationResult: PaginationResult<T>;
     paginationResult = this.paginationResultSource.asObservable();
     private requestUrl = new Subject<string>();
+    private forceRefreshUrl = new Subject<string>();
 
     constructor(protected http: HttpClient) {
-        this.requestUrl
-            .distinctUntilChanged()
+        this.requestUrl.distinctUntilChanged()
+            .merge(this.forceRefreshUrl)
             .switchMap((url: string) => {
-                return this.http.get<PaginationResult<T>>(url);
+                return this.http.get<PaginationResult<T>>(url)
+                .catch(er => Observable.empty<PaginationResult<T>>());
             })
+            .filter(r => r != null)
             .subscribe(result => {
                 this.paginationResultSource.next(result);
                 this.lastPaginationResult = result;
-            });
+            }, error => { /* Does nothing on error */ });
+    }
+
+    public forceRefresh() {
+        const url = this.buildUrl();
+        this.forceRefreshUrl.next(url);
     }
 
     protected requery() {
