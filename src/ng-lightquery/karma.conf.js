@@ -31,6 +31,11 @@ module.exports = function(config) {
       },
       compilerOptions: {
           lib: ["ES2015", "DOM"]
+      },
+      reports: {
+        "cobertura": {
+          "filename": "typescript.coverageresults"
+        }
       }
   },
 
