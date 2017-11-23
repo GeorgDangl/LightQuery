@@ -32,5 +32,10 @@
     <ProjectReference Include="..\LightQuery.Client\LightQuery.Client.csproj" />
     <ProjectReference Include="..\LightQuery.Shared\LightQuery.Shared.csproj" />
   </ItemGroup>
+  
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DebugType>full</DebugType>
+    <DebugSymbols>True</DebugSymbols>
+  </PropertyGroup>
 
 </Project>
