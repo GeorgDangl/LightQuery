@@ -18,7 +18,7 @@ namespace LightQuery.Tests.Integration.ControllerTests
 
             foreach (var expectedUser in expectedUsers)
             {
-                Assert.True(response.Any(u => u.UserName == expectedUser.UserName && u.Email == expectedUser.Email));
+                Assert.Contains(response, u => u.UserName == expectedUser.UserName && u.Email == expectedUser.Email);
             }
         }
 
