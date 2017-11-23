@@ -49,6 +49,10 @@ See below how to apply sorting & filtering to your API controllers. At a glance:
 You can find a demo in the integration test projects for an example of using this in an Asp.Net Core MVC application
 for sorting and filtering.
 
+## Testing
+
+Tests are run via the `TestsAndCoverage.ps1` script in the project root.
+
 ### Sorting
 
 ```csharp
