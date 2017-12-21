@@ -30,8 +30,8 @@ export abstract class PaginationBaseService<T> {
             })
             .filter(r => r != null)
             .subscribe(result => {
-                this.paginationResultSource.next(result);
                 this.lastPaginationResult = result;
+                this.paginationResultSource.next(result);
             }, error => { /* Does nothing on error */ });
     }
 
@@ -44,8 +44,8 @@ export abstract class PaginationBaseService<T> {
         var url = this.buildUrl();
         this.http.get<PaginationResult<T>>(url)
             .subscribe(result => {
-                this.paginationResultSource.next(result);
                 this.lastPaginationResult = result;
+                this.paginationResultSource.next(result);
             });
     }
 
