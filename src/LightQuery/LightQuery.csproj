@@ -6,7 +6,7 @@
     <Authors>Georg Dangl</Authors>
     <Company />
     <Description>Asp.Net Core ActionFilter for sorting and pagination</Description>
-    <Copyright>(c) 2017 Georg Dangl</Copyright>
+    <Copyright>(c) $([System.DateTime]::Now.Year) Georg Dangl</Copyright>
     <PackageLicenseUrl>https://github.com/GeorgDangl/LightQuery/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/GeorgDangl/LightQuery</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GeorgDangl/LightQuery.git</RepositoryUrl>
