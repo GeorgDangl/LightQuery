@@ -79,6 +79,10 @@
       "_enableSearch":true,
       "_gitUrlPattern": "github"
     },
-    "dest":"../generated_docs"
+    "dest":"../generated_docs",
+    "template": [
+      "default",
+      "template"
+    ]
   }
 }
