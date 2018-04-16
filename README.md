@@ -145,10 +145,16 @@ to the TypeScript client.
 
 ## Documentation - TypeScript & Angular
 
-There is [an Angular example](AngularExample.ts) that can be used standalone or
-in combination with a [@angular/material2](https://github.com/angular/material2) DataTable and its pagination and sort functionality.
+The npm package `ng-lightquery` contains client libraries for **LightQuery** that can be used in Angular 5+ projects. It has a generic `PaginationBaseService<T>` that your own services can inherit from. As of now, you have to provide a concrete implementation for each generic type argument that you want to use, since the dependency injection in Angular does not currently resolve generics. So if you want two **LightQuery** services - one to retrieve `users` and one to retrieve `values` - you need to create two services yourself.
 
-**Example with Material 2 DataTable**
+### Example with Angular Material 2 DataTable
+
+You'll have three files in this example:
+
+#### users.component.html
+
+The Angular template which contains an Anguler Material table view.
+
 ```html
 <md-table [dataSource]="dataSource"
           mdSort
@@ -170,6 +176,10 @@ in combination with a [@angular/material2](https://github.com/angular/material2)
               (page)="onPage($event)">
 </md-paginator>
 ```
+#### users.component.ts
+
+The component which is backing the view.
+
 ```typescript
 export class UsersComponent implements OnInit, OnDestroy {
 
@@ -200,6 +210,40 @@ export class UsersComponent implements OnInit, OnDestroy {
     ngOnDestroy() {
         this.usersPaginatedSubscription.unsubscribe();
     }
+}
+```
+#### users.service.ts
+
+To use the pagination service, simple let your own service inherit from the one provided by the `ng-lightquery` package via `extends PaginationBaseService<T>`. You can omit the implementation of the `DataSource<User>` interface and the `connect()` and `disconnect()` methods if you're not working with Angular Material.
+
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { PaginationBaseService } from 'ng-lightquery';
+import { User } from '../models/user';
+import { DataSource } from '@angular/cdk/collections';
+
+@Injectable()
+export class UsersDetailsService extends PaginationBaseService<User> implements DataSource<User> {
+
+    constructor(protected http: HttpClient) {
+      super(http);
+      this.baseUrl = '/api/users';
+      // You can optionally initialize with some default values,
+      // e.g. for sorting, page size or custom url query attributes
+      this.sort = {
+        isDescending: false,
+        propertyName: 'email'
+      };
+    }
+
+  connect(): Observable<User[]> {
+    return this.paginationResult
+      .map((r: PaginationResult<User>) => r.data);
+  }
+
+  disconnect() { }
+
 }
 ```
 
