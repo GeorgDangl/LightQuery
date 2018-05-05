@@ -14,7 +14,8 @@ It supports EntityFrameworkCores async query materialization with the optional `
 
 [![npm](https://img.shields.io/npm/v/ng-lightquery.svg)](https://www.npmjs.com/package/ng-lightquery)
 
-In addition to the C# client, there's also a client for Angular 5+ on npm: `ng-lightquery`
+In addition to the C# client, there's also a client for Angular 5+ on npm: `ng-lightquery`  
+Version 1.2.0 and above are compatible with **Angular 6+ and rxjs >= 6.0.0**.
 
 ## Installation
 [![NuGet](https://img.shields.io/nuget/v/LightQuery.svg)](https://www.nuget.org/packages/LightQuery)
