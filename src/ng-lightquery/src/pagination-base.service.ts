@@ -1,16 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs/Subject';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Subject, ReplaySubject, Observable, empty } from 'rxjs';
 import { PaginationResult } from './pagination-result';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/map';
-import 'rxjs/add/operator/filter';
-import 'rxjs/add/operator/catch';
-import 'rxjs/add/operator/merge';
-import 'rxjs/add/observable/empty';
+import { distinctUntilChanged, merge, switchMap, catchError, filter } from 'rxjs/operators';
 
 @Injectable()
 export abstract class PaginationBaseService<T> {
@@ -22,13 +14,14 @@ export abstract class PaginationBaseService<T> {
     private forceRefreshUrl = new Subject<string>();
 
     constructor(protected http: HttpClient) {
-        this.requestUrl.distinctUntilChanged()
-            .merge(this.forceRefreshUrl)
-            .switchMap((url: string) => {
+        this.requestUrl.pipe(
+            distinctUntilChanged(),
+            merge(this.forceRefreshUrl),
+            switchMap((url: string) => {
                 return this.http.get<PaginationResult<T>>(url)
-                .catch(er => Observable.empty<PaginationResult<T>>());
-            })
-            .filter(r => r != null)
+                .pipe(catchError(er => empty()));
+            }),
+            filter(r => r != null))
             .subscribe(result => {
                 this.lastPaginationResult = result;
                 this.paginationResultSource.next(result);

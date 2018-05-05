@@ -6,10 +6,9 @@ import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { PaginationBaseService } from './pagination-base.service';
 import { PaginationResult } from './pagination-result';
-import "rxjs/add/operator/take";
-import "rxjs/add/operator/skip";
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs';
 import { setTimeout } from 'core-js/library/web/timers';
+import { take, skip } from 'rxjs/operators';
 
 describe('PaginationBaseService', () => {
 
@@ -51,7 +50,7 @@ describe('PaginationBaseService', () => {
         };
         request.flush(paginationResponse);
         const serviceResult = await service.paginationResult
-            .take(1)
+        .pipe(take(1))
             .toPromise();
         expect(serviceResult.totalCount).toBe(1);
         httpMock.verify();
@@ -204,7 +203,7 @@ describe('PaginationBaseService', () => {
         initialRequest.flush(initialPaginationResponse);
 
         service.paginationResult
-        .skip(1) // To not get the initial value from the first request
+        .pipe(skip(1)) // To not get the initial value from the first request
         .subscribe(usersPaginated => {
             var hasNewUser = usersPaginated.data.find(u => u.id === 1 && u.userName === 'Giorgio');
             expect(hasNewUser).toBeTruthy();
