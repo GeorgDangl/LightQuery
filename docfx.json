@@ -59,6 +59,11 @@
         "files":[
           "*.md",
           "**/*.yml"
+        ],
+        "exclude": [
+          "output/**/*",
+          "docs/**/*",
+          "GitVersion.yml"
         ]
       }
     ],
