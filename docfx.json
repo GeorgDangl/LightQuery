@@ -63,7 +63,8 @@
         "exclude": [
           "output/**/*",
           "docs/**/*",
-          "GitVersion.yml"
+          "GitVersion.yml",
+          "src/ng-lightquery/**/*"
         ]
       }
     ],
