@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.27004.2006
+VisualStudioVersion = 15.0.27004.2005
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery", "src\LightQuery\LightQuery.csproj", "{33650DEE-5957-45BA-AFE4-2AFEA731DA4D}"
 EndProject
@@ -14,11 +14,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A2148043-F19B-41D9-8049-C2B9A0DFABD2}"
 	ProjectSection(SolutionItems) = preProject
 		AngularExample.ts = AngularExample.ts
-		AppendxUnitFramework.ps1 = AppendxUnitFramework.ps1
-		GenerateAndDeployDocs.ps1 = GenerateAndDeployDocs.ps1
-		LICENSE.md = LICENSE.md
+		CHANGELOG.md = CHANGELOG.md
+		docfx.json = docfx.json
+		GitVersion.yml = GitVersion.yml
+		LICENCE.md = LICENCE.md
 		README.md = README.md
-		test.ps1 = test.ps1
+		toc.yml = toc.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Tests.Integration", "test\LightQuery.Tests.Integration\LightQuery.Tests.Integration.csproj", "{06D38407-1B0F-4D26-81AC-8F099B6C4CCC}"
@@ -40,6 +41,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Shared", "src\LightQuery.Shared\LightQuery.Shared.csproj", "{B2D54A8A-30DD-489C-847D-9347E4F7D436}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Shared.Tests", "test\LightQuery.Shared.Tests\LightQuery.Shared.Tests.csproj", "{38C64E1E-28CD-46D9-A4B2-D2E59683F8C0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = ".build", "build\.build.csproj", "{506E6C78-4821-4269-A19A-7B60900EFBC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -95,6 +98,8 @@ Global
 		{38C64E1E-28CD-46D9-A4B2-D2E59683F8C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38C64E1E-28CD-46D9-A4B2-D2E59683F8C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38C64E1E-28CD-46D9-A4B2-D2E59683F8C0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{506E6C78-4821-4269-A19A-7B60900EFBC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{506E6C78-4821-4269-A19A-7B60900EFBC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

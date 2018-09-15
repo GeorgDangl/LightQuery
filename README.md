@@ -1,5 +1,5 @@
 # LightQuery
-[![Build Status](https://jenkins.dangl.me/buildStatus/icon?job=LightQuery.Tests)](https://jenkins.dangl.me/job/LightQuery.Tests)
+[![Build Status](https://jenkins.dangl.me/buildStatus/icon?job=LightQuery/dev)](https://jenkins.dangl.me/job/LightQuery/job/dev/)
 
 [Online Documentation](https://docs.dangl-it.com/Projects/LightQuery)
 
@@ -12,13 +12,14 @@ only need the most basic of operations. It's also for everyone tired of writing 
 
 It supports EntityFrameworkCores async query materialization with the optional `LightQuery.EntityFrameworkCore` package.
 
-[![npm](https://img.shields.io/npm/v/npm.svg)]()
+[![npm](https://img.shields.io/npm/v/ng-lightquery.svg)](https://www.npmjs.com/package/ng-lightquery)
 
-In addition to the C# client, there's also a client for Angular 5+ on npm: `ng-lightquery`
+In addition to the C# client, there's also a client for Angular 5+ on npm: `ng-lightquery`  
+Version 1.2.0 and above are compatible with **Angular 6+ and rxjs >= 6.0.0**.
 
 ## Installation
 [![NuGet](https://img.shields.io/nuget/v/LightQuery.svg)](https://www.nuget.org/packages/LightQuery)
-[![MyGet](https://img.shields.io/myget/dangl/v/LightQuery.svg)]()
+[![MyGet](https://img.shields.io/myget/dangl/v/LightQuery.svg)](https://www.myget.org/feed/dangl/package/nuget/LightQuery)
 
 [The package is available on nuget](https://www.nuget.org/packages/LightQuery).
 [Daily builds are on myget](https://www.myget.org/feed/dangl/package/nuget/LightQuery).
@@ -37,7 +38,11 @@ Includes support for EntityFramework.Core async query materialization
 
 Includes LightQuery models and the QueryBuilder utility
 
-Both **NETStandard 1.6** and **.Net 4.6.1** are supported.
+**NETStandard 2.0** and **.Net 4.6.1** are supported.
+
+## Testing
+
+Tests are run via the `TestsAndCoverage.ps1` script in the project root.
 
 ## Documentation - Server
 
@@ -141,10 +146,16 @@ to the TypeScript client.
 
 ## Documentation - TypeScript & Angular
 
-There is [an Angular example](AngularExample.ts) that can be used standalone or
-in combination with a [@angular/material2](https://github.com/angular/material2) DataTable and its pagination and sort functionality.
+The npm package `ng-lightquery` contains client libraries for **LightQuery** that can be used in Angular 5+ projects. It has a generic `PaginationBaseService<T>` that your own services can inherit from. As of now, you have to provide a concrete implementation for each generic type argument that you want to use, since the dependency injection in Angular does not currently resolve generics. So if you want two **LightQuery** services - one to retrieve `users` and one to retrieve `values` - you need to create two services yourself.
 
-**Example with Material 2 DataTable**
+### Example with Angular Material 2 DataTable
+
+You'll have three files in this example:
+
+#### users.component.html
+
+The Angular template which contains an Anguler Material table view.
+
 ```html
 <md-table [dataSource]="dataSource"
           mdSort
@@ -166,6 +177,10 @@ in combination with a [@angular/material2](https://github.com/angular/material2)
               (page)="onPage($event)">
 </md-paginator>
 ```
+#### users.component.ts
+
+The component which is backing the view.
+
 ```typescript
 export class UsersComponent implements OnInit, OnDestroy {
 
@@ -198,8 +213,42 @@ export class UsersComponent implements OnInit, OnDestroy {
     }
 }
 ```
+#### users.service.ts
+
+To use the pagination service, simple let your own service inherit from the one provided by the `ng-lightquery` package via `extends PaginationBaseService<T>`. You can omit the implementation of the `DataSource<User>` interface and the `connect()` and `disconnect()` methods if you're not working with Angular Material.
+
+```typescript
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { PaginationBaseService } from 'ng-lightquery';
+import { User } from '../models/user';
+import { DataSource } from '@angular/cdk/collections';
+
+@Injectable()
+export class UsersDetailsService extends PaginationBaseService<User> implements DataSource<User> {
+
+    constructor(protected http: HttpClient) {
+      super(http);
+      this.baseUrl = '/api/users';
+      // You can optionally initialize with some default values,
+      // e.g. for sorting, page size or custom url query attributes
+      this.sort = {
+        isDescending: false,
+        propertyName: 'email'
+      };
+    }
+
+  connect(): Observable<User[]> {
+    return this.paginationResult
+      .map((r: PaginationResult<User>) => r.data);
+  }
+
+  disconnect() { }
+
+}
+```
 
 
 ---
 
-[MIT License](LICENSE.md)
+[MIT Licence](LICENCE.md)

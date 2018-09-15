@@ -6,9 +6,11 @@ namespace LightQuery.IntegrationTestsServer
 {
     public class Startup
     {
+        private static readonly string _inMemoryDatabaseName = System.Guid.NewGuid().ToString();
+
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<LightQueryContext>(options => options.UseInMemoryDatabase());
+            services.AddDbContext<LightQueryContext>(options => options.UseInMemoryDatabase(_inMemoryDatabaseName));
             services.AddMvc();
         }
 

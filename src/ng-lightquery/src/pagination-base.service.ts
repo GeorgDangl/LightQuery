@@ -1,39 +1,44 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Subject } from 'rxjs/Subject';
-import { ReplaySubject } from 'rxjs/ReplaySubject';
+import { Subject, ReplaySubject, Observable, empty } from 'rxjs';
 import { PaginationResult } from './pagination-result';
-import { Observable } from 'rxjs/Observable';
-import 'rxjs/add/operator/switchMap';
-import 'rxjs/add/operator/distinctUntilChanged';
-import 'rxjs/add/operator/map';
+import { distinctUntilChanged, merge, switchMap, catchError, filter } from 'rxjs/operators';
 
 @Injectable()
 export abstract class PaginationBaseService<T> {
-    
+
     protected paginationResultSource = new ReplaySubject<PaginationResult<T>>(1);
     protected lastPaginationResult: PaginationResult<T>;
     paginationResult = this.paginationResultSource.asObservable();
     private requestUrl = new Subject<string>();
+    private forceRefreshUrl = new Subject<string>();
 
     constructor(protected http: HttpClient) {
-        this.requestUrl
-            .distinctUntilChanged()
-            .switchMap((url: string) => {
-                return this.http.get<PaginationResult<T>>(url);
-            })
+        this.requestUrl.pipe(
+            distinctUntilChanged(),
+            merge(this.forceRefreshUrl),
+            switchMap((url: string) => {
+                return this.http.get<PaginationResult<T>>(url)
+                .pipe(catchError(er => empty()));
+            }),
+            filter(r => r != null))
             .subscribe(result => {
-                this.paginationResultSource.next(result);
                 this.lastPaginationResult = result;
-            });
+                this.paginationResultSource.next(result);
+            }, error => { /* Does nothing on error */ });
+    }
+
+    public forceRefresh() {
+        const url = this.buildUrl();
+        this.forceRefreshUrl.next(url);
     }
 
     protected requery() {
         var url = this.buildUrl();
         this.http.get<PaginationResult<T>>(url)
             .subscribe(result => {
-                this.paginationResultSource.next(result);
                 this.lastPaginationResult = result;
+                this.paginationResultSource.next(result);
             });
     }
 

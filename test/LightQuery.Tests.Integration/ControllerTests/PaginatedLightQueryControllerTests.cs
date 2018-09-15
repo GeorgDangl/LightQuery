@@ -28,9 +28,9 @@ namespace LightQuery.Tests.Integration.ControllerTests
             Assert.Equal(1, pagedResult.Page);
             Assert.Equal(3, pagedResult.PageSize);
             Assert.Equal(3, pagedResult.Data.Count);
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Alice"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Bob"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Caroline"));
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Alice");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Bob");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Caroline");
         }
 
         [Fact]
@@ -42,9 +42,9 @@ namespace LightQuery.Tests.Integration.ControllerTests
             Assert.Equal(1, pagedResult.Page);
             Assert.Equal(3, pagedResult.PageSize);
             Assert.Equal(3, pagedResult.Data.Count);
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Alice"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Bob"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Caroline"));
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Alice");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Bob");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Caroline");
         }
 
         [Fact]
@@ -56,9 +56,9 @@ namespace LightQuery.Tests.Integration.ControllerTests
             Assert.Equal(2, pagedResult.Page);
             Assert.Equal(3, pagedResult.PageSize);
             Assert.Equal(3, pagedResult.Data.Count);
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Dave"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Emilia"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Fred"));
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Dave");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Emilia");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Fred");
         }
 
         [Fact]
@@ -69,8 +69,8 @@ namespace LightQuery.Tests.Integration.ControllerTests
             Assert.Equal(10, pagedResult.TotalCount);
             Assert.Equal(4, pagedResult.Page);
             Assert.Equal(3, pagedResult.PageSize);
-            Assert.Equal(1, pagedResult.Data.Count);
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Joe"));
+            Assert.Single(pagedResult.Data);
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Joe");
         }
 
         [Fact]
@@ -81,7 +81,7 @@ namespace LightQuery.Tests.Integration.ControllerTests
             Assert.Equal(10, pagedResult.TotalCount);
             Assert.Equal(5, pagedResult.Page);
             Assert.Equal(3, pagedResult.PageSize);
-            Assert.Equal(0, pagedResult.Data.Count);
+            Assert.Empty(pagedResult.Data);
         }
 
         [Fact]
@@ -104,9 +104,9 @@ namespace LightQuery.Tests.Integration.ControllerTests
             Assert.Equal(1, pagedResult.Page);
             Assert.Equal(3, pagedResult.PageSize);
             Assert.Equal(3, pagedResult.Data.Count);
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Alice"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Bob"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Caroline"));
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Alice");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Bob");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Caroline");
         }
 
         [Fact]
@@ -118,8 +118,8 @@ namespace LightQuery.Tests.Integration.ControllerTests
             Assert.Equal(1, pagedResult.Page);
             Assert.Equal(2, pagedResult.PageSize);
             Assert.Equal(2, pagedResult.Data.Count);
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Alice"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Bob"));
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Alice");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Bob");
         }
 
         [Fact]
@@ -131,10 +131,10 @@ namespace LightQuery.Tests.Integration.ControllerTests
             Assert.Equal(1, pagedResult.Page);
             Assert.Equal(4, pagedResult.PageSize);
             Assert.Equal(4, pagedResult.Data.Count);
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Alice"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Bob"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Caroline"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Dave"));
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Alice");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Bob");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Caroline");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Dave");
         }
 
         [Fact]
@@ -146,9 +146,9 @@ namespace LightQuery.Tests.Integration.ControllerTests
             Assert.Equal(1, pagedResult.Page);
             Assert.Equal(3, pagedResult.PageSize);
             Assert.Equal(3, pagedResult.Data.Count);
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Alice"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Bob"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Caroline"));
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Alice");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Bob");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Caroline");
         }
 
         [Fact]
@@ -160,9 +160,9 @@ namespace LightQuery.Tests.Integration.ControllerTests
             Assert.Equal(1, pagedResult.Page);
             Assert.Equal(3, pagedResult.PageSize);
             Assert.Equal(3, pagedResult.Data.Count);
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Alice"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Bob"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Caroline"));
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Alice");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Bob");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Caroline");
         }
 
         [Fact]
@@ -174,9 +174,9 @@ namespace LightQuery.Tests.Integration.ControllerTests
             Assert.Equal(1, pagedResult.Page);
             Assert.Equal(3, pagedResult.PageSize);
             Assert.Equal(3, pagedResult.Data.Count);
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Alice"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Bob"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Caroline"));
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Alice");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Bob");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Caroline");
         }
 
         [Fact]
@@ -188,9 +188,9 @@ namespace LightQuery.Tests.Integration.ControllerTests
             Assert.Equal(1, pagedResult.Page);
             Assert.Equal(3, pagedResult.PageSize);
             Assert.Equal(3, pagedResult.Data.Count);
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Alice"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Bob"));
-            Assert.True(pagedResult.Data.Any(u => u.UserName == "Caroline"));
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Alice");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Bob");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Caroline");
         }
     }
 }

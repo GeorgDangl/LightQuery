@@ -1,0 +1,94 @@
+{
+  "metadata":[
+	{
+      "src": [
+        {
+          "files": ["LightQuery.csproj"],
+          "exclude": [ "**/bin/**", "**/obj/**" ],
+          "src": "./src/LightQuery"
+        }
+      ],
+      "dest": "lightquery",
+      "properties": {
+          "TargetFramework": "netstandard2.0"
+      }
+    },
+	{
+      "src": [
+        {
+          "files": ["LightQuery.Client.csproj"],
+          "exclude": [ "**/bin/**", "**/obj/**" ],
+          "src": "./src/LightQuery.Client"
+        }
+      ],
+      "dest": "client",
+      "properties": {
+          "TargetFramework": "netstandard2.0"
+      }
+    },
+	{
+      "src": [
+        {
+          "files": ["LightQuery.Shared.csproj"],
+          "exclude": [ "**/bin/**", "**/obj/**" ],
+          "src": "./src/LightQuery.Shared"
+        }
+      ],
+      "dest": "shared",
+      "properties": {
+          "TargetFramework": "netstandard2.0"
+      }
+    },
+	{
+      "src": [
+        {
+          "files": ["LightQuery.EntityFrameworkCore.csproj"],
+          "exclude": [ "**/bin/**", "**/obj/**" ],
+          "src": "./src/LightQuery.EntityFrameworkCore"
+        }
+      ],
+      "dest": "efcore",
+      "properties": {
+          "TargetFramework": "netstandard2.0"
+      }
+    }
+  ],
+  "build":{
+    "content":[
+      {
+        "files":[
+          "*.md",
+          "**/*.yml"
+        ],
+        "exclude": [
+          "output/**/*",
+          "docs/**/*",
+          "GitVersion.yml",
+          "src/ng-lightquery/**/*"
+        ]
+      }
+    ],
+    "resource":[
+      {
+        "files":[
+          "**.png",
+          "**.ts"
+        ]
+      }
+    ],
+    "overwrite":"specs/*.md",
+    "globalMetadata":{
+      "_appTitle":"LightQuery Documentation",
+      "_appFooter":"&copy; <a href=\"https://www.dangl-it.com\" target=\"_blank\">Dangl IT - Georg Dangl</a>",
+      "_appLogoPath":"app-logo.png",
+      "_appFaviconPath":"app-logo.png",
+      "_enableSearch":true,
+      "_gitUrlPattern": "github"
+    },
+    "dest":"./output/docs",
+    "template": [
+      "default",
+      "docs/template"
+    ]
+  }
+}

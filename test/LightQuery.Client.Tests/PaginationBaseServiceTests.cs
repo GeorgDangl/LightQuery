@@ -12,42 +12,26 @@ using Xunit;
 
 namespace LightQuery.Client.Tests
 {
-    public class MockPaginationService : PaginationBaseService<MockPayload>
-    {
-        public MockPaginationService(string baseUrl,
-            Func<string, Task<HttpResponseMessage>> getHttpAsync,
-            DefaultPaginationOptions options = null)
-                : base(baseUrl, getHttpAsync, options)
-        { }
-    }
-
-    public class MockPayload
-    {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
-        public int Order { get; set; }
-    }
-    
     public class PaginationBaseServiceTests
     {
         [Fact]
         public void AcceptsNullBaseUrl()
         {
-            var service = new MockPaginationService(null, x => Task.FromResult(new HttpResponseMessage()));
+            var service = new PaginationBaseService<MockPayload>(null, x => Task.FromResult(new HttpResponseMessage()));
             Assert.NotNull(service);
         }
         
         [Fact]
         public void SetsBaseUrlToStringEmptyForEmptyBaseUrl()
         {
-            var service = new MockPaginationService(null, x => Task.FromResult(new HttpResponseMessage()));
+            var service = new PaginationBaseService<MockPayload>(null, x => Task.FromResult(new HttpResponseMessage()));
             Assert.Equal(string.Empty, service.BaseUrl);
         }
 
         [Fact]
         public void AcceptsEmptyBaseUrl()
         {
-            var service = new MockPaginationService(string.Empty, x => Task.FromResult(new HttpResponseMessage()));
+            var service = new PaginationBaseService<MockPayload>(string.Empty, x => Task.FromResult(new HttpResponseMessage()));
             Assert.NotNull(service);
         }
 
@@ -55,7 +39,7 @@ namespace LightQuery.Client.Tests
         public void AcceptsAbsoluteBaseUrl()
         {
             var baseUrl = "https://example.com";
-            var service = new MockPaginationService(baseUrl, x => Task.FromResult(new HttpResponseMessage()));
+            var service = new PaginationBaseService<MockPayload>(baseUrl, x => Task.FromResult(new HttpResponseMessage()));
             Assert.Equal(baseUrl, service.BaseUrl);
         }
 
@@ -63,26 +47,26 @@ namespace LightQuery.Client.Tests
         public void AcceptsRelativeBaseUrl()
         {
             var baseUrl = "/api/values";
-            var service = new MockPaginationService(baseUrl, x => Task.FromResult(new HttpResponseMessage()));
+            var service = new PaginationBaseService<MockPayload>(baseUrl, x => Task.FromResult(new HttpResponseMessage()));
             Assert.Equal(baseUrl, service.BaseUrl);
         }
 
         [Fact]
         public void ArgumentNullExceptionForNullGetHttpAsyncAction()
         {
-            Assert.Throws<ArgumentNullException>("getHttpAsync", () => new MockPaginationService(string.Empty, null));
+            Assert.Throws<ArgumentNullException>("getHttpAsync", () => new PaginationBaseService<MockPayload>(string.Empty, null));
         }
 
         [Fact]
         public void ArgumentExceptionForInvalidSortPropertyInDefaultOptions()
         {
-            Assert.Throws<ArgumentException>("propertyName", () => new MockPaginationService(string.Empty, x => Task.FromResult(new HttpResponseMessage()), new DefaultPaginationOptions {SortProperty = "InvalidProp"}));
+            Assert.Throws<ArgumentException>("propertyName", () => new PaginationBaseService<MockPayload>(string.Empty, x => Task.FromResult(new HttpResponseMessage()), new DefaultPaginationOptions {SortProperty = "InvalidProp"}));
         }
 
         [Fact]
         public void SetsPropertiesFromDefaultOptions()
         {
-            var service = new MockPaginationService(string.Empty, x => Task.FromResult(new HttpResponseMessage()), new DefaultPaginationOptions
+            var service = new PaginationBaseService<MockPayload>(string.Empty, x => Task.FromResult(new HttpResponseMessage()), new DefaultPaginationOptions
             {
                 Page = 12,
                 PageSize = 4,
@@ -97,12 +81,12 @@ namespace LightQuery.Client.Tests
 
         public class ForceRefresh
         {
-            private readonly MockPaginationService _service;
+            private readonly PaginationBaseService<MockPayload> _service;
             private bool _hasCalled = false;
 
             public ForceRefresh()
             {
-                _service = new MockPaginationService(string.Empty, x =>
+                _service = new PaginationBaseService<MockPayload>(string.Empty, x =>
                 {
                     _hasCalled = true;
                     return Task.FromResult(new HttpResponseMessage());
@@ -120,12 +104,12 @@ namespace LightQuery.Client.Tests
 
         public class RequestRunningNotifications
         {
-            private readonly MockPaginationService _service;
+            private readonly PaginationBaseService<MockPayload> _service;
             private readonly List<bool> _isRunningEvents = new List<bool>();
 
             public RequestRunningNotifications()
             {
-                _service = new MockPaginationService(string.Empty, x => Task.FromResult(new HttpResponseMessage()));
+                _service = new PaginationBaseService<MockPayload>(string.Empty, x => Task.FromResult(new HttpResponseMessage()));
                 _service.RequestRunning.Subscribe(isRunning => _isRunningEvents.Add(isRunning));
             }
 
@@ -161,12 +145,12 @@ namespace LightQuery.Client.Tests
 
         public class Disposable
         {
-            private readonly MockPaginationService _service;
+            private readonly PaginationBaseService<MockPayload> _service;
             private bool _hasCalled = false;
 
             public Disposable()
             {
-                _service = new MockPaginationService(string.Empty, x =>
+                _service = new PaginationBaseService<MockPayload>(string.Empty, x =>
                 {
                     _hasCalled = true;
                     return Task.FromResult(new HttpResponseMessage());
@@ -200,7 +184,7 @@ namespace LightQuery.Client.Tests
 
         public class Refreshing
         {
-            private MockPaginationService _service;
+            private PaginationBaseService<MockPayload> _service;
             private HttpResponseMessage _response;
             private PaginationResult<MockPayload> _receivedResult;
             private bool _hasRaisedNewPaginationResult;
@@ -208,7 +192,7 @@ namespace LightQuery.Client.Tests
             private void InitializeServiceAndResetObservedValues(object payload = null)
             {
                 _response = GetResponse(payload);
-                _service = new MockPaginationService(string.Empty, x => Task.FromResult(_response));
+                _service = new PaginationBaseService<MockPayload>(string.Empty, x => Task.FromResult(_response));
                 _service.PaginationResult.Subscribe(r =>
                 {
                     _hasRaisedNewPaginationResult = true;
@@ -328,14 +312,14 @@ namespace LightQuery.Client.Tests
 
         public class ResponseDeserialization
         {
-            private MockPaginationService _service;
+            private PaginationBaseService<MockPayload> _service;
             private HttpResponseMessage _response;
             private PaginationResult<MockPayload> _receivedResult;
             private bool _hasRaisedNewPaginationResult = false;
 
             private void InitializeService()
             {
-                _service = new MockPaginationService(string.Empty, x => Task.FromResult(_response));
+                _service = new PaginationBaseService<MockPayload>(string.Empty, x => Task.FromResult(_response));
                 _service.PaginationResult.Subscribe(r =>
                 {
                     _hasRaisedNewPaginationResult = true;
@@ -390,7 +374,7 @@ namespace LightQuery.Client.Tests
 
         public class PageRangeCheck
         {
-            private MockPaginationService _service;
+            private PaginationBaseService<MockPayload> _service;
             private int _initialResponsePage = 1;
             private int _lastCalledResponsePage;
             private int _firstCalledResponsePage;
@@ -399,7 +383,7 @@ namespace LightQuery.Client.Tests
 
             private void InitializeService()
             {
-                _service = new MockPaginationService(string.Empty, x =>
+                _service = new PaginationBaseService<MockPayload>(string.Empty, x =>
                 {
                     var response = GetResponse();
                     var parsedQuery = QueryHelpers.ParseQuery(x);
@@ -462,12 +446,12 @@ namespace LightQuery.Client.Tests
         public class UrlBuilder
         {
             private readonly string _baseUrl = "https://www.example.com/api/v1";
-            private MockPaginationService _service;
+            private PaginationBaseService<MockPayload> _service;
             private string _lastRequestedUrl;
 
             public UrlBuilder()
             {
-                _service = new MockPaginationService(_baseUrl, x =>
+                _service = new PaginationBaseService<MockPayload>(_baseUrl, x =>
                 {
                     _lastRequestedUrl = x;
                     return Task.FromResult(new HttpResponseMessage());
@@ -484,7 +468,7 @@ namespace LightQuery.Client.Tests
             [Fact]
             public void CallsOnInitializationWithCustomOptions()
             {
-                _service = new MockPaginationService(_baseUrl, x =>
+                _service = new PaginationBaseService<MockPayload>(_baseUrl, x =>
                 {
                     _lastRequestedUrl = x;
                     return Task.FromResult(new HttpResponseMessage());
@@ -579,7 +563,7 @@ namespace LightQuery.Client.Tests
                 };
             }
 
-            private readonly MockPaginationService _service = new MockPaginationService(string.Empty, x => Task.FromResult(new HttpResponseMessage()));
+            private readonly PaginationBaseService<MockPayload> _service = new PaginationBaseService<MockPayload>(string.Empty, x => Task.FromResult(new HttpResponseMessage()));
 
             [Fact]
             public void UpdatesPage()

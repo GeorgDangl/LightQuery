@@ -267,3 +267,6 @@ docs.zip
 
 docs/docfx.console.**/*
 docs/index.md
+*.coverageresults
+
+output/

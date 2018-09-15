@@ -1,0 +1,14 @@
+- name: Home
+  href: index.md
+- name: API Documentation
+  href: lightquery/
+- name: Client
+  href: client/
+- name: EF Core
+  href: efcore/
+- name: Shared
+  href: shared/
+- name: DanglDocu
+  href: https://docs.dangl-it.com
+- name: GitHub
+  href: https://github.com/GeorgDangl/LightQuery
