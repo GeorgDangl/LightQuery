@@ -1,4 +1,4 @@
-
+﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2005
@@ -15,11 +15,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		AngularExample.ts = AngularExample.ts
 		AppendxUnitFramework.ps1 = AppendxUnitFramework.ps1
+		docfx.json = docfx.json
 		GenerateAndDeployDocs.ps1 = GenerateAndDeployDocs.ps1
 		GitVersion.yml = GitVersion.yml
 		LICENCE.md = LICENCE.md
 		README.md = README.md
 		TestsAndCoverage.ps1 = TestsAndCoverage.ps1
+		toc.yml = toc.yml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Tests.Integration", "test\LightQuery.Tests.Integration\LightQuery.Tests.Integration.csproj", "{06D38407-1B0F-4D26-81AC-8F099B6C4CCC}"
