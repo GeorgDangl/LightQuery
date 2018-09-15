@@ -32,6 +32,7 @@ using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
 using static Nuke.GitHub.ChangeLogExtensions;
 using static Nuke.GitHub.GitHubTasks;
 using static Nuke.WebDocu.WebDocuTasks;
+using static Nuke.Common.Tools.Npm.NpmTasks;
 
 class Build : NukeBuild
 {
@@ -304,4 +305,38 @@ class Build : NukeBuild
         name = name.Substring(startIndex + 1);
         return name;
     }
+
+    Target NgLibraryTest => _ => _
+        .Executes(() =>
+        {
+            var ngAppDir = SourceDirectory / "ng-lightquery";
+            DeleteDirectory(ngAppDir / "dist");
+            DeleteDirectory(ngAppDir / "coverage");
+            DeleteFile(ngAppDir / "karma-results.xml");
+
+            Npm("ci", ngAppDir);
+            Npm("run test", ngAppDir);
+        });
+
+    Target NgLibraryPublish => _ => _
+        .Executes(() =>
+        {
+            var ngAppDir = SourceDirectory / "ng-lightquery";
+            DeleteDirectory(ngAppDir / "dist");
+
+            Npm("ci", ngAppDir);
+
+            Npm("run build", ngAppDir);
+
+            Npm($"version {GitVersion.NuGetVersion}", ngAppDir);
+            var srcReadmePath = RootDirectory / "README.md";
+            var destReadmePath = ngAppDir / "README.md";
+            if (File.Exists(destReadmePath))
+            {
+                File.Delete(destReadmePath);
+            }
+            File.Copy(srcReadmePath, destReadmePath);
+
+            Npm("publish", ngAppDir);
+        });
 }
