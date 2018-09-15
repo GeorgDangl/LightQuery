@@ -251,4 +251,4 @@ export class UsersDetailsService extends PaginationBaseService<User> implements 
 
 ---
 
-[MIT License](LICENSE.md)
+[MIT Licence](LICENCE.md)

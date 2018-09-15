@@ -16,7 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		AngularExample.ts = AngularExample.ts
 		AppendxUnitFramework.ps1 = AppendxUnitFramework.ps1
 		GenerateAndDeployDocs.ps1 = GenerateAndDeployDocs.ps1
-		LICENSE.md = LICENSE.md
+		LICENCE.md = LICENCE.md
 		README.md = README.md
 		TestsAndCoverage.ps1 = TestsAndCoverage.ps1
 	EndProjectSection
