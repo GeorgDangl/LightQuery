@@ -69,7 +69,10 @@ class Build : NukeBuild
     Target Clean => _ => _
         .Executes(() =>
         {
-            DeleteDirectories(GlobDirectories(SourceDirectory, "**/bin", "**/obj"));
+            DeleteDirectories(GlobDirectories(SourceDirectory / "LightQuery", "**/bin", "**/obj"));
+            DeleteDirectories(GlobDirectories(SourceDirectory / "LightQuery.Client", "**/bin", "**/obj"));
+            DeleteDirectories(GlobDirectories(SourceDirectory / "LightQuery.EntityFrameworkCore", "**/bin", "**/obj"));
+            DeleteDirectories(GlobDirectories(SourceDirectory / "LightQuery.Shared", "**/bin", "**/obj"));
             DeleteDirectories(GlobDirectories(RootDirectory / "test", "**/bin", "**/obj"));
             EnsureCleanDirectory(OutputDirectory);
         });
