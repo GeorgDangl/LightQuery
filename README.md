@@ -1,5 +1,5 @@
 # LightQuery
-[![Build Status](https://jenkins.dangl.me/buildStatus/icon?job=LightQuery.Tests)](https://jenkins.dangl.me/job/LightQuery.Tests)
+[![Build Status](https://jenkins.dangl.me/buildStatus/icon?job=LightQuery/dev)](https://jenkins.dangl.me/job/LightQuery/job/dev/)
 
 [Online Documentation](https://docs.dangl-it.com/Projects/LightQuery)
 
