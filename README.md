@@ -38,7 +38,7 @@ Includes support for EntityFramework.Core async query materialization
 
 Includes LightQuery models and the QueryBuilder utility
 
-Both **NETStandard 1.6** and **.Net 4.6.1** are supported.
+**NETStandard 2.0**, **NETStandard 1.6** and **.Net 4.6.1** are supported.
 
 ## Testing
 
