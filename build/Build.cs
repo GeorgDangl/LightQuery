@@ -107,7 +107,9 @@ class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(async () =>
         {
-            var testProjects = GlobFiles(SolutionDirectory / "test", "*.csproj").ToList();
+            var testProjects = GlobFiles(SolutionDirectory / "test", "*.csproj")
+                .Where(t => !t.EndsWith("LightQuery.IntegrationTestsServer.csproj"))
+                .ToList();
             for (var i = 0; i < testProjects.Count; i++)
             {
                 var testProject = testProjects[i];
