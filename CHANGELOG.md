@@ -2,6 +2,10 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v1.3.0:
+- Raise minimum supported .NET Standard version to `netstandard2.0`
+- Bump version to align .NET and npm package versions
+
 ## v1.1.0:
 - Publish ng-lightquery npm package for angular and include PaginationBaseService in the client libraries
 
