@@ -41,6 +41,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Shared", "src\Li
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Shared.Tests", "test\LightQuery.Shared.Tests\LightQuery.Shared.Tests.csproj", "{38C64E1E-28CD-46D9-A4B2-D2E59683F8C0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = ".build", "build\.build.csproj", "{506E6C78-4821-4269-A19A-7B60900EFBC6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
