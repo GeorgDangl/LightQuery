@@ -31,7 +31,7 @@ pipeline {
                     openTasks(
                         canComputeNew: false,
                         defaultEncoding: '',
-                        excludePattern: '',
+                        excludePattern: 'src/ng-lightquery/node_modules/**/*',
                         healthy: '',
                         high: 'HACK, FIXME',
                         ignoreCase: true,
