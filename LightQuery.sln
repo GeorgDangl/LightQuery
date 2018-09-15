@@ -14,14 +14,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A2148043-F19B-41D9-8049-C2B9A0DFABD2}"
 	ProjectSection(SolutionItems) = preProject
 		AngularExample.ts = AngularExample.ts
-		AppendxUnitFramework.ps1 = AppendxUnitFramework.ps1
 		CHANGELOG.md = CHANGELOG.md
 		docfx.json = docfx.json
-		GenerateAndDeployDocs.ps1 = GenerateAndDeployDocs.ps1
 		GitVersion.yml = GitVersion.yml
 		LICENCE.md = LICENCE.md
 		README.md = README.md
-		TestsAndCoverage.ps1 = TestsAndCoverage.ps1
 		toc.yml = toc.yml
 	EndProjectSection
 EndProject
