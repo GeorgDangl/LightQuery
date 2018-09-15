@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27004.2005
@@ -16,6 +16,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		AngularExample.ts = AngularExample.ts
 		AppendxUnitFramework.ps1 = AppendxUnitFramework.ps1
 		GenerateAndDeployDocs.ps1 = GenerateAndDeployDocs.ps1
+		GitVersion.yml = GitVersion.yml
 		LICENCE.md = LICENCE.md
 		README.md = README.md
 		TestsAndCoverage.ps1 = TestsAndCoverage.ps1
