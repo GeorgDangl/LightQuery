@@ -14,6 +14,10 @@ namespace LightQuery.EntityFrameworkCore
             _forcePagination = forcePagination;
             _defaultPageSize = defaultPageSize;
             _defaultSort = defaultSort;
+            if (!_defaultSort.IsValidSortParameter())
+            {
+                throw new System.ArgumentException("Please specifiy either 'asc' or 'desc' as the sort direction for the defaultSort parameter and ensure it has not more than two segments", nameof(defaultSort));
+            }
         }
 
         private readonly bool _forcePagination;
