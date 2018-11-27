@@ -7,22 +7,22 @@ namespace LightQuery.Shared
     public static class QueryParser
     {
         public const int DEFAULT_PAGE_SIZE = 50;
-
-        public static QueryOptions GetQueryOptions(IQueryCollection query, int defaultPageSize = DEFAULT_PAGE_SIZE)
+        
+        public static QueryOptions GetQueryOptions(IQueryCollection query, int defaultPageSize = DEFAULT_PAGE_SIZE, string defaultSort = null)
         {
             if (query == null)
             {
                 throw new ArgumentNullException(nameof(query));
             }
             var queryOptions = new QueryOptions();
-            ParseSortingOptions(queryOptions, query);
+            ParseSortingOptions(queryOptions, query, defaultSort);
             ParsePagingOptions(queryOptions, query, defaultPageSize);
             return queryOptions;
         }
 
-        private static void ParseSortingOptions(QueryOptions queryOptions, IQueryCollection query)
+        private static void ParseSortingOptions(QueryOptions queryOptions, IQueryCollection query, string defaultSort)
         {
-            var sortParam = query["sort"].FirstOrDefault();
+            var sortParam = string.IsNullOrWhiteSpace(query["sort"].FirstOrDefault()) ? defaultSort : query["sort"].FirstOrDefault();
             if (string.IsNullOrWhiteSpace(sortParam))
             {
                 return;

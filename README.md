@@ -83,6 +83,11 @@ Example:
 
 This will sort the result by its `Email` property (it is title-cased if no `email` property is found) in `descending` order.
 
+#### Default Sort Order
+
+You can specifiy a default sort order via the `defaultSort` parameter of the `[LightQuery]` attribute. It expects a string that
+is in the same format as the query string, e.g. `defaultSort: "email desc"`.
+
 ### Pagination & Sorting
 
 Paging is **active when the request includes pagination query parameters** or via explicitly setting the `forcePagination`
@@ -93,7 +98,7 @@ using LightQuery;
 
 public class ApiController : Controller
 {
-    [LightQuery(forcePagination: true, defaultPageSize: 3)]
+    [LightQuery(forcePagination: true, defaultPageSize: 3, defaultSort: "columnName desc")]
     [ProducesResponseType(typeof(PaginationResult<User>), 200)]
     public IActionResult GetValues()
     {

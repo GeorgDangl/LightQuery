@@ -21,5 +21,13 @@ namespace LightQuery.IntegrationTestsServer.Controllers
             var users = _context.Users.OrderBy(u => Guid.NewGuid());
             return Ok(users);
         }
+
+        [HttpGet("/AsyncLightQueryWithDefaultSort")]
+        [AsyncLightQuery(defaultSort: nameof(LightQuery.IntegrationTestsServer.User.Email) + " asc")]
+        public IActionResult GetValuesSortedByDefault()
+        {
+            var users = _context.Users.OrderBy(u => Guid.NewGuid());
+            return Ok(users);
+        }
     }
 }

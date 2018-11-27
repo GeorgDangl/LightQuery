@@ -208,5 +208,29 @@ namespace LightQuery.Tests.Integration.ControllerTests
             var response = await GetResponse<PaginationResult<User>>(url);
             Assert.NotNull(response);
         }
+
+        [Fact]
+        public async Task AppliesDefaultSortWithoutClientSortParameter()
+        {
+            var url = "LightQueryWithDefaultSort";
+            var actualResponse = await GetResponse<List<User>>(url);
+            for (var i = 1; i < actualResponse.Count; i++)
+            {
+                var previousValueIsSmaller = actualResponse[i].Email.CompareTo(actualResponse[i - 1].Email) > 0;
+                Assert.True(previousValueIsSmaller);
+            }
+        }
+
+        [Fact]
+        public async Task CanOverrideDefaultSort()
+        {
+            var url = "LightQueryWithDefaultSort?sort=userName";
+            var actualResponse = await GetResponse<List<User>>(url);
+            for (var i = 1; i < actualResponse.Count; i++)
+            {
+                var previousValueIsSmaller = actualResponse[i].UserName.CompareTo(actualResponse[i - 1].UserName) > 0;
+                Assert.True(previousValueIsSmaller);
+            }
+        }
     }
 }
