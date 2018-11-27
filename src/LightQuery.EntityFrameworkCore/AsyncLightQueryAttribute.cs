@@ -7,20 +7,22 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LightQuery.EntityFrameworkCore
 {
-    public class AsyncLightQueryAttribute :  ActionFilterAttribute
+    public class AsyncLightQueryAttribute : ActionFilterAttribute
     {
-        public AsyncLightQueryAttribute(bool forcePagination = false, int defaultPageSize = QueryParser.DEFAULT_PAGE_SIZE)
+        public AsyncLightQueryAttribute(bool forcePagination = false, int defaultPageSize = QueryParser.DEFAULT_PAGE_SIZE, string defaultSort = null)
         {
             _forcePagination = forcePagination;
             _defaultPageSize = defaultPageSize;
+            _defaultSort = defaultSort;
         }
 
         private readonly bool _forcePagination;
         private readonly int _defaultPageSize;
+        private readonly string _defaultSort;
 
         public override async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
-            var queryContainer = ContextProcessor.GetQueryContainer(context, _defaultPageSize);
+            var queryContainer = ContextProcessor.GetQueryContainer(context, _defaultPageSize, _defaultSort);
             if (queryContainer.ObjectResult == null)
             {
                 return;
