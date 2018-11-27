@@ -93,7 +93,7 @@ using LightQuery;
 
 public class ApiController : Controller
 {
-    [LightQuery(forcePagination: true, defaultPageSize: 3)]
+    [LightQuery(forcePagination: true, defaultPageSize: 3, defaultSort: "columnName desc")]
     [ProducesResponseType(typeof(PaginationResult<User>), 200)]
     public IActionResult GetValues()
     {
