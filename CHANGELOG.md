@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v1.4.0:
+- The `defaultSort` parameter was introduced for the server side controller attributes. Thanks to GitHub user @erdembas's for the pull request!
+
 ## v1.3.0:
 - Raise minimum supported .NET Standard version to `netstandard2.0`
 - Bump version to align .NET and npm package versions
