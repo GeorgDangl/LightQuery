@@ -87,6 +87,33 @@ This will sort the result by its `Email` property (it is title-cased if no `emai
 
 You can specifiy a default sort order via the `defaultSort` parameter of the `[LightQuery]` attribute. It expects a string that
 is in the same format as the query string, e.g. `defaultSort: "email desc"`.
+If relational sorting is active, null checks are introduced.
+
+#### Relational Sorting
+
+It is possible to sort by nested properties. This means that properties may be specified in a dotted way to access nested elements,
+e.g. sorting can be done by using `bankAccount.balance`. Take this example:
+
+```json
+[
+    {
+        name: "George",
+        bankAccount: { balance: 500 }
+    },
+    {
+        name: "Alice",
+        bankAccount: { balance: 800 }
+    },
+    {
+        name: "Bob",
+        bankAccount: null
+    },
+]
+```
+
+If you apply the sorting expression `bankAccount.balanace`, the user `Bob` will not be present in the
+result set because the `bankAccount` property is null. The query will only be applied to `George` and `Alice`.
+
 
 ### Pagination & Sorting
 
