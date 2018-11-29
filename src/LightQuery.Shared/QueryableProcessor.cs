@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -74,9 +74,50 @@ namespace LightQuery.Shared
                 return queryable;
             }
             var orderMethodName = queryOptions.IsDescending ? nameof(Queryable.OrderByDescending) : nameof(Queryable.OrderBy);
+            // If this is a nested expression, it should additionally add null checks to exclude null children
+            queryable = queryable.WrapInNullChecksIfAccessingNestedProperties(queryable.ElementType, queryOptions.SortPropertyName);
             var wrappedExpression = Expression.Call(typeof(Queryable), orderMethodName, new [] { queryable.ElementType, orderingProperty.PropertyType }, queryable.Expression, Expression.Quote(orderByExp));
             var result = queryable.Provider.CreateQuery(wrappedExpression);
             return result;
+        }
+
+        private static IQueryable WrapInNullChecksIfAccessingNestedProperties(this IQueryable queryable, Type type, string propertyName)
+        {
+            var members = propertyName.Split('.');
+            if (members.Length == 1)
+            {
+                return queryable;
+            }
+
+            // The following is essentially just appending a .Where() clause
+            // to the queryable for each depth level of the query, e.g. for "Product.Data.Title"
+            // it generates:
+            // queryable
+            //  .Where(x => x.Product != null)
+            //  .Where(x => x.Product.Data != null)
+
+            for (var i = 0; i < members.Length - 1; i++)
+            {
+                var member = members[i];
+                var param = Expression.Parameter(type, "v");
+                Expression body = param;
+                for (var j = 0; j <= i; j++)
+                {
+                    body = Expression.PropertyOrField(body, CamelizeString(members[j])) ?? Expression.PropertyOrField(body, members[j]);
+                }
+
+                var memberPath = members
+                    .TakeWhile((mem, index) => index <= i)
+                    .Aggregate((c, n) => c + "." + n);
+                var propertyType = GetPropertyInfoRecursively(queryable, memberPath).PropertyType;
+                var notNullExpression = Expression.NotEqual(body, Expression.Constant(null));
+                var notNullLambda = Expression.Lambda(notNullExpression, param);
+                var whereMethodName = nameof(Queryable.Where);
+                var nullCheckExpression = Expression.Call(typeof(Queryable), whereMethodName, new[] { type }, queryable.Expression, Expression.Quote(notNullLambda));
+                queryable = queryable.Provider.CreateQuery(nullCheckExpression);
+            }
+
+            return queryable;
         }
 
         private static string CamelizeString(string camelCase)

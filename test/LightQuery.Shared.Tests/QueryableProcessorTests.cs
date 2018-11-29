@@ -14,6 +14,7 @@ namespace LightQuery.Shared.Tests
         }
 
         #region Relational Data Sorting
+
         private class Order
         {
             public string Title { get; set; }
@@ -88,7 +89,8 @@ namespace LightQuery.Shared.Tests
                 .ToList()
                 .AsQueryable();
         }
-        #endregion
+
+        #endregion Relational Data Sorting
 
         private IQueryable<User> GetUsers()
         {
@@ -261,6 +263,7 @@ namespace LightQuery.Shared.Tests
         }
 
         #region Relational data sorting tests
+
         [Fact]
         public void ApplySortByTitleAscending()
         {
@@ -403,6 +406,114 @@ namespace LightQuery.Shared.Tests
             Assert.Equal("C123456", actual.First().Product.Detail.Barcode);
             Assert.Equal("A123456", actual.Last().Product.Detail.Barcode);
         }
-        #endregion
+
+        [Fact]
+        public void ReturnsNoneForSecondLevelQueryWhenAllSecondLevelItemsAreNull()
+        {
+            var orders = new[]
+            {
+                new Order{Title = "#1" },
+                new Order{Title = "#2" },
+                new Order{Title = "#3" },
+                new Order{Title = "#4" },
+                new Order{Title = "#5" },
+            }
+                .OrderBy(x => Guid.NewGuid())
+                .AsQueryable();
+
+            Assert.All(orders, o => Assert.Null(o.Product));
+
+            var queryOptions = new QueryOptions
+            {
+                SortPropertyName = "Product.Detail",
+                IsDescending = true
+            };
+            var actual = orders.ApplySorting(queryOptions).Cast<Order>().ToList();
+
+            Assert.Empty(actual);
+        }
+
+        [Fact]
+        public void RemovesNullSecondLevelProperties()
+        {
+            var orders = new[]
+                {
+                    new Order{Title = "#1" },
+                    new Order{Title = "#2", Product = new Product{ Name = "Zippers" } },
+                    new Order{Title = "#3", Product = new Product{ Name = "Apples" }  },
+                    new Order{Title = "#4", Product = new Product{ Name = "Oranges" }  },
+                    new Order{Title = "#5" },
+                }
+               .OrderBy(x => Guid.NewGuid())
+               .AsQueryable();
+
+            var queryOptions = new QueryOptions
+            {
+                SortPropertyName = "Product.Name",
+                IsDescending = false
+            };
+            var actual = orders.ApplySorting(queryOptions).Cast<Order>().ToList();
+
+            Assert.Equal("#3", actual[0].Title);
+            Assert.Equal("#4", actual[1].Title);
+            Assert.Equal("#2", actual[2].Title);
+            Assert.Equal(3, actual.Count);
+        }
+
+        [Fact]
+        public void RemovesNullThirdLevelProperties()
+        {
+            var orders = new[]
+                {
+                    new Order{Title = "#1" },
+                    new Order{Title = "#2", Product = new Product{ Detail = new ProductDetail{Barcode = "#456" } } },
+                    new Order{Title = "#3", Product = new Product{ Detail = new ProductDetail{Barcode = "#123" } } },
+                    new Order{Title = "#4", Product = new Product{ Detail = new ProductDetail{Barcode = "#789" } } },
+                    new Order{Title = "#5" },
+                }
+               .OrderBy(x => Guid.NewGuid())
+               .AsQueryable();
+
+            var queryOptions = new QueryOptions
+            {
+                SortPropertyName = "Product.Detail.Barcode",
+                IsDescending = false
+            };
+            var actual = orders.ApplySorting(queryOptions).Cast<Order>().ToList();
+
+            Assert.Equal("#3", actual[0].Title);
+            Assert.Equal("#2", actual[1].Title);
+            Assert.Equal("#4", actual[2].Title);
+            Assert.Equal(3, actual.Count);
+        }
+
+        [Fact]
+        public void RemovesNullThirdLevelPropertiesWithCamelCasedQuery()
+        {
+            var orders = new[]
+                {
+                    new Order{Title = "#1" },
+                    new Order{Title = "#2", Product = new Product{ Detail = new ProductDetail{Barcode = "#456" } } },
+                    new Order{Title = "#3", Product = new Product{ Detail = new ProductDetail{Barcode = "#123" } } },
+                    new Order{Title = "#4", Product = new Product{ Detail = new ProductDetail{Barcode = "#789" } } },
+                    new Order{Title = "#5" },
+                }
+               .OrderBy(x => Guid.NewGuid())
+               .AsQueryable();
+
+            var queryOptions = new QueryOptions
+            {
+                SortPropertyName = "product.detail.barcode",
+                IsDescending = false
+            };
+            var actual = orders.ApplySorting(queryOptions).Cast<Order>().ToList();
+
+            Assert.Equal("#3", actual[0].Title);
+            Assert.Equal("#2", actual[1].Title);
+            Assert.Equal("#4", actual[2].Title);
+            Assert.Equal(3, actual.Count);
+        }
+
+        #endregion Relational data sorting tests
     }
 }
