@@ -37,7 +37,7 @@ namespace LightQuery.Shared.Tests
         // Relational Data Sorting Sample Data
         private IQueryable<Order> GetOrders()
         {
-            return new[]
+            return (new[]
                 {
                     new Order
                     {
@@ -84,7 +84,7 @@ namespace LightQuery.Shared.Tests
                             }
                         }
                     }
-                }
+                }).OrderBy(x => Guid.NewGuid())
                 .ToList()
                 .AsQueryable();
         }
