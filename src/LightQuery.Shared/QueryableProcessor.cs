@@ -9,7 +9,7 @@ namespace LightQuery.Shared
 {
     public static class QueryableProcessor
     {
-        public static PropertyInfo GetPropertyInfoRecursivly(this IQueryable queryable, String propName)
+        public static PropertyInfo GetPropertyInfoRecursively(this IQueryable queryable, String propName)
         {
             string[] nameParts = propName.Split('.');
             if (nameParts.Length == 1)
@@ -61,7 +61,7 @@ namespace LightQuery.Shared
                 return queryable;
             }
 
-            var orderingProperty = GetPropertyInfoRecursivly(queryable, queryOptions.SortPropertyName);
+            var orderingProperty = GetPropertyInfoRecursively(queryable, queryOptions.SortPropertyName);
             if (orderingProperty == null)
             {
                 return queryable;
