@@ -220,5 +220,19 @@ namespace LightQuery.EntityFrameworkCore.Tests.Integration.ControllerTests
             Assert.Contains(pagedResult.Data, u => u.UserName == "Bob");
             Assert.Contains(pagedResult.Data, u => u.UserName == "Caroline");
         }
+
+        [Fact]
+        public async Task CanFilterByNestedProperty()
+        {
+            var url = "AsyncPaginatedLightQueryWithDefaultSort?sort=favoriteAnimal.name&page=1";
+            var pagedResult = await GetResponse<PaginationResult<User>>(url);
+            Assert.Equal(10, pagedResult.TotalCount);
+            Assert.Equal(1, pagedResult.Page);
+            Assert.Equal(3, pagedResult.PageSize);
+            Assert.Equal(3, pagedResult.Data.Count);
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Joe");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Iris");
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Hank");
+        }
     }
 }

@@ -2,8 +2,11 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v1.5.0:
+- It's now possible to do relational sorting, meaning that nested properties can be used for sorting. For example, it is now possible to sort by `user.bankAccount.balance`. Thanks to GitHub user @erdembas for the pull request!
+
 ## v1.4.0:
-- The `defaultSort` parameter was introduced for the server side controller attributes. Thanks to GitHub user @erdembas's for the pull request!
+- The `defaultSort` parameter was introduced for the server side controller attributes. Thanks to GitHub user @erdembas for the pull request!
 
 ## v1.3.0:
 - Raise minimum supported .NET Standard version to `netstandard2.0`
