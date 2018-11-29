@@ -514,6 +514,38 @@ namespace LightQuery.Shared.Tests
             Assert.Equal(3, actual.Count);
         }
 
+        [Fact]
+        public void ReturnsUnfilteredForInvalidRelationalSort()
+        {
+            var orders = new[]
+                {
+                    new Order{Title = "#1" },
+                    new Order{Title = "#2", Product = new Product{ Detail = new ProductDetail{Barcode = "#456" } } },
+                    new Order{Title = "#3", Product = new Product{ Detail = new ProductDetail{Barcode = "#123" } } },
+                    new Order{Title = "#4", Product = new Product{ Detail = new ProductDetail{Barcode = "#789" } } },
+                    new Order{Title = "#5" },
+                }
+               .OrderBy(x => Guid.NewGuid())
+               .ToList()
+               .AsQueryable();
+
+            var queryOptions = new QueryOptions
+            {
+                SortPropertyName = "product.invalid.barcode",
+                IsDescending = false
+            };
+            var actual = orders.ApplySorting(queryOptions).Cast<Order>().ToList();
+
+            var original = orders.ToList();
+
+            Assert.Equal(original[0].Title, actual[0].Title);
+            Assert.Equal(original[1].Title, actual[1].Title);
+            Assert.Equal(original[2].Title, actual[2].Title);
+            Assert.Equal(original[3].Title, actual[3].Title);
+            Assert.Equal(original[4].Title, actual[4].Title);
+            Assert.Equal(5, actual.Count);
+        }
+
         #endregion Relational data sorting tests
     }
 }
