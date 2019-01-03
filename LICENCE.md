@@ -1,6 +1,6 @@
 ### The MIT License (MIT)
 
-#### Copyright (c) 2017 Georg Dangl, [https://blog.dangl.me](https://blog.dangl.me)
+#### Copyright (c) 2017 - 2019 Georg Dangl, [https://blog.dangl.me](https://blog.dangl.me)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
