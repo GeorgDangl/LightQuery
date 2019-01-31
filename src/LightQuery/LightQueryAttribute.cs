@@ -44,6 +44,7 @@ namespace LightQuery
             if (totalCount <= ((queryOptions.Page - 1) * queryOptions.PageSize))
             {
                 queryOptions.Page = (int)System.Math.Ceiling((decimal)totalCount / queryOptions.PageSize);
+                queryOptions.Page = queryOptions.Page == 0 ? 1 : queryOptions.Page;
             }
 
             return new PaginationResult<object>
