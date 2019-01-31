@@ -40,7 +40,6 @@ namespace LightQuery
             var queryOptions = queryContainer.QueryOptions;
             var queryable = queryContainer.Queryable;
 
-            // FIXME : If it is necessary, we can move to another methot with proper parameters
             var totalCount = queryable.Cast<object>().Count();
             if (totalCount <= ((queryOptions.Page - 1) * queryOptions.PageSize))
             {

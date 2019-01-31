@@ -47,7 +47,6 @@ namespace LightQuery.EntityFrameworkCore
             var queryOptions = queryContainer.QueryOptions;
             var queryable = queryContainer.Queryable;
 
-            // FIXME : If it is necessary, we can move to another methot with proper parameters
             var totalCount = await queryable.Cast<object>().CountAsync();
             if (totalCount <= ((queryOptions.Page - 1) * queryOptions.PageSize))
             {
