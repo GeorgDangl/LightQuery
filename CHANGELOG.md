@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v1.5.1:
+- When a `page` is requested that is higher than the last available one, the last available one will be returned instead. Thanks to GitHub user @erdembas for the pull request!
+
 ## v1.5.0:
 - It's now possible to do relational sorting, meaning that nested properties can be used for sorting. For example, it is now possible to sort by `user.bankAccount.balance`. Thanks to GitHub user @erdembas for the pull request!
 
