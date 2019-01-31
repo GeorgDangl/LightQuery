@@ -76,12 +76,16 @@ namespace LightQuery.EntityFrameworkCore.Tests.Integration.ControllerTests
         [Fact]
         public async Task SortByUserNameAndFifthPage()
         {
+            // There is no fifth page for the given page size,
+            // so it should return the last (fourth) page
             var url = "AsyncPaginatedLightQuery?sort=userName&page=5";
             var pagedResult = await GetResponse<PaginationResult<User>>(url);
             Assert.Equal(10, pagedResult.TotalCount);
-            Assert.Equal(5, pagedResult.Page);
+            Assert.Equal(4, pagedResult.Page);
             Assert.Equal(3, pagedResult.PageSize);
-            Assert.Empty(pagedResult.Data);
+            // There's only a single record left on the fourth page
+            Assert.Single(pagedResult.Data);
+            Assert.Contains(pagedResult.Data, u => u.UserName == "Joe");
         }
 
         [Fact]
