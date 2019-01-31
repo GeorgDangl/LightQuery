@@ -194,6 +194,18 @@ namespace LightQuery.Tests.Integration.ControllerTests
         }
 
         [Fact]
+        public async Task IfPageAndPageSizeExceedTotalCountReturnsLastValidPageAndRecord()
+        {
+            var url = "PaginatedLightQuery?sort=userName&page=4&pageSize=5";
+            var pagedResult = await GetResponse<PaginationResult<User>>(url);
+            Assert.Equal(10, pagedResult.TotalCount);
+
+            Assert.Equal(2, pagedResult.Page);
+            Assert.Equal(5, pagedResult.PageSize);
+            Assert.Equal(5, pagedResult.Data.Count);
+        }
+
+        [Fact]
         public async Task AppliesDefaultSortWithoutClientSortParameter()
         {
             var url = "PaginatedLightQueryWithDefaultSort";
