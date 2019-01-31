@@ -210,6 +210,18 @@ namespace LightQuery.EntityFrameworkCore.Tests.Integration.ControllerTests
         }
 
         [Fact]
+        public async Task ReturnsEmptyResultWithPageSetToOneIfNoRecordsPresent()
+        {
+            var url = "AsyncPaginatedLightQuery?returnEmptyList=true&pageSize=5";
+            var pagedResult = await GetResponse<PaginationResult<User>>(url);
+            Assert.Equal(0, pagedResult.TotalCount);
+
+            Assert.Equal(1, pagedResult.Page);
+            Assert.Equal(5, pagedResult.PageSize);
+            Assert.Empty(pagedResult.Data);
+        }
+
+        [Fact]
         public async Task AppliesDefaultSortWithoutClientSortParameter()
         {
             var url = "AsyncPaginatedLightQueryWithDefaultSort";

@@ -16,9 +16,13 @@ namespace LightQuery.IntegrationTestsServer.Controllers
         private readonly LightQueryContext _context;
 
         [LightQuery(forcePagination: true, defaultPageSize: 3)]
-        public IActionResult GetValues()
+        public IActionResult GetValues(bool returnEmptyList = false)
         {
             var users = _context.Users.OrderBy(u => Guid.NewGuid());
+            if (returnEmptyList)
+            {
+                users = users.Where(u => false).AsQueryable().OrderBy(u => Guid.NewGuid());
+            }
             return Ok(users);
         }
 
