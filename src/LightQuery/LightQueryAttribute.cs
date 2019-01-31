@@ -39,11 +39,18 @@ namespace LightQuery
         {
             var queryOptions = queryContainer.QueryOptions;
             var queryable = queryContainer.Queryable;
+
+            var totalCount = queryable.Cast<object>().Count();
+            if (totalCount <= ((queryOptions.Page - 1) * queryOptions.PageSize))
+            {
+                queryOptions.Page = (int)System.Math.Ceiling((decimal)totalCount / queryOptions.PageSize);
+            }
+
             return new PaginationResult<object>
             {
                 Page = queryOptions.Page,
                 PageSize = queryOptions.PageSize,
-                TotalCount = queryable.Cast<object>().Count(),
+                TotalCount = totalCount,
                 Data = queryable.Cast<object>().Skip((queryOptions.Page - 1) * queryOptions.PageSize).Take(queryOptions.PageSize).ToList()
             };
         }

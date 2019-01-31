@@ -46,11 +46,18 @@ namespace LightQuery.EntityFrameworkCore
         {
             var queryOptions = queryContainer.QueryOptions;
             var queryable = queryContainer.Queryable;
+
+            var totalCount = await queryable.Cast<object>().CountAsync();
+            if (totalCount <= ((queryOptions.Page - 1) * queryOptions.PageSize))
+            {
+                queryOptions.Page = (int)System.Math.Ceiling((decimal)totalCount / queryOptions.PageSize);
+            }
+
             return new PaginationResult<object>
             {
                 Page = queryOptions.Page,
                 PageSize = queryOptions.PageSize,
-                TotalCount = await queryable.Cast<object>().CountAsync(),
+                TotalCount = totalCount,
                 Data = await queryable.Cast<object>().Skip((queryOptions.Page - 1) * queryOptions.PageSize).Take(queryOptions.PageSize).ToListAsync()
             };
         }
