@@ -42,7 +42,7 @@ Includes LightQuery models and the QueryBuilder utility
 
 ## Testing
 
-Tests are run via the `TestsAndCoverage.ps1` script in the project root.
+Tests are run via `powershell ./build.ps1 Coverage` (or `build.sh Coverage`) in the root directory.
 
 ## Documentation - Server
 
@@ -97,21 +97,21 @@ e.g. sorting can be done by using `bankAccount.balance`. Take this example:
 ```json
 [
     {
-        name: "George",
-        bankAccount: { balance: 500 }
+        "name": "George",
+        "bankAccount": { "balance": 500 }
     },
     {
-        name: "Alice",
-        bankAccount: { balance: 800 }
+        "name": "Alice",
+        "bankAccount": { "balance": 800 }
     },
     {
-        name: "Bob",
-        bankAccount: null
+        "name": "Bob",
+        "bankAccount": null
     },
 ]
 ```
 
-If you apply the sorting expression `bankAccount.balanace`, the user `Bob` will not be present in the
+If you apply the sorting expression `bankAccount.balance`, the user `Bob` will not be present in the
 result set because the `bankAccount` property is null. The query will only be applied to `George` and `Alice`.
 
 
