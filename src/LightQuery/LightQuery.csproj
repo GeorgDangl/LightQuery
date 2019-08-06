@@ -5,7 +5,7 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Georg Dangl</Authors>
     <Company />
-    <Description>Asp.Net Core ActionFilter for sorting and pagination</Description>
+    <Description>ASP.NET Core ActionFilter for sorting and pagination</Description>
     <Copyright>(c) $([System.DateTime]::Now.Year) Georg Dangl</Copyright>
     <PackageLicenseUrl>https://github.com/GeorgDangl/LightQuery/blob/master/LICENSE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/GeorgDangl/LightQuery</PackageProjectUrl>
