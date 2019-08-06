@@ -47,7 +47,7 @@ pipeline {
                             skipped(failureNewThreshold: '0', failureThreshold: '0', unstableNewThreshold: '0', unstableThreshold: '0')
                         ],
                         tools: [
-                            xUnitDotNet(deleteOutputFiles: true, failIfNotNew: true, pattern: '**/*_testresults*.xml', stopProcessingIfError: false)
+                            xUnitDotNet(deleteOutputFiles: true, failIfNotNew: true, pattern: '**/*_testresults.xml', stopProcessingIfError: false)
                         ])
                     cobertura(
                         coberturaReportFile: 'output/cobertura_coverage.xml',
