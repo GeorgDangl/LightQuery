@@ -7,7 +7,7 @@
     <Company />
     <Description>This is the client side library for LightQuery - the ASP.NET Core ActionFilter for sorting and pagination</Description>
     <Copyright>(c) $([System.DateTime]::Now.Year) Georg Dangl</Copyright>
-    <PackageLicenseUrl>https://github.com/GeorgDangl/LightQuery/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageLicenseUrl>https://github.com/GeorgDangl/LightQuery/blob/master/LICENCE.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/GeorgDangl/LightQuery</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GeorgDangl/LightQuery.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
