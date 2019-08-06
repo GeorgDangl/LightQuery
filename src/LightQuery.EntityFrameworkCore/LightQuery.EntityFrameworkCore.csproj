@@ -13,6 +13,8 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>Asp-Net-Core Querying Sorting Filtering EntityFramework</PackageTags>
     <PackageIconUrl>https://blog.dangl.me/media/1114/gd_icon_256.png</PackageIconUrl>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>LightQuery.EntityFrameworkCore.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   
   <ItemGroup>
