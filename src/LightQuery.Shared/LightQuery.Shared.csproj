@@ -7,12 +7,14 @@
     <Company />
     <Description>This is a shared package. It is not intended for direct reference. It is consumed by the LightQuery and LightQuery.EntityFrameworkCore packages</Description>
     <Copyright>(c) $([System.DateTime]::Now.Year) Georg Dangl</Copyright>
-    <PackageLicenseUrl>https://github.com/GeorgDangl/LightQuery/blob/master/LICENSE.md</PackageLicenseUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/GeorgDangl/LightQuery</PackageProjectUrl>
     <RepositoryUrl>https://github.com/GeorgDangl/LightQuery.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Asp-Net-Core Querying Sorting Filtering EntityFramework</PackageTags>
     <PackageIconUrl>https://blog.dangl.me/media/1114/gd_icon_256.png</PackageIconUrl>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>LightQuery.Shared.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

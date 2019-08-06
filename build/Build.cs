@@ -75,11 +75,11 @@ class Build : NukeBuild
     Target Clean => _ => _
         .Executes(() =>
         {
-            DeleteDirectories(GlobDirectories(SourceDirectory / "LightQuery", "**/bin", "**/obj"));
-            DeleteDirectories(GlobDirectories(SourceDirectory / "LightQuery.Client", "**/bin", "**/obj"));
-            DeleteDirectories(GlobDirectories(SourceDirectory / "LightQuery.EntityFrameworkCore", "**/bin", "**/obj"));
-            DeleteDirectories(GlobDirectories(SourceDirectory / "LightQuery.Shared", "**/bin", "**/obj"));
-            DeleteDirectories(GlobDirectories(RootDirectory / "test", "**/bin", "**/obj"));
+            GlobDirectories(SourceDirectory / "LightQuery", "**/bin", "**/obj").ForEach(DeleteDirectory);
+            GlobDirectories(SourceDirectory / "LightQuery.Client", "**/bin", "**/obj").ForEach(DeleteDirectory);
+            GlobDirectories(SourceDirectory / "LightQuery.EntityFrameworkCore", "**/bin", "**/obj").ForEach(DeleteDirectory);
+            GlobDirectories(SourceDirectory / "LightQuery.Shared", "**/bin", "**/obj").ForEach(DeleteDirectory);
+            GlobDirectories(RootDirectory / "test", "**/bin", "**/obj").ForEach(DeleteDirectory);
             EnsureCleanDirectory(OutputDirectory);
         });
 
@@ -121,35 +121,39 @@ class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(async () =>
         {
-            var testProjects = GlobFiles(SolutionDirectory / "test", "*.csproj")
+            var testProjects = GlobFiles(SolutionDirectory / "test", "**/*.csproj")
                 .Where(t => !t.EndsWith("LightQuery.IntegrationTestsServer.csproj"))
                 .ToList();
-            for (var i = 0; i < testProjects.Count; i++)
-            {
-                var testProject = testProjects[i];
-                var projectDirectory = Path.GetDirectoryName(testProject);
-                // This is so that the global dotnet is used instead of the one that comes with NUKE
-                var dotnetPath = ToolPathResolver.GetPathExecutable("dotnet");
-                var snapshotIndex = i;
 
-                string xUnitOutputDirectory = OutputDirectory / $"test_{snapshotIndex:00}.testresults";
-                foreach (var targetFramework in GetTestFrameworksForProjectFile(testProject))
-                {
-                    DotCoverCover(c => c
+            try
+            {
+                var dotnetPath = ToolPathResolver.GetPathExecutable("dotnet");
+                var snapshotIndex = 0;
+                DotCoverCover(c => c
                         .SetTargetExecutable(dotnetPath)
-                        .SetTargetWorkingDirectory(projectDirectory)
-                        .SetTargetArguments($"test --no-build -f {targetFramework} --test-adapter-path:. \"--logger:xunit;LogFilePath={OutputDirectory}/{snapshotIndex}_testresults-{targetFramework}.xml\"")
                         .SetFilters("+:LightQuery")
                         .SetAttributeFilters("System.CodeDom.Compiler.GeneratedCodeAttribute")
-                        .SetOutputFile(OutputDirectory / $"coverage{snapshotIndex:00}.snapshot"));
-                }
+                        .CombineWith(cc => testProjects.SelectMany(testProject =>
+                        {
+                            var projectDirectory = Path.GetDirectoryName(testProject);
+                            var targetFrameworks = GetTestFrameworksForProjectFile(testProject);
+                            return targetFrameworks.Select(targetFramework =>
+                            {
+                                snapshotIndex++;
+                                return cc
+                                    .SetTargetWorkingDirectory(projectDirectory)
+                                    .SetOutputFile(OutputDirectory / $"coverage{snapshotIndex:00}.snapshot")
+                                    .SetTargetArguments($"test --no-build -f {targetFramework} --test-adapter-path:. \"--logger:xunit;LogFilePath={OutputDirectory}/{snapshotIndex}_testresults-{targetFramework}.xml\"");
+                            });
+                        })), degreeOfParallelism: System.Environment.ProcessorCount);
+            }
+            finally
+            {
+                PrependFrameworkToTestresults();
             }
 
-            PrependFrameworkToTestresults();
-
-            var snapshots = testProjects.Select((t, i) => OutputDirectory / $"coverage{i:00}.snapshot")
-                .Select(p => p.ToString())
-                .Aggregate((c, n) => c + ";" + n);
+            var snapshots = GlobFiles(OutputDirectory, "*.snapshot")
+               .Aggregate((c, n) => c + ";" + n);
 
             DotCoverMerge(c => c
                 .SetSource(snapshots)
@@ -162,8 +166,8 @@ class Build : NukeBuild
 
             // This is the report that's pretty and visualized in Jenkins
             ReportGenerator(c => c
-                .SetReports(OutputDirectory / "coverage.xml")
-                .SetTargetDirectory(OutputDirectory / "CoverageReport"));
+                 .SetReports(OutputDirectory / "coverage.xml")
+                 .SetTargetDirectory(OutputDirectory / "CoverageReport"));
 
             // This is the report in Cobertura format that integrates so nice in Jenkins
             // dashboard and allows to extract more metrics and set build health based
@@ -178,7 +182,8 @@ class Build : NukeBuild
         var targetFrameworks = XmlPeek(projectFile, "//Project/PropertyGroup//TargetFrameworks")
             .Concat(XmlPeek(projectFile, "//Project/PropertyGroup//TargetFramework"))
             .Distinct()
-            .SelectMany(f => f.Split(';'));
+            .SelectMany(f => f.Split(';'))
+            .Distinct();
         return targetFrameworks;
     }
 
@@ -247,9 +252,12 @@ class Build : NukeBuild
         .Requires(() => DocuBaseUrl)
         .Executes(() =>
         {
+             var changeLog = GetCompleteChangeLog(ChangeLogFile);
+
             WebDocu(s => s
                 .SetDocuBaseUrl(DocuBaseUrl)
                 .SetDocuApiKey(DocuApiKey)
+                .SetMarkdownChangelog(changeLog)
                 .SetSourceDirectory(OutputDirectory / "docs")
                 .SetVersion(GitVersion.NuGetVersion)
             );
@@ -258,7 +266,7 @@ class Build : NukeBuild
     Target PublishGitHubRelease => _ => _
         .DependsOn(Pack)
         .Requires(() => GitHubAuthenticationToken)
-        .OnlyWhen(() => GitVersion.BranchName.Equals("master") || GitVersion.BranchName.Equals("origin/master"))
+        .OnlyWhenDynamic(() => GitVersion.BranchName.Equals("master") || GitVersion.BranchName.Equals("origin/master"))
         .Executes(async () =>
         {
             var releaseTag = $"v{GitVersion.MajorMinorPatch}";
@@ -283,7 +291,8 @@ class Build : NukeBuild
 
     void PrependFrameworkToTestresults()
     {
-        var testResults = GlobFiles(OutputDirectory, "*testresults*.xml");
+        var testResults = GlobFiles(OutputDirectory, "*testresults*.xml").ToList();
+        Logger.Log(LogLevel.Normal, $"Found {testResults.Count} test result files on which to append the framework.");
         foreach (var testResultFile in testResults)
         {
             var frameworkName = GetFrameworkNameFromFilename(testResultFile);
@@ -301,6 +310,35 @@ class Build : NukeBuild
 
             xDoc.Save(testResultFile);
         }
+
+        // Merge all the results to a single file
+        // The "run-time" attributes of the single assemblies is ensured to be unique for each single assembly by this test,
+        // since in Jenkins, the format is internally converted to JUnit. Aterwards, results with the same timestamps are
+        // ignored. See here for how the code is translated to JUnit format by the Jenkins plugin:
+        // https://github.com/jenkinsci/xunit-plugin/blob/d970c50a0501f59b303cffbfb9230ba977ce2d5a/src/main/resources/org/jenkinsci/plugins/xunit/types/xunitdotnet-2.0-to-junit.xsl#L75-L79
+        Logger.Log(LogLevel.Normal, "Updating \"run-time\" attributes in assembly entries to prevent Jenkins to treat them as duplicates");
+        var firstXdoc = XDocument.Load(testResults[0]);
+        var runtime = DateTime.Now;
+        var firstAssemblyNodes = firstXdoc.Root.Elements().Where(e => e.Name.LocalName == "assembly");
+        foreach (var assemblyNode in firstAssemblyNodes)
+        {
+            assemblyNode.SetAttributeValue("run-time", $"{runtime:HH:mm:ss}");
+            runtime = runtime.AddSeconds(1);
+        }
+        for (var i = 1; i < testResults.Count; i++)
+        {
+            var xDoc = XDocument.Load(testResults[i]);
+            var assemblyNodes = xDoc.Root.Elements().Where(e => e.Name.LocalName == "assembly");
+            foreach (var assemblyNode in assemblyNodes)
+            {
+                assemblyNode.SetAttributeValue("run-time", $"{runtime:HH:mm:ss}");
+                runtime = runtime.AddSeconds(1);
+            }
+            firstXdoc.Root.Add(assemblyNodes);
+        }
+
+        firstXdoc.Save(OutputDirectory / "testresults.xml");
+        testResults.ForEach(DeleteFile);
     }
 
     string GetFrameworkNameFromFilename(string filename)
