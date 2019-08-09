@@ -18,5 +18,10 @@ namespace LightQuery.EntityFrameworkCore.Tests.Integration.ControllerTests
             var deserializedResponse = JsonConvert.DeserializeObject<T>(responseContent);
             return deserializedResponse;
         }
+
+        protected Task<HttpResponseMessage> GetResponseMessage(string url)
+        {
+            return _client.GetAsync(url);
+        }
     }
 }

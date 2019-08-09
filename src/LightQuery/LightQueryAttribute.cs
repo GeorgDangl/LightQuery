@@ -1,7 +1,8 @@
-﻿using System.Linq;
-using LightQuery.Client;
+﻿using LightQuery.Client;
 using LightQuery.Shared;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using System.Linq;
 
 namespace LightQuery
 {
@@ -24,6 +25,13 @@ namespace LightQuery
 
         public override void OnResultExecuting(ResultExecutingContext context)
         {
+            if (context?.Result is StatusCodeResult statusCodeResult
+               && (statusCodeResult.StatusCode < 200
+               || statusCodeResult.StatusCode >= 300))
+            {
+                return;
+            }
+
             var queryContainer = ContextProcessor.GetQueryContainer(context, _defaultPageSize, _defaultSort);
             if (queryContainer.ObjectResult == null)
             {

@@ -33,5 +33,12 @@ namespace LightQuery.IntegrationTestsServer.Controllers
             var users = _context.Users.OrderBy(u => Guid.NewGuid());
             return Ok(users);
         }
+
+        [HttpGet("/PaginatedLightQueryWithBadRequestResponse")]
+        [LightQuery(forcePagination: true, defaultPageSize: 3, defaultSort: nameof(LightQuery.IntegrationTestsServer.User.Email) + " asc")]
+        public IActionResult GetBadRequestResult()
+        {
+            return BadRequest();
+        }
     }
 }
