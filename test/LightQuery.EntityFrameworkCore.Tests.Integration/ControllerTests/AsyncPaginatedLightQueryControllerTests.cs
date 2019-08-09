@@ -262,5 +262,13 @@ namespace LightQuery.EntityFrameworkCore.Tests.Integration.ControllerTests
             Assert.Contains(pagedResult.Data, u => u.UserName == "Iris");
             Assert.Contains(pagedResult.Data, u => u.UserName == "Hank");
         }
+
+        [Fact]
+        public async Task PreservesBadRequestResponse()
+        {
+            var url = "AsyncPaginatedLightQueryWithBadRequestResponse";
+            var response = await GetResponseMessage(url);
+            Assert.Equal(System.Net.HttpStatusCode.BadRequest, response.StatusCode);
+        }
     }
 }
