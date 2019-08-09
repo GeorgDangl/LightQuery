@@ -1,5 +1,6 @@
-using System;
+﻿using System;
 using System.Linq;
+using LightQuery.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LightQuery.IntegrationTestsServer.Controllers
@@ -15,7 +16,7 @@ namespace LightQuery.IntegrationTestsServer.Controllers
 
         private readonly LightQueryContext _context;
 
-        [LightQuery(forcePagination: true, defaultPageSize: 3)]
+        [AsyncLightQuery(forcePagination: true, defaultPageSize: 3)]
         public IActionResult GetValues(bool returnEmptyList = false)
         {
             var users = _context.Users.OrderBy(u => Guid.NewGuid());
@@ -27,7 +28,7 @@ namespace LightQuery.IntegrationTestsServer.Controllers
         }
 
         [HttpGet("/AsyncPaginatedLightQueryWithDefaultSort")]
-        [LightQuery(forcePagination: true, defaultPageSize: 3, defaultSort: nameof(LightQuery.IntegrationTestsServer.User.Email) + " asc")]
+        [AsyncLightQuery(forcePagination: true, defaultPageSize: 3, defaultSort: nameof(LightQuery.IntegrationTestsServer.User.Email) + " asc")]
         public IActionResult GetValuesSortedByDefault()
         {
             var users = _context.Users.OrderBy(u => Guid.NewGuid());
