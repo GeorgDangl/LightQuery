@@ -1,10 +1,10 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using LightQuery.Client;
+﻿using LightQuery.Client;
 using LightQuery.Shared;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace LightQuery.EntityFrameworkCore
 {
@@ -28,7 +28,7 @@ namespace LightQuery.EntityFrameworkCore
         public override async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
         {
             if (context?.Result is StatusCodeResult statusCodeResult
-                && (statusCodeResult.StatusCode< 200
+                && (statusCodeResult.StatusCode < 200
                 || statusCodeResult.StatusCode >= 300))
             {
                 await next.Invoke();
