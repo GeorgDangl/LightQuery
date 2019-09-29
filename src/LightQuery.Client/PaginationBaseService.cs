@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
@@ -86,12 +86,16 @@ namespace LightQuery.Client
                 {
                     try
                     {
+                        if (url == null)
+                        {
+                            return null;
+                        }
                         _requestRunningSource.OnNext(true);
                         return await _getHttpAsync(url);
                     }
                     catch
                     {
-                        return await Task.FromResult<HttpResponseMessage>(null);
+                        return null;
                     }
                 })
                 .Subscribe(async httpResponse =>
