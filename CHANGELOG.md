@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v1.6.2:
+- The .NET `PaginationBaseService` no longer makes requests when the url is null
+
 ## v1.6.1:
 - Fix issue where `BadRequest` results in `AsyncLightQuery` decorated controllers with `forcePagination:true` were returning an empty `OkResult` with status code `200` instead of the original `404 - Bad Request`
 
