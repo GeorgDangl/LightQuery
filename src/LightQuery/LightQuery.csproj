@@ -12,7 +12,7 @@
     <RepositoryUrl>https://github.com/GeorgDangl/LightQuery.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Asp-Net-Core Querying Sorting Filtering</PackageTags>
-    <PackageIconUrl>https://blog.dangl.me/media/1114/gd_icon_256.png</PackageIconUrl>
+    <PackageIcon>gd_icon_256.png</PackageIcon>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>LightQuery.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -20,6 +20,10 @@
   <ItemGroup>
     <ProjectReference Include="..\LightQuery.Client\LightQuery.Client.csproj" />
     <ProjectReference Include="..\LightQuery.Shared\LightQuery.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\gd_icon_256.png" Pack="true" PackagePath="\" />
   </ItemGroup>
   
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
