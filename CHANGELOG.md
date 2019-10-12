@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v1.7.0:
+- Add support for ASP.NET Core 3.0
+
 ## v1.6.2:
 - The .NET `PaginationBaseService` no longer makes requests when the url is null
 

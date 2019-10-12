@@ -48,7 +48,8 @@ namespace LightQuery
             var queryOptions = queryContainer.QueryOptions;
             var queryable = queryContainer.Queryable;
 
-            var totalCount = queryable.Cast<object>().Count();
+            dynamic dynamicQueryable = queryable;
+            var totalCount = Queryable.Count(dynamicQueryable);
             if (totalCount <= ((queryOptions.Page - 1) * queryOptions.PageSize))
             {
                 queryOptions.Page = (int)System.Math.Ceiling((decimal)totalCount / queryOptions.PageSize);

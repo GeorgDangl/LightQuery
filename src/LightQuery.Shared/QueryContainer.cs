@@ -5,7 +5,8 @@ namespace LightQuery.Shared
 {
     public class QueryContainer
     {
-        public QueryContainer(ObjectResult objectResult, IQueryable queryable,
+        public QueryContainer(ObjectResult objectResult,
+            IQueryable queryable,
             QueryOptions queryOptions)
         {
             ObjectResult = objectResult;
