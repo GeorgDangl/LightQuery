@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Internal;
 using Xunit;
+#if !NETCORE3
+using Microsoft.AspNetCore.Http.Internal;
+#endif
 
 namespace LightQuery.Shared.Tests
 {

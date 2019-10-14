@@ -12,18 +12,22 @@
     <RepositoryUrl>https://github.com/GeorgDangl/LightQuery.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Asp-Net-Core Querying Sorting Filtering</PackageTags>
-    <PackageIconUrl>https://blog.dangl.me/media/1114/gd_icon_256.png</PackageIconUrl>
+    <PackageIcon>gd_icon_256.png</PackageIcon>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>LightQuery.Client.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Reactive" Version="4.1.6" />
+    <PackageReference Include="System.Reactive" Version="4.2.0" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <PackageReference Include="System.Net.Http" Version="4.3.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\gd_icon_256.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">

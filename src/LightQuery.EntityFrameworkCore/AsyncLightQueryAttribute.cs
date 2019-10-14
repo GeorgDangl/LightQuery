@@ -57,7 +57,8 @@ namespace LightQuery.EntityFrameworkCore
             var queryOptions = queryContainer.QueryOptions;
             var queryable = queryContainer.Queryable;
 
-            var totalCount = await queryable.Cast<object>().CountAsync();
+            dynamic dynamicQueryable = queryable;
+            var totalCount = await EntityFrameworkQueryableExtensions.CountAsync(dynamicQueryable);
             if (totalCount <= ((queryOptions.Page - 1) * queryOptions.PageSize))
             {
                 queryOptions.Page = (int)System.Math.Ceiling((decimal)totalCount / queryOptions.PageSize);

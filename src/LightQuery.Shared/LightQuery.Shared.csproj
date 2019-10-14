@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;netstandard2.0;net461</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Georg Dangl</Authors>
     <Company />
@@ -12,14 +12,22 @@
     <RepositoryUrl>https://github.com/GeorgDangl/LightQuery.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>Asp-Net-Core Querying Sorting Filtering EntityFramework</PackageTags>
-    <PackageIconUrl>https://blog.dangl.me/media/1114/gd_icon_256.png</PackageIconUrl>
+    <PackageIcon>gd_icon_256.png</PackageIcon>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>LightQuery.Shared.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.0'">
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netstandard2.0' Or '$(TargetFramework)'=='net461'">
     <PackageReference Include="Microsoft.AspNetCore" Version="2.1.3" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\gd_icon_256.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">

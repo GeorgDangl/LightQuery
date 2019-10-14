@@ -1,13 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp2.1;netcoreapp2.0;net461</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp2.1;netcoreapp2.0;net461</TargetFrameworks>
+    <DefineConstants Condition="'$(TargetFramework)'=='netcoreapp3.0'">NETCORE3</DefineConstants>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)'!='netcoreapp3.0'">
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="2.1.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="2.1.3" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.0'">
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="3.0.0" />
   </ItemGroup>
 
   <ItemGroup>
