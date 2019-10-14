@@ -128,6 +128,96 @@ namespace LightQuery.Tests.Integration.ControllerTests
         }
 
         [Fact]
+        public async Task SortByRegistrationDate()
+        {
+            var url = "LightQuery?sort=registrationDate";
+            var actualResponse = await GetResponse<List<User>>(url);
+            for (var i = 1; i < actualResponse.Count; i++)
+            {
+                var previousValueIsSmaller = actualResponse[i].RegistrationDate.CompareTo(actualResponse[i - 1].RegistrationDate) > 0;
+                Assert.True(previousValueIsSmaller);
+            }
+        }
+
+        [Fact]
+        public async Task SortByRegistrationDateDescending()
+        {
+            var url = "LightQuery?sort=registrationDate desc";
+            var actualResponse = await GetResponse<List<User>>(url);
+            for (var i = 1; i < actualResponse.Count; i++)
+            {
+                var previousValueIsSmaller = actualResponse[i].RegistrationDate.CompareTo(actualResponse[i - 1].RegistrationDate) > 0;
+                Assert.False(previousValueIsSmaller);
+            }
+        }
+
+        [Fact]
+        public async Task SortByRegistrationDateWithPagination()
+        {
+            var url = "LightQuery?sort=registrationDate&page=2&pageSize=3";
+            var actualResponse = await GetResponse<PaginationResult<User>>(url);
+            Assert.Equal(2, actualResponse.Page);
+            Assert.Equal(3, actualResponse.PageSize);
+            Assert.Equal(3, actualResponse.Data.Count);
+            for (var i = 1; i < actualResponse.Data.Count; i++)
+            {
+                var previousValueIsSmaller = actualResponse.Data[i].RegistrationDate.CompareTo(actualResponse.Data[i - 1].RegistrationDate) > 0;
+                Assert.True(previousValueIsSmaller);
+            }
+        }
+
+        [Fact]
+        public async Task SortByRegistrationDateDescendingWithPagination()
+        {
+            var url = "LightQuery?sort=registrationDate desc&page=2&pageSize=3";
+            var actualResponse = await GetResponse<PaginationResult<User>>(url);
+            Assert.Equal(2, actualResponse.Page);
+            Assert.Equal(3, actualResponse.PageSize);
+            Assert.Equal(3, actualResponse.Data.Count);
+            for (var i = 1; i < actualResponse.Data.Count; i++)
+            {
+                var previousValueIsSmaller = actualResponse.Data[i].RegistrationDate.CompareTo(actualResponse.Data[i - 1].RegistrationDate) > 0;
+                Assert.False(previousValueIsSmaller);
+            }
+        }
+
+        [Fact]
+        public async Task SortByLastLoginDate()
+        {
+            var url = "LightQuery?sort=registrationDate";
+            var actualResponse = await GetResponse<List<User>>(url);
+            Assert.Single(actualResponse.Where(u => u.LastLoginDate != null));
+        }
+
+        [Fact]
+        public async Task SortByLastLoginDateDescending()
+        {
+            var url = "LightQuery?sort=registrationDate desc";
+            var actualResponse = await GetResponse<List<User>>(url);
+            Assert.Single(actualResponse.Where(u => u.LastLoginDate != null));
+        }
+
+        [Fact]
+        public async Task SortByLastLoginDateWithPagination()
+        {
+            var url = "LightQuery?sort=registrationDate&page=2&pageSize=3";
+            var actualResponse = await GetResponse<PaginationResult<User>>(url);
+            Assert.Equal(2, actualResponse.Page);
+            Assert.Equal(3, actualResponse.PageSize);
+            Assert.Single(actualResponse.Data.Where(u => u.LastLoginDate != null));
+        }
+
+        [Fact]
+        public async Task SortByLastLoginDateDescendingWithPagination()
+        {
+            var url = "LightQuery?sort=registrationDate desc&page=2&pageSize=3";
+            var actualResponse = await GetResponse<PaginationResult<User>>(url);
+            Assert.Equal(2, actualResponse.Page);
+            Assert.Equal(3, actualResponse.PageSize);
+            Assert.Empty(actualResponse.Data.Where(u => u.LastLoginDate != null));
+        }
+
+        [Fact]
         public async Task DontSortWithoutSortParameter()
         {
             var url = "LightQuery";
