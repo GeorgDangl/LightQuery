@@ -95,7 +95,7 @@ namespace LightQuery.Shared.Tests.Regression
         [Fact]
         public async Task CanSortOnNestedProperty()
         {
-            // This test ensures that relational sorting works with SQLiteS
+            // This test ensures that relational sorting works with SQLite
             var context = await GetContextAsync();
 
             var usersQueryable = context.Users;
