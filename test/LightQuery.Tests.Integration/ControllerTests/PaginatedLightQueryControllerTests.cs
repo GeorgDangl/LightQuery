@@ -250,7 +250,7 @@ namespace LightQuery.Tests.Integration.ControllerTests
         }
 
         [Fact]
-        public async Task CanFilterByNestedProperty()
+        public async Task CanSortByNestedProperty()
         {
             var url = "PaginatedLightQueryWithDefaultSort?sort=favoriteAnimal.name&page=1";
             var pagedResult = await GetResponse<PaginationResult<User>>(url);
@@ -258,9 +258,23 @@ namespace LightQuery.Tests.Integration.ControllerTests
             Assert.Equal(1, pagedResult.Page);
             Assert.Equal(3, pagedResult.PageSize);
             Assert.Equal(3, pagedResult.Data.Count);
-            Assert.Contains(pagedResult.Data, u => u.UserName == "Joe");
-            Assert.Contains(pagedResult.Data, u => u.UserName == "Iris");
-            Assert.Contains(pagedResult.Data, u => u.UserName == "Hank");
+            Assert.Equal("Joe", pagedResult.Data[0].UserName);
+            Assert.Equal("Iris", pagedResult.Data[1].UserName);
+            Assert.Equal("Hank", pagedResult.Data[2].UserName);
+        }
+
+        [Fact]
+        public async Task CanSortByNestedPropertyDescending()
+        {
+            var url = "PaginatedLightQueryWithDefaultSort?sort=favoriteAnimal.name desc&page=1";
+            var pagedResult = await GetResponse<PaginationResult<User>>(url);
+            Assert.Equal(10, pagedResult.TotalCount);
+            Assert.Equal(1, pagedResult.Page);
+            Assert.Equal(3, pagedResult.PageSize);
+            Assert.Equal(3, pagedResult.Data.Count);
+            Assert.Equal("Alice", pagedResult.Data[0].UserName);
+            Assert.Equal("Bob", pagedResult.Data[1].UserName);
+            Assert.Equal("Caroline", pagedResult.Data[2].UserName);
         }
 
         [Fact]
