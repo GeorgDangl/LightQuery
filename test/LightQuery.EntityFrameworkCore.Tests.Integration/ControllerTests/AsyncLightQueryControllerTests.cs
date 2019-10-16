@@ -332,5 +332,21 @@ namespace LightQuery.EntityFrameworkCore.Tests.Integration.ControllerTests
             Assert.Equal("Iris", actualResponse[1].UserName);
             Assert.Equal("Hank", actualResponse[2].UserName);
         }
+
+        [Fact]
+        public async Task DoesNotReturnErrorButUnsortedListInCaseOfInvalidPropertyName()
+        {
+            var url = "AsyncLightQuery?sort=unknownProperty";
+            var actualResponse = await GetResponse<List<User>>(url);
+            Assert.NotEmpty(actualResponse);
+        }
+
+        [Fact]
+        public async Task DoesNotReturnErrorButUnsortedListInCaseOfInvalidPropertyNameWithRelationalSorting()
+        {
+            var url = "AsyncLightQuery?sort=unknownProperty.name";
+            var actualResponse = await GetResponse<List<User>>(url);
+            Assert.NotEmpty(actualResponse);
+        }
     }
 }
