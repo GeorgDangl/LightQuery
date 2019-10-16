@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,19 +9,21 @@ namespace LightQuery.Shared
 {
     public static class QueryableProcessor
     {
-        private static PropertyInfo GetPropertyInfoRecursively(this IQueryable queryable, string propName)
+        private static (Type declaringType, PropertyInfo property) GetPropertyInfoRecursively(this IQueryable queryable, string propName)
         {
             string[] nameParts = propName.Split('.');
             if (nameParts.Length == 1)
             {
-                return queryable.ElementType.GetTypeInfo().GetProperty(CamelizeString(propName)) ?? queryable.ElementType.GetTypeInfo().GetProperty(propName);
+                var property = queryable.ElementType.GetTypeInfo().GetProperty(CamelizeString(propName)) ?? queryable.ElementType.GetTypeInfo().GetProperty(propName);
+                return (property?.DeclaringType, property);
             }
 
             //Getting Root Property - Ex : propName : "User.Name" -> User
             var propertyInfo = queryable.ElementType.GetTypeInfo().GetProperty(CamelizeString(nameParts[0])) ?? queryable.ElementType.GetTypeInfo().GetProperty(nameParts[0]);
+            var originalDeclaringType = propertyInfo.DeclaringType;
             if (propertyInfo == null)
             {
-                return null;
+                return (null, null);
             }
 
             for (int i = 1; i < nameParts.Length; i++)
@@ -29,10 +31,10 @@ namespace LightQuery.Shared
                 propertyInfo = propertyInfo.PropertyType.GetProperty(CamelizeString(nameParts[i])) ?? propertyInfo.PropertyType.GetProperty(nameParts[i]);
                 if (propertyInfo == null)
                 {
-                    return null;
+                    return (null, null);
                 }
             }
-            return propertyInfo;
+            return (originalDeclaringType, propertyInfo);
         }
 
         private static LambdaExpression CreateExpression(Type type, string propertyName)
@@ -63,12 +65,13 @@ namespace LightQuery.Shared
             }
 
             var orderingProperty = GetPropertyInfoRecursively(queryable, queryOptions.SortPropertyName);
-            if (orderingProperty == null)
+            if (orderingProperty.declaringType == null
+                || orderingProperty.property == null)
             {
                 return queryable;
             }
 
-            var orderByExp = CreateExpression(queryable.ElementType, queryOptions.SortPropertyName);
+            var orderByExp = CreateExpression(orderingProperty.declaringType, queryOptions.SortPropertyName);
             if (orderByExp == null)
             {
                 return queryable;
@@ -79,7 +82,7 @@ namespace LightQuery.Shared
             queryable = queryable.WrapInNullChecksIfAccessingNestedProperties(queryable.ElementType, queryOptions.SortPropertyName);
             var wrappedExpression = Expression.Call(typeof(Queryable),
                 orderMethodName,
-                new[] { queryable.ElementType, orderingProperty.PropertyType },
+                new [] { orderingProperty.declaringType, orderingProperty.property.PropertyType },
                 queryable.Expression,
                 Expression.Quote(orderByExp));
             var result = queryable.Provider.CreateQuery(wrappedExpression);
@@ -100,7 +103,6 @@ namespace LightQuery.Shared
             // queryable
             //  .Where(x => x.Product != null)
             //  .Where(x => x.Product.Data != null)
-
             for (var i = 0; i < members.Length - 1; i++)
             {
                 var member = members[i];
@@ -114,7 +116,6 @@ namespace LightQuery.Shared
                 var memberPath = members
                     .TakeWhile((mem, index) => index <= i)
                     .Aggregate((c, n) => c + "." + n);
-                var propertyType = GetPropertyInfoRecursively(queryable, memberPath).PropertyType;
                 var notNullExpression = Expression.NotEqual(body, Expression.Constant(null));
                 var notNullLambda = Expression.Lambda(notNullExpression, param);
                 var whereMethodName = nameof(Queryable.Where);

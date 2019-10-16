@@ -13,7 +13,6 @@ namespace LightQuery.IntegrationTestsServer
             services.AddDbContext<LightQueryContext>(options => options.UseInMemoryDatabase(_inMemoryDatabaseName));
             services.AddMvc();
 
-
 #if NETCORE3
             services.AddMvc(mvcOptions => mvcOptions.EnableEndpointRouting = false); ;
 #else

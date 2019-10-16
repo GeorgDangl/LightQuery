@@ -324,15 +324,13 @@ namespace LightQuery.Tests.Integration.ControllerTests
         }
 
         [Fact]
-        public async Task CanFilterByNestedProperty()
+        public async Task CanSortByNestedProperty()
         {
             var url = "LightQueryWithDefaultSort?sort=favoriteAnimal.name";
             var actualResponse = await GetResponse<List<User>>(url);
-            for (var i = 1; i < actualResponse.Count; i++)
-            {
-                var previousValueIsSmaller = actualResponse[i].UserName.CompareTo(actualResponse[i - 1].UserName) > 0;
-                Assert.False(previousValueIsSmaller);
-            }
+            Assert.Equal("Joe", actualResponse[0].UserName);
+            Assert.Equal("Iris", actualResponse[1].UserName);
+            Assert.Equal("Hank", actualResponse[2].UserName);
         }
     }
 }

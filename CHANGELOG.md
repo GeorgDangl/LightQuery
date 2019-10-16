@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v1.7.1:
+- Fixed a bug that caused Entity Framework Core to throw an `InvalidOperationException` when sorting was applied to projections to a class that inherited from the base query type. The error was an incorrectly used reflection invocation to determine the type the query applies to
+
 ## v1.7.0:
 - Add support for ASP.NET Core 3.0
 
