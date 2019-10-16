@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ namespace LightQuery.Shared
 {
     public static class QueryableProcessor
     {
-        public static PropertyInfo GetPropertyInfoRecursively(this IQueryable queryable, string propName)
+        private static PropertyInfo GetPropertyInfoRecursively(this IQueryable queryable, string propName)
         {
             string[] nameParts = propName.Split('.');
             if (nameParts.Length == 1)
@@ -35,7 +35,7 @@ namespace LightQuery.Shared
             return propertyInfo;
         }
 
-        public static LambdaExpression CreateExpression(Type type, string propertyName)
+        private static LambdaExpression CreateExpression(Type type, string propertyName)
         {
             var param = Expression.Parameter(type, "v");
             Expression body = param;
