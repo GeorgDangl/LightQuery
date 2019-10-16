@@ -348,5 +348,13 @@ namespace LightQuery.Tests.Integration.ControllerTests
             var actualResponse = await GetResponse<List<User>>(url);
             Assert.NotEmpty(actualResponse);
         }
+
+        [Fact]
+        public async Task DoesNotReturnErrorButUnsortedListInCaseOfInvalidPropertyNameWithRelationalSortingWithErrorOnSecondLevel()
+        {
+            var url = "LightQuery?sort=favoriteAnimal.unknownProperty.name";
+            var actualResponse = await GetResponse<List<User>>(url);
+            Assert.NotEmpty(actualResponse);
+        }
     }
 }
