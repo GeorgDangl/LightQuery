@@ -73,10 +73,15 @@ namespace LightQuery.Shared
             {
                 return queryable;
             }
+
             var orderMethodName = queryOptions.IsDescending ? nameof(Queryable.OrderByDescending) : nameof(Queryable.OrderBy);
             // If this is a nested expression, it should additionally add null checks to exclude null children
             queryable = queryable.WrapInNullChecksIfAccessingNestedProperties(queryable.ElementType, queryOptions.SortPropertyName);
-            var wrappedExpression = Expression.Call(typeof(Queryable), orderMethodName, new [] { queryable.ElementType, orderingProperty.PropertyType }, queryable.Expression, Expression.Quote(orderByExp));
+            var wrappedExpression = Expression.Call(typeof(Queryable),
+                orderMethodName,
+                new[] { queryable.ElementType, orderingProperty.PropertyType },
+                queryable.Expression,
+                Expression.Quote(orderByExp));
             var result = queryable.Provider.CreateQuery(wrappedExpression);
             return result;
         }
