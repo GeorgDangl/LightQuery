@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -11,7 +9,7 @@ namespace LightQuery.Shared
     {
         private static (Type declaringType, PropertyInfo property) GetPropertyInfoRecursively(this IQueryable queryable, string propName)
         {
-            string[] nameParts = propName.Split('.');
+            var nameParts = propName.Split('.');
             if (nameParts.Length == 1)
             {
                 var property = queryable.ElementType.GetTypeInfo().GetProperty(CamelizeString(propName)) ?? queryable.ElementType.GetTypeInfo().GetProperty(propName);
@@ -20,12 +18,12 @@ namespace LightQuery.Shared
 
             //Getting Root Property - Ex : propName : "User.Name" -> User
             var propertyInfo = queryable.ElementType.GetTypeInfo().GetProperty(CamelizeString(nameParts[0])) ?? queryable.ElementType.GetTypeInfo().GetProperty(nameParts[0]);
-            var originalDeclaringType = propertyInfo.DeclaringType;
             if (propertyInfo == null)
             {
                 return (null, null);
             }
 
+            var originalDeclaringType = propertyInfo.DeclaringType;
             for (int i = 1; i < nameParts.Length; i++)
             {
                 propertyInfo = propertyInfo.PropertyType.GetProperty(CamelizeString(nameParts[i])) ?? propertyInfo.PropertyType.GetProperty(nameParts[i]);
@@ -82,7 +80,7 @@ namespace LightQuery.Shared
             queryable = queryable.WrapInNullChecksIfAccessingNestedProperties(queryable.ElementType, queryOptions.SortPropertyName);
             var wrappedExpression = Expression.Call(typeof(Queryable),
                 orderMethodName,
-                new [] { orderingProperty.declaringType, orderingProperty.property.PropertyType },
+                new[] { orderingProperty.declaringType, orderingProperty.property.PropertyType },
                 queryable.Expression,
                 Expression.Quote(orderByExp));
             var result = queryable.Provider.CreateQuery(wrappedExpression);
