@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
 
@@ -42,9 +42,7 @@ namespace LightQuery.Shared
 
         private static bool IsDescendingSortParameter(string sortIndicator)
         {
-            var indicatesDescending = sortIndicator
-                .ToUpperInvariant()
-                .Contains("desc".ToUpperInvariant());
+            var indicatesDescending = sortIndicator.Contains("desc", StringComparison.InvariantCultureIgnoreCase);
             return indicatesDescending;
         }
 
