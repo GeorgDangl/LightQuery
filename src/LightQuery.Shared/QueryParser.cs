@@ -16,6 +16,7 @@ namespace LightQuery.Shared
             }
             var queryOptions = new QueryOptions();
             ParseSortingOptions(queryOptions, query, defaultSort);
+            ParseThenSortingOptions(queryOptions, query);
             ParsePagingOptions(queryOptions, query, defaultPageSize);
             return queryOptions;
         }
@@ -27,16 +28,46 @@ namespace LightQuery.Shared
             {
                 return;
             }
+
             var paramSections = sortParam.Split(' ').ToList();
             if (paramSections.Count > 2)
             {
                 // Invalid format -> Return no decision instead of a wrong one
                 return;
             }
-            queryOptions.SortPropertyName = paramSections[0];
+            queryOptions.Sort = new SortOption
+            {
+                PropertyName = paramSections[0]
+            };
+
             if (paramSections.Count == 2)
             {
-                queryOptions.IsDescending = IsDescendingSortParameter(paramSections[1]);
+                queryOptions.Sort.IsDescending = IsDescendingSortParameter(paramSections[1]);
+            }
+        }
+
+        private static void ParseThenSortingOptions(QueryOptions queryOptions, IQueryCollection query)
+        {
+            var sortParam = query["thenSort"].FirstOrDefault();
+            if (string.IsNullOrWhiteSpace(sortParam))
+            {
+                return;
+            }
+
+            var paramSections = sortParam.Split(' ').ToList();
+            if (paramSections.Count > 2)
+            {
+                // Invalid format -> Return no decision instead of a wrong one
+                return;
+            }
+            queryOptions.ThenSort = new SortOption
+            {
+                PropertyName = paramSections[0]
+            };
+
+            if (paramSections.Count == 2)
+            {
+                queryOptions.ThenSort.IsDescending = IsDescendingSortParameter(paramSections[1]);
             }
         }
 

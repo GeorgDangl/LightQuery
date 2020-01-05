@@ -109,41 +109,139 @@ namespace LightQuery.Shared.Tests
         [Fact]
         public void ArgumentNullExceptionOnNullQueryable()
         {
-            var queryOptions = new QueryOptions();
-            Assert.Throws<ArgumentNullException>("queryable", () => QueryableProcessor.ApplySorting(null, queryOptions));
+            var sortOption = new SortOption();
+            Assert.Throws<ArgumentNullException>("queryable", () => QueryableProcessor.ApplySorting(null, sortOption, null));
         }
 
         [Fact]
-        public void ArgumentNullExceptionOnNullQueryOptions()
+        public void ArgumentNullExceptionOnNullSortOption()
         {
             var queryable = new[] { string.Empty }.AsQueryable();
-            Assert.Throws<ArgumentNullException>("queryOptions", () => queryable.ApplySorting(null));
+            Assert.Throws<ArgumentNullException>("sortOption", () => queryable.ApplySorting(null, null));
         }
 
         [Fact]
         public void ApplySortByUsernameAscending()
         {
             var users = GetUsers();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "UserName",
+                PropertyName = "UserName",
                 IsDescending = false
             };
-            var actual = users.ApplySorting(queryOptions).Cast<User>();
+            var actual = users.ApplySorting(sortOption, null).Cast<User>();
             Assert.Equal("Alice", actual.First().UserName);
             Assert.Equal("Zack", actual.Last().UserName);
+        }
+
+        [Fact]
+        public void AppliesThenSort()
+        {
+            var users = new List<User>
+            {
+                new User
+                {
+                    UserName = "Alice",
+                    Email = "best_alice@example.com"
+                },
+                new User
+                {
+                    UserName = "Alice",
+                    Email = "awesome_alice@example.com"
+                },
+                new User
+                {
+                    UserName = "Bob",
+                    Email = "burger_bob@example.com"
+                },
+                new User
+                {
+                    UserName = "Bob",
+                    Email = "zebras_are_striped_horses@example.com"
+                }
+            }
+            .AsQueryable();
+            var sortOption = new SortOption
+            {
+                PropertyName = "UserName",
+                IsDescending = false
+            };
+            var thenSortOption = new SortOption
+            {
+                PropertyName = "Email",
+                IsDescending = false
+            };
+            var actual = users.ApplySorting(sortOption, thenSortOption).Cast<User>().ToList();
+
+            Assert.Equal("Alice", actual[0].UserName);
+            Assert.Equal("awesome_alice@example.com", actual[0].Email);
+            Assert.Equal("Alice", actual[1].UserName);
+            Assert.Equal("best_alice@example.com", actual[1].Email);
+            Assert.Equal("Bob", actual[2].UserName);
+            Assert.Equal("burger_bob@example.com", actual[2].Email);
+            Assert.Equal("Bob", actual[3].UserName);
+            Assert.Equal("zebras_are_striped_horses@example.com", actual[3].Email);
+        }
+
+        [Fact]
+        public void AppliesThenSort_Descending()
+        {
+            var users = new List<User>
+            {
+                new User
+                {
+                    UserName = "Alice",
+                    Email = "best_alice@example.com"
+                },
+                new User
+                {
+                    UserName = "Alice",
+                    Email = "awesome_alice@example.com"
+                },
+                new User
+                {
+                    UserName = "Bob",
+                    Email = "burger_bob@example.com"
+                },
+                new User
+                {
+                    UserName = "Bob",
+                    Email = "zebras_are_striped_horses@example.com"
+                }
+            }
+            .AsQueryable();
+            var sortOption = new SortOption
+            {
+                PropertyName = "UserName",
+                IsDescending = false
+            };
+            var thenSortOption = new SortOption
+            {
+                PropertyName = "Email",
+                IsDescending = true
+            };
+            var actual = users.ApplySorting(sortOption, thenSortOption).Cast<User>().ToList();
+
+            Assert.Equal("Alice", actual[0].UserName);
+            Assert.Equal("best_alice@example.com", actual[0].Email);
+            Assert.Equal("Alice", actual[1].UserName);
+            Assert.Equal("awesome_alice@example.com", actual[1].Email);
+            Assert.Equal("Bob", actual[2].UserName);
+            Assert.Equal("zebras_are_striped_horses@example.com", actual[2].Email);
+            Assert.Equal("Bob", actual[3].UserName);
+            Assert.Equal("burger_bob@example.com", actual[3].Email);
         }
 
         [Fact]
         public void ApplySortByUsernameDescending()
         {
             var users = GetUsers();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "UserName",
+                PropertyName = "UserName",
                 IsDescending = true
             };
-            var actual = users.ApplySorting(queryOptions).Cast<User>();
+            var actual = users.ApplySorting(sortOption, null).Cast<User>();
             Assert.Equal("Zack", actual.First().UserName);
             Assert.Equal("Alice", actual.Last().UserName);
         }
@@ -152,12 +250,12 @@ namespace LightQuery.Shared.Tests
         public void ApplySortByEmailAscending()
         {
             var users = GetUsers();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Email",
+                PropertyName = "Email",
                 IsDescending = false
             };
-            var actual = users.ApplySorting(queryOptions).Cast<User>();
+            var actual = users.ApplySorting(sortOption, null).Cast<User>();
             Assert.Equal("Arthur.Hank@example.com", actual.First().Email);
             Assert.Equal("Zack@example.com", actual.Last().Email);
         }
@@ -166,12 +264,12 @@ namespace LightQuery.Shared.Tests
         public void ApplySortByEmailDescending()
         {
             var users = GetUsers();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Email",
+                PropertyName = "Email",
                 IsDescending = true
             };
-            var actual = users.ApplySorting(queryOptions).Cast<User>();
+            var actual = users.ApplySorting(sortOption, null).Cast<User>();
             Assert.Equal("Zack@example.com", actual.First().Email);
             Assert.Equal("Arthur.Hank@example.com", actual.Last().Email);
         }
@@ -180,12 +278,12 @@ namespace LightQuery.Shared.Tests
         public void ApplySortByUsernameAscendingWithCamelCase()
         {
             var users = GetUsers();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "userName",
+                PropertyName = "userName",
                 IsDescending = false
             };
-            var actual = users.ApplySorting(queryOptions).Cast<User>();
+            var actual = users.ApplySorting(sortOption, null).Cast<User>();
             Assert.Equal("Alice", actual.First().UserName);
             Assert.Equal("Zack", actual.Last().UserName);
         }
@@ -194,12 +292,12 @@ namespace LightQuery.Shared.Tests
         public void ApplySortByUsernameDescendingWithCamelCase()
         {
             var users = GetUsers();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "userName",
+                PropertyName = "userName",
                 IsDescending = true
             };
-            var actual = users.ApplySorting(queryOptions).Cast<User>();
+            var actual = users.ApplySorting(sortOption, null).Cast<User>();
             Assert.Equal("Zack", actual.First().UserName);
             Assert.Equal("Alice", actual.Last().UserName);
         }
@@ -208,12 +306,12 @@ namespace LightQuery.Shared.Tests
         public void ApplySortByEmailAscendingWithCamelCase()
         {
             var users = GetUsers();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "email",
+                PropertyName = "email",
                 IsDescending = false
             };
-            var actual = users.ApplySorting(queryOptions).Cast<User>();
+            var actual = users.ApplySorting(sortOption, null).Cast<User>();
             Assert.Equal("Arthur.Hank@example.com", actual.First().Email);
             Assert.Equal("Zack@example.com", actual.Last().Email);
         }
@@ -222,12 +320,12 @@ namespace LightQuery.Shared.Tests
         public void ApplySortByEmailDescendingWithCamelCase()
         {
             var users = GetUsers();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "email",
+                PropertyName = "email",
                 IsDescending = true
             };
-            var actual = users.ApplySorting(queryOptions).Cast<User>();
+            var actual = users.ApplySorting(sortOption, null).Cast<User>();
             Assert.Equal("Zack@example.com", actual.First().Email);
             Assert.Equal("Arthur.Hank@example.com", actual.Last().Email);
         }
@@ -241,8 +339,11 @@ namespace LightQuery.Shared.Tests
                     .Select(u => u.Email)
                     .Aggregate((current, next) => current + next);
             var originalEmails = aggregateEmails(originalUsers);
-            var invalidQueryOptions = new QueryOptions { SortPropertyName = "Age" };
-            var sortedUsers = originalUsers.ApplySorting(invalidQueryOptions).Cast<User>();
+            var invalidSortOption = new SortOption
+            {
+                PropertyName = "Age"
+            };
+            var sortedUsers = originalUsers.ApplySorting(invalidSortOption, null).Cast<User>();
             var sortedEmails = aggregateEmails(sortedUsers);
             Assert.Equal(originalEmails, sortedEmails);
         }
@@ -256,8 +357,9 @@ namespace LightQuery.Shared.Tests
                     .Select(u => u.Email)
                     .Aggregate((current, next) => current + next);
             var originalEmails = aggregateEmails(originalUsers);
-            var invalidQueryOptions = new QueryOptions { SortPropertyName = null };
-            var sortedUsers = originalUsers.ApplySorting(invalidQueryOptions).Cast<User>();
+            var invalidSortOption = new SortOption();
+            Assert.Null(invalidSortOption.PropertyName);
+            var sortedUsers = originalUsers.ApplySorting(invalidSortOption, null).Cast<User>();
             var sortedEmails = aggregateEmails(sortedUsers);
             Assert.Equal(originalEmails, sortedEmails);
         }
@@ -268,12 +370,12 @@ namespace LightQuery.Shared.Tests
         public void ApplySortByTitleAscending()
         {
             var orders = GetOrders();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Title",
+                PropertyName = "Title",
                 IsDescending = false
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>();
             Assert.Equal("Order 1", actual.First().Title);
             Assert.Equal("Order 3", actual.Last().Title);
         }
@@ -282,12 +384,12 @@ namespace LightQuery.Shared.Tests
         public void ApplyRelationalSortByProductNameAscending()
         {
             var orders = GetOrders();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Product.Name",
+                PropertyName = "Product.Name",
                 IsDescending = false
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>();
             Assert.Equal("Apple IPhone", actual.First().Product.Name);
             Assert.Equal("Zipper", actual.Last().Product.Name);
         }
@@ -296,12 +398,12 @@ namespace LightQuery.Shared.Tests
         public void ApplyRelationalSortByQuantityAscending()
         {
             var orders = GetOrders();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Product.Quantity",
+                PropertyName = "Product.Quantity",
                 IsDescending = false
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>();
 
             Assert.Equal(2, actual.First().Product.Quantity);
             Assert.Equal("Pear", actual.First().Product.Name);
@@ -314,12 +416,12 @@ namespace LightQuery.Shared.Tests
         public void ApplyRelationalSortByAmountAscending()
         {
             var orders = GetOrders();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Product.Amount",
+                PropertyName = "Product.Amount",
                 IsDescending = false
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>();
             Assert.Equal(100, actual.First().Product.Amount);
             Assert.Equal("Apple IPhone", actual.First().Product.Name);
 
@@ -331,12 +433,12 @@ namespace LightQuery.Shared.Tests
         public void ApplyRelationalSortByProductNameDescending()
         {
             var orders = GetOrders();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Product.Name",
+                PropertyName = "Product.Name",
                 IsDescending = true
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>();
             Assert.Equal("Zipper", actual.First().Product.Name);
             Assert.Equal("Apple IPhone", actual.Last().Product.Name);
         }
@@ -345,12 +447,12 @@ namespace LightQuery.Shared.Tests
         public void ApplyRelationalSortByQuantityDescending()
         {
             var orders = GetOrders();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Product.Quantity",
+                PropertyName = "Product.Quantity",
                 IsDescending = true
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>();
 
             Assert.Equal(10, actual.First().Product.Quantity);
             Assert.Equal("Zipper", actual.First().Product.Name);
@@ -363,12 +465,12 @@ namespace LightQuery.Shared.Tests
         public void ApplyRelationalSortByAmountDescending()
         {
             var orders = GetOrders();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Product.Amount",
+                PropertyName = "Product.Amount",
                 IsDescending = true
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>();
 
             Assert.Equal(200, actual.First().Product.Amount);
             Assert.Equal("Zipper", actual.First().Product.Name);
@@ -381,12 +483,12 @@ namespace LightQuery.Shared.Tests
         public void ApplyThirdLevelRelationalSortByBarcodeAscending()
         {
             var orders = GetOrders();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Product.Detail.Barcode",
+                PropertyName = "Product.Detail.Barcode",
                 IsDescending = false
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>();
 
             Assert.Equal("A123456", actual.First().Product.Detail.Barcode);
             Assert.Equal("C123456", actual.Last().Product.Detail.Barcode);
@@ -396,12 +498,12 @@ namespace LightQuery.Shared.Tests
         public void ApplyThirdLevelRelationalSortByBarcodeDescending()
         {
             var orders = GetOrders();
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Product.Detail.Barcode",
+                PropertyName = "Product.Detail.Barcode",
                 IsDescending = true
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>();
 
             Assert.Equal("C123456", actual.First().Product.Detail.Barcode);
             Assert.Equal("A123456", actual.Last().Product.Detail.Barcode);
@@ -423,12 +525,12 @@ namespace LightQuery.Shared.Tests
 
             Assert.All(orders, o => Assert.Null(o.Product));
 
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Product.Detail",
+                PropertyName = "Product.Detail",
                 IsDescending = true
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>().ToList();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>().ToList();
 
             Assert.Empty(actual);
         }
@@ -447,12 +549,12 @@ namespace LightQuery.Shared.Tests
                .OrderBy(x => Guid.NewGuid())
                .AsQueryable();
 
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Product.Name",
+                PropertyName = "Product.Name",
                 IsDescending = false
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>().ToList();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>().ToList();
 
             Assert.Equal("#3", actual[0].Title);
             Assert.Equal("#4", actual[1].Title);
@@ -474,12 +576,12 @@ namespace LightQuery.Shared.Tests
                .OrderBy(x => Guid.NewGuid())
                .AsQueryable();
 
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "Product.Detail.Barcode",
+                PropertyName = "Product.Detail.Barcode",
                 IsDescending = false
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>().ToList();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>().ToList();
 
             Assert.Equal("#3", actual[0].Title);
             Assert.Equal("#2", actual[1].Title);
@@ -501,12 +603,12 @@ namespace LightQuery.Shared.Tests
                .OrderBy(x => Guid.NewGuid())
                .AsQueryable();
 
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "product.detail.barcode",
+                PropertyName = "product.detail.barcode",
                 IsDescending = false
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>().ToList();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>().ToList();
 
             Assert.Equal("#3", actual[0].Title);
             Assert.Equal("#2", actual[1].Title);
@@ -529,12 +631,12 @@ namespace LightQuery.Shared.Tests
                .ToList()
                .AsQueryable();
 
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "product.invalid.barcode",
+                PropertyName = "product.invalid.barcode",
                 IsDescending = false
             };
-            var actual = orders.ApplySorting(queryOptions).Cast<Order>().ToList();
+            var actual = orders.ApplySorting(sortOption, null).Cast<Order>().ToList();
 
             var original = orders.ToList();
 

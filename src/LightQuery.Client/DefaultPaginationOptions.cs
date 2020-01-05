@@ -6,5 +6,7 @@
         public int PageSize { get; set; } = 20;
         public string SortProperty { get; set; }
         public bool SortDescending { get; set; }
+        public string ThenSortProperty { get; set; }
+        public bool ThenSortDescending { get; set; }
     }
 }

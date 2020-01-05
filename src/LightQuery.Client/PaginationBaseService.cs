@@ -19,6 +19,8 @@ namespace LightQuery.Client
         private int _pageSize = 20;
         private string _sortProperty;
         private bool _sortDescending;
+        private string _thenSortProperty;
+        private bool _thenSortDescending;
         private readonly Dictionary<string, string> _additionalQueryParameters = new Dictionary<string, string>();
         private readonly BehaviorSubject<string> _requestUrl = new BehaviorSubject<string>(null);
         private readonly ReplaySubject<PaginationResult<T>> _paginationResultSource = new ReplaySubject<PaginationResult<T>>(1);
@@ -40,6 +42,8 @@ namespace LightQuery.Client
                 PageSize = options.PageSize;
                 SetSortProperty(options.SortProperty);
                 SortDescending = options.SortDescending;
+                SetThenSortProperty(options.ThenSortProperty);
+                ThenSortDescending = options.ThenSortDescending;
             }
             SetupQuerySubscription();
             BuildUrl();
@@ -71,6 +75,14 @@ namespace LightQuery.Client
         {
             get => _sortDescending;
             set => SetProperty(ref _sortDescending, value);
+        }
+
+        public string ThenSortProperty => _thenSortProperty;
+
+        public bool ThenSortDescending
+        {
+            get => _thenSortDescending;
+            set => SetProperty(ref _thenSortDescending, value);
         }
 
         public void Dispose()
@@ -158,6 +170,32 @@ namespace LightQuery.Client
             }
         }
 
+        public void SetThenSortProperty(string propertyName)
+        {
+            if (propertyName == null)
+            {
+                SetProperty(ref _thenSortProperty, null, nameof(ThenSortProperty));
+            }
+            else
+            {
+                CheckSortPropertyValidity(propertyName);
+                SetProperty(ref _thenSortProperty, propertyName, nameof(ThenSortProperty));
+            }
+        }
+
+        public void SetThenSortProperty<TKey>(Expression<Func<T, TKey>> sortProperty)
+        {
+            if (sortProperty == null)
+            {
+                SetThenSortProperty(null);
+            }
+            else
+            {
+                var parameterName = ExpressionPropertyAccessor.GetPropertyNameFromExpression(sortProperty);
+                SetThenSortProperty(parameterName);
+            }
+        }
+
         private void CheckSortPropertyValidity(string propertyName)
         {
             var propertyExistsOnType = ExpressionPropertyAccessor.PropertyExistsOnType<T>(propertyName);
@@ -194,7 +232,7 @@ namespace LightQuery.Client
 
         private void BuildUrl()
         {
-            var query = QueryBuilder.Build(Page, PageSize, SortProperty, SortDescending, _additionalQueryParameters);
+            var query = QueryBuilder.Build(Page, PageSize, SortProperty, SortDescending, ThenSortProperty, ThenSortDescending, _additionalQueryParameters);
             var url = $"{_baseUrl}{query}";
             _requestUrl.OnNext(url);
         }

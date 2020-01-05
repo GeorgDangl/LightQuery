@@ -135,5 +135,67 @@ namespace LightQuery.Client.Tests.Integration
                 Assert.False(previousValueIsSmaller);
             }
         }
+
+        [Fact]
+        public async Task SortByGenderThenByUserName()
+        {
+            var query = QueryBuilder.Build(sortParam: "gender", thenSortParam: "userName");
+            var actualResponse = await GetResponse<User>(query);
+            Assert.NotNull(actualResponse);
+
+            Assert.Equal(10, actualResponse.Data.Count);
+            Assert.Equal("F", actualResponse.Data[0].Gender);
+            Assert.Equal("F", actualResponse.Data[1].Gender);
+            Assert.Equal("F", actualResponse.Data[2].Gender);
+            Assert.Equal("F", actualResponse.Data[3].Gender);
+            Assert.Equal("F", actualResponse.Data[4].Gender);
+            Assert.Equal("M", actualResponse.Data[5].Gender);
+            Assert.Equal("M", actualResponse.Data[6].Gender);
+            Assert.Equal("M", actualResponse.Data[7].Gender);
+            Assert.Equal("M", actualResponse.Data[8].Gender);
+            Assert.Equal("M", actualResponse.Data[9].Gender);
+
+            Assert.Equal("Alice", actualResponse.Data[0].UserName);
+            Assert.Equal("Caroline", actualResponse.Data[1].UserName);
+            Assert.Equal("Emilia", actualResponse.Data[2].UserName);
+            Assert.Equal("Georgia", actualResponse.Data[3].UserName);
+            Assert.Equal("Iris", actualResponse.Data[4].UserName);
+            Assert.Equal("Bob", actualResponse.Data[5].UserName);
+            Assert.Equal("Dave", actualResponse.Data[6].UserName);
+            Assert.Equal("Fred", actualResponse.Data[7].UserName);
+            Assert.Equal("Hank", actualResponse.Data[8].UserName);
+            Assert.Equal("Joe", actualResponse.Data[9].UserName);
+        }
+
+        [Fact]
+        public async Task SortByGenderThenByUserNameDescending()
+        {
+            var query = QueryBuilder.Build(sortParam: "gender", thenSortParam: "userName", thenSortDescending: true);
+            var actualResponse = await GetResponse<User>(query);
+            Assert.NotNull(actualResponse);
+
+            Assert.Equal(10, actualResponse.Data.Count);
+            Assert.Equal("F", actualResponse.Data[0].Gender);
+            Assert.Equal("F", actualResponse.Data[1].Gender);
+            Assert.Equal("F", actualResponse.Data[2].Gender);
+            Assert.Equal("F", actualResponse.Data[3].Gender);
+            Assert.Equal("F", actualResponse.Data[4].Gender);
+            Assert.Equal("M", actualResponse.Data[5].Gender);
+            Assert.Equal("M", actualResponse.Data[6].Gender);
+            Assert.Equal("M", actualResponse.Data[7].Gender);
+            Assert.Equal("M", actualResponse.Data[8].Gender);
+            Assert.Equal("M", actualResponse.Data[9].Gender);
+
+            Assert.Equal("Iris", actualResponse.Data[0].UserName);
+            Assert.Equal("Georgia", actualResponse.Data[1].UserName);
+            Assert.Equal("Emilia", actualResponse.Data[2].UserName);
+            Assert.Equal("Caroline", actualResponse.Data[3].UserName);
+            Assert.Equal("Alice", actualResponse.Data[4].UserName);
+            Assert.Equal("Joe", actualResponse.Data[5].UserName);
+            Assert.Equal("Hank", actualResponse.Data[6].UserName);
+            Assert.Equal("Fred", actualResponse.Data[7].UserName);
+            Assert.Equal("Dave", actualResponse.Data[8].UserName);
+            Assert.Equal("Bob", actualResponse.Data[9].UserName);
+        }
     }
 }

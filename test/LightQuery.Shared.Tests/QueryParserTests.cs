@@ -29,7 +29,7 @@ namespace LightQuery.Shared.Tests
         {
             _query = QueryCollection.Empty;
             ParseQuery();
-            Assert.Null(_result.SortPropertyName);
+            Assert.Null(_result.Sort?.PropertyName);
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace LightQuery.Shared.Tests
         {
             _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> {{"makeSunnyWeather", new Microsoft.Extensions.Primitives.StringValues("true")}});
             ParseQuery();
-            Assert.Null(_result.SortPropertyName);
+            Assert.Null(_result.Sort?.PropertyName);
         }
 
         [Fact]
@@ -46,7 +46,7 @@ namespace LightQuery.Shared.Tests
             var propertyName = "Email";
             _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> {{"sort", new Microsoft.Extensions.Primitives.StringValues(propertyName + " asc invalid") }});
             ParseQuery();
-            Assert.Null(_result.SortPropertyName);
+            Assert.Null(_result.Sort?.PropertyName);
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace LightQuery.Shared.Tests
             _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> {{"sort", new Microsoft.Extensions.Primitives.StringValues(propertyName)}});
             ParseQuery();
             var expectedPropertyName = "Email";
-            Assert.Equal(expectedPropertyName, _result.SortPropertyName);
+            Assert.Equal(expectedPropertyName, _result.Sort.PropertyName);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace LightQuery.Shared.Tests
             _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "sort", new Microsoft.Extensions.Primitives.StringValues(propertyName) } });
             ParseQuery();
             var expectedPropertyName = "email";
-            Assert.Equal(expectedPropertyName, _result.SortPropertyName);
+            Assert.Equal(expectedPropertyName, _result.Sort.PropertyName);
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace LightQuery.Shared.Tests
             _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "sort", new Microsoft.Extensions.Primitives.StringValues(propertyName) } });
             ParseQuery();
             var expectedPropertyName = "userName";
-            Assert.Equal(expectedPropertyName, _result.SortPropertyName);
+            Assert.Equal(expectedPropertyName, _result.Sort.PropertyName);
         }
 
         [Fact]
@@ -87,7 +87,7 @@ namespace LightQuery.Shared.Tests
             var propertyName = "Email";
             _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "sort", new Microsoft.Extensions.Primitives.StringValues(propertyName) } });
             ParseQuery();
-            Assert.False(_result.IsDescending);
+            Assert.False(_result.Sort.IsDescending);
         }
 
         [Fact]
@@ -96,7 +96,7 @@ namespace LightQuery.Shared.Tests
             var propertyName = "Email";
             _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "sort", new Microsoft.Extensions.Primitives.StringValues(propertyName + " asc") } });
             ParseQuery();
-            Assert.False(_result.IsDescending);
+            Assert.False(_result.Sort.IsDescending);
         }
 
         [Fact]
@@ -105,7 +105,91 @@ namespace LightQuery.Shared.Tests
             var propertyName = "Email";
             _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "sort", new Microsoft.Extensions.Primitives.StringValues(propertyName + " desc") } });
             ParseQuery();
-            Assert.True(_result.IsDescending);
+            Assert.True(_result.Sort.IsDescending);
+        }
+
+        [Fact]
+        public void NullSortPropertyNameWhenNoSortParameter_ForThenSort()
+        {
+            _query = QueryCollection.Empty;
+            ParseQuery();
+            Assert.Null(_result.ThenSort?.PropertyName);
+        }
+
+        [Fact]
+        public void NullSortPropertyNameWhenNoSortParameterButOthers_ForThenSort()
+        {
+            _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "makeSunnyWeather", new Microsoft.Extensions.Primitives.StringValues("true") } });
+            ParseQuery();
+            Assert.Null(_result.ThenSort?.PropertyName);
+        }
+
+        [Fact]
+        public void NullSortPropertyNameWhenThreeSpaceSeparatedGroups_ForThenSort()
+        {
+            var propertyName = "Email";
+            _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "thenSort", new Microsoft.Extensions.Primitives.StringValues(propertyName + " asc invalid") } });
+            ParseQuery();
+            Assert.Null(_result.ThenSort?.PropertyName);
+        }
+
+        [Fact]
+        public void ParseSortPropertyName_ForThenSort()
+        {
+            var propertyName = "Email";
+            _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "thenSort", new Microsoft.Extensions.Primitives.StringValues(propertyName) } });
+            ParseQuery();
+            var expectedPropertyName = "Email";
+            Assert.Equal(expectedPropertyName, _result.ThenSort.PropertyName);
+        }
+
+        [Fact]
+        public void DoNotCamelizeSortPropertyName_ForThenSort()
+        {
+            // Camelization is done when the query is applied, not when the options are parsed
+            var propertyName = "email";
+            _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "thenSort", new Microsoft.Extensions.Primitives.StringValues(propertyName) } });
+            ParseQuery();
+            var expectedPropertyName = "email";
+            Assert.Equal(expectedPropertyName, _result.ThenSort.PropertyName);
+        }
+
+        [Fact]
+        public void DoNotCamelizeLongerSortPropertyName_ForThenSort()
+        {
+            // Camelization is done when the query is applied, not when the options are parsed
+            var propertyName = "userName";
+            _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "thenSort", new Microsoft.Extensions.Primitives.StringValues(propertyName) } });
+            ParseQuery();
+            var expectedPropertyName = "userName";
+            Assert.Equal(expectedPropertyName, _result.ThenSort.PropertyName);
+        }
+
+        [Fact]
+        public void IsAscendingForRegularQuery_ForThenSort()
+        {
+            var propertyName = "Email";
+            _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "thenSort", new Microsoft.Extensions.Primitives.StringValues(propertyName) } });
+            ParseQuery();
+            Assert.False(_result.ThenSort.IsDescending);
+        }
+
+        [Fact]
+        public void IsAscendingWithCorrectParameter_ForThenSort()
+        {
+            var propertyName = "Email";
+            _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "thenSort", new Microsoft.Extensions.Primitives.StringValues(propertyName + " asc") } });
+            ParseQuery();
+            Assert.False(_result.ThenSort.IsDescending);
+        }
+
+        [Fact]
+        public void IsDescendingWithCorrectParameter_ForThenSort()
+        {
+            var propertyName = "Email";
+            _query = new QueryCollection(new Dictionary<string, Microsoft.Extensions.Primitives.StringValues> { { "thenSort", new Microsoft.Extensions.Primitives.StringValues(propertyName + " desc") } });
+            ParseQuery();
+            Assert.True(_result.ThenSort.IsDescending);
         }
 
         [Fact]

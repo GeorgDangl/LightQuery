@@ -65,5 +65,45 @@ namespace LightQuery.Client.Tests.Integration
             Assert.Contains(serviceResult.Data, u => u.UserName == "Emilia");
             Assert.Contains(serviceResult.Data, u => u.UserName == "Fred");
         }
+
+        [Fact]
+        public async Task GetsUsersOnInitializationSortedByGenderThenByUsername()
+        {
+            var service = GetService(new DefaultPaginationOptions
+            {
+                SortProperty = "Gender",
+                ThenSortProperty = "UserName"
+            });
+            var serviceResult = await service.PaginationResult
+                .Timeout(_testResultTimeout)
+                .FirstAsync();
+            Assert.NotNull(serviceResult);
+            Assert.Equal(1, serviceResult.Page);
+            Assert.Equal(20, serviceResult.PageSize);
+            Assert.NotNull(serviceResult.Data);
+
+            Assert.Equal(10, serviceResult.Data.Count);
+            Assert.Equal("F", serviceResult.Data[0].Gender);
+            Assert.Equal("F", serviceResult.Data[1].Gender);
+            Assert.Equal("F", serviceResult.Data[2].Gender);
+            Assert.Equal("F", serviceResult.Data[3].Gender);
+            Assert.Equal("F", serviceResult.Data[4].Gender);
+            Assert.Equal("M", serviceResult.Data[5].Gender);
+            Assert.Equal("M", serviceResult.Data[6].Gender);
+            Assert.Equal("M", serviceResult.Data[7].Gender);
+            Assert.Equal("M", serviceResult.Data[8].Gender);
+            Assert.Equal("M", serviceResult.Data[9].Gender);
+
+            Assert.Equal("Alice", serviceResult.Data[0].UserName);
+            Assert.Equal("Caroline", serviceResult.Data[1].UserName);
+            Assert.Equal("Emilia", serviceResult.Data[2].UserName);
+            Assert.Equal("Georgia", serviceResult.Data[3].UserName);
+            Assert.Equal("Iris", serviceResult.Data[4].UserName);
+            Assert.Equal("Bob", serviceResult.Data[5].UserName);
+            Assert.Equal("Dave", serviceResult.Data[6].UserName);
+            Assert.Equal("Fred", serviceResult.Data[7].UserName);
+            Assert.Equal("Hank", serviceResult.Data[8].UserName);
+            Assert.Equal("Joe", serviceResult.Data[9].UserName);
+        }
     }
 }

@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v1.8.0:
+- Add a `thenSort` parameter to specify a second sort option. This translates to something like `queryable.OrderBy(sort).ThenBy(thenSort)`.
+
 ## v1.7.2:
 - Fix possible `NullReferenceException` in case of relational sorting where an invalid property name is passed via the query. Thanks to GitHub user @smitpatel for discovering it!
 

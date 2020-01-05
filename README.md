@@ -114,6 +114,14 @@ e.g. sorting can be done by using `bankAccount.balance`. Take this example:
 If you apply the sorting expression `bankAccount.balance`, the user `Bob` will not be present in the
 result set because the `bankAccount` property is null. The query will only be applied to `George` and `Alice`.
 
+#### ThenSort
+
+**LightQuery** supports an additional sort level via the `thenSort` parameter. For example, take the following url:
+
+    `http://your.api.com/values?sort=country&thenSort=email desc`
+
+This would return your values first sorted by the `country` property and then by the `email` (descending) property. There is currently no support
+for multiple `thenSort` parameters and relational sorting is ignored in `thenSort`.
 
 ### Pagination & Sorting
 

@@ -129,8 +129,14 @@ namespace LightQuery.Client.Tests
         [Fact]
         public void BuildCompleteQuery()
         {
-            var expectedQueryString = "?page=13&pageSize=25&sort=email%20desc&filter=bob&isAdmin";
-            var actualQueryString = QueryBuilder.Build(page: 13, pageSize: 25, sortParam: "email", sortDescending: true, additionalParameters: new Dictionary<string, string> {{"filter", "bob"}, {"isAdmin", null}});
+            var expectedQueryString = "?page=13&pageSize=25&sort=email%20desc&thenSort=username%20desc&filter=bob&isAdmin";
+            var actualQueryString = QueryBuilder.Build(page: 13,
+                pageSize: 25,
+                sortParam: "email",
+                sortDescending: true,
+                thenSortParam: "username",
+                thenSortDescending: true,
+                additionalParameters: new Dictionary<string, string> {{"filter", "bob"}, {"isAdmin", null}});
             Assert.Equal(expectedQueryString, actualQueryString);
         }
     }
