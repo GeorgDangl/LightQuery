@@ -1,8 +1,11 @@
 ﻿using System;
+using System.IO;
 using System.Net.Http;
 using System.Reactive.Linq;
+using System.Text;
 using System.Threading.Tasks;
 using LightQuery.IntegrationTestsServer;
+using Newtonsoft.Json;
 using Xunit;
 
 namespace LightQuery.Client.Tests.Integration
@@ -104,6 +107,72 @@ namespace LightQuery.Client.Tests.Integration
             Assert.Equal("Fred", serviceResult.Data[7].UserName);
             Assert.Equal("Hank", serviceResult.Data[8].UserName);
             Assert.Equal("Joe", serviceResult.Data[9].UserName);
+        }
+
+        [Fact]
+        public async Task CancelsFirstRequestWhenSecondOneIsSent_SortPropertyChanged()
+        {
+            var results = 0;
+            Func<string, Task<HttpResponseMessage>> getHttpAsync = _ => GetResponseWithDelay();
+            var paginationService = new PaginationBaseService<User>("https://example.com", getHttpAsync);
+            paginationService.PaginationResult.Subscribe(_ => results++);
+            await Task.Delay(100);
+
+            Assert.Equal(1, results);
+
+            paginationService.SetSortProperty("Email");
+            paginationService.SetSortProperty("UserName");
+
+            await Task.Delay(100);
+            Assert.Equal(2, results);
+        }
+
+        [Fact]
+        public async Task CancelsFirstRequestWhenSecondOneIsSent_PageChanged()
+        {
+            var results = 0;
+            Func<string, Task<HttpResponseMessage>> getHttpAsync = _ => GetResponseWithDelay();
+            var paginationService = new PaginationBaseService<User>("https://example.com", getHttpAsync);
+            paginationService.PaginationResult.Subscribe(_ => results++);
+            await Task.Delay(100);
+
+            Assert.Equal(1, results);
+
+            paginationService.Page++;
+            paginationService.Page++;
+
+            await Task.Delay(100);
+            Assert.Equal(2, results);
+        }
+
+        private async Task<HttpResponseMessage> GetResponseWithDelay()
+        {
+            await Task.Delay(10);
+
+            var httpResponse = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+            var memStream = new MemoryStream();
+            var usersPaginated = new PaginationResult<User>
+            {
+                Page = 1,
+                PageSize = 10,
+                TotalCount = 1,
+                Data = new System.Collections.Generic.List<User>
+                {
+                    new User
+                    {
+                        Email = "george@example.com"
+                    }
+                }
+            };
+            var usersJson = JsonConvert.SerializeObject(usersPaginated);
+            using (var sw = new StreamWriter(memStream, Encoding.UTF8, 2048, true))
+            {
+                await sw.WriteAsync(usersJson);
+            }
+
+            memStream.Position = 0;
+            httpResponse.Content = new StreamContent(memStream);
+            return httpResponse;
         }
     }
 }

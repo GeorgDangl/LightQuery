@@ -28,7 +28,9 @@ namespace LightQuery.Client
         private readonly Subject<string> _forceRefreshSource = new Subject<string>();
         private IDisposable _querySubscription;
 
-        public PaginationBaseService(string baseUrl, Func<string, Task<HttpResponseMessage>> getHttpAsync, DefaultPaginationOptions options = null)
+        public PaginationBaseService(string baseUrl,
+            Func<string, Task<HttpResponseMessage>> getHttpAsync,
+            DefaultPaginationOptions options = null)
         {
             _baseUrl = baseUrl ?? string.Empty;
             _getHttpAsync = getHttpAsync ?? throw new ArgumentNullException(nameof(getHttpAsync));
@@ -92,24 +94,24 @@ namespace LightQuery.Client
 
         private void SetupQuerySubscription()
         {
-            _querySubscription = _forceRefreshSource
-                .Merge(_requestUrl.DistinctUntilChanged())
-                .SelectMany(async url =>
+            _querySubscription = Observable.Merge(_forceRefreshSource, _requestUrl.DistinctUntilChanged())
+                .Select(url =>
                 {
                     try
                     {
                         if (url == null)
                         {
-                            return null;
+                            return Task.FromResult<HttpResponseMessage>(null);
                         }
                         _requestRunningSource.OnNext(true);
-                        return await _getHttpAsync(url);
+                        return _getHttpAsync(url);
                     }
                     catch
                     {
-                        return null;
+                        return Task.FromResult<HttpResponseMessage>(null);
                     }
                 })
+                .Switch()
                 .Subscribe(async httpResponse =>
                 {
                     _requestRunningSource.OnNext(false);
