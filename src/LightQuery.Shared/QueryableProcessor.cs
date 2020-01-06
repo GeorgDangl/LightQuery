@@ -47,39 +47,57 @@ namespace LightQuery.Shared
             return Expression.Lambda(body, param);
         }
 
-        public static IQueryable ApplySorting(this IQueryable queryable, QueryOptions queryOptions)
+        public static IQueryable ApplySorting(this IQueryable queryable, SortOption sortOption, SortOption thenSortOption)
         {
             if (queryable == null)
             {
                 throw new ArgumentNullException(nameof(queryable));
             }
-            if (queryOptions == null)
+
+            if (sortOption == null)
             {
-                throw new ArgumentNullException(nameof(queryOptions));
+                throw new ArgumentNullException(nameof(sortOption));
             }
-            if (string.IsNullOrWhiteSpace(queryOptions.SortPropertyName))
+
+            if (string.IsNullOrWhiteSpace(sortOption.PropertyName))
             {
                 return queryable;
             }
 
-            var orderingProperty = GetPropertyInfoRecursively(queryable, queryOptions.SortPropertyName);
+            var orderMethodName = sortOption.IsDescending ? nameof(Queryable.OrderByDescending) : nameof(Queryable.OrderBy);
+            var result = ApplySorting(queryable, orderMethodName, sortOption.PropertyName);
+
+            if (thenSortOption != null
+                && !string.IsNullOrWhiteSpace(thenSortOption.PropertyName)
+                && !thenSortOption.PropertyName.Contains('.')) // A point '.' in the thenSort property is not allowed, due to relational sorting
+                // only working on the regular sort property
+            {
+                var thenOrderMethodName = thenSortOption.IsDescending ? nameof(Queryable.ThenByDescending) : nameof(Queryable.ThenBy);
+                result = ApplySorting(result, thenOrderMethodName, thenSortOption.PropertyName);
+            }
+
+            return result;
+        }
+
+        private static IQueryable ApplySorting(IQueryable queryable, string sortMethodName, string propertyName)
+        {
+            var orderingProperty = GetPropertyInfoRecursively(queryable, propertyName);
             if (orderingProperty.declaringType == null
                 || orderingProperty.property == null)
             {
                 return queryable;
             }
 
-            var orderByExp = CreateExpression(orderingProperty.declaringType, queryOptions.SortPropertyName);
+            var orderByExp = CreateExpression(orderingProperty.declaringType, propertyName);
             if (orderByExp == null)
             {
                 return queryable;
             }
 
-            var orderMethodName = queryOptions.IsDescending ? nameof(Queryable.OrderByDescending) : nameof(Queryable.OrderBy);
             // If this is a nested expression, it should additionally add null checks to exclude null children
-            queryable = queryable.WrapInNullChecksIfAccessingNestedProperties(queryable.ElementType, queryOptions.SortPropertyName);
+            queryable = queryable.WrapInNullChecksIfAccessingNestedProperties(queryable.ElementType, propertyName);
             var wrappedExpression = Expression.Call(typeof(Queryable),
-                orderMethodName,
+                sortMethodName,
                 new[] { orderingProperty.declaringType, orderingProperty.property.PropertyType },
                 queryable.Expression,
                 Expression.Quote(orderByExp));

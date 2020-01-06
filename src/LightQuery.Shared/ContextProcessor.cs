@@ -20,9 +20,9 @@ namespace LightQuery.Shared
                 return new QueryContainer(null, null, null);
             }
             var queryOptions = QueryParser.GetQueryOptions(context.HttpContext.Request.Query, defaultPageSize, defaultSort);
-            var sortedResult = string.IsNullOrWhiteSpace(queryOptions.SortPropertyName)
+            var sortedResult = queryOptions.Sort == null
                 ? queryable
-                : queryable.ApplySorting(queryOptions);
+                : queryable.ApplySorting(queryOptions.Sort, queryOptions.ThenSort);
             objectResult.Value = sortedResult;
             return new QueryContainer(objectResult, sortedResult, queryOptions);
         }

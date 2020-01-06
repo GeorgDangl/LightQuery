@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace LightQuery.IntegrationTestsServer
 {
@@ -38,6 +39,7 @@ namespace LightQuery.IntegrationTestsServer
                     return;
                 }
                 var webHostBuilder = new WebHostBuilder()
+                    .ConfigureLogging(logging => logging.AddDebug())
                     .UseStartup<Startup>();
                 var testServer = new TestServer(webHostBuilder);
                 var initializationTask = InitializeDatabase(testServer);

@@ -78,12 +78,12 @@ namespace LightQuery.Shared.Tests.Regression
                     Name = u.Name
                 });
 
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = nameof(User.Name)
+                PropertyName = nameof(User.Name)
             };
 
-            var orderedQuery = QueryableProcessor.ApplySorting(usersQueryable, queryOptions);
+            var orderedQuery = QueryableProcessor.ApplySorting(usersQueryable, sortOption, null);
 
             dynamic dynamicOrderedQuery = orderedQuery;
 
@@ -99,12 +99,12 @@ namespace LightQuery.Shared.Tests.Regression
             var context = await GetContextAsync();
 
             var usersQueryable = context.Users;
-            var queryOptions = new QueryOptions
+            var sortOption = new SortOption
             {
-                SortPropertyName = "FavoriteRestaurant.Street"
+                PropertyName = "FavoriteRestaurant.Street"
             };
 
-            var orderedQuery = QueryableProcessor.ApplySorting(usersQueryable, queryOptions);
+            var orderedQuery = QueryableProcessor.ApplySorting(usersQueryable, sortOption, null);
 
             dynamic dynamicOrderedQuery = orderedQuery;
 

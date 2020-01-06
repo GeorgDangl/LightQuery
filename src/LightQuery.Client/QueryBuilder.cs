@@ -6,7 +6,13 @@ namespace LightQuery.Client
 {
     public static class QueryBuilder
     {
-        public static string Build(int page = 1, int pageSize = 20, string sortParam = null, bool sortDescending = false, Dictionary<string, string> additionalParameters = null)
+        public static string Build(int page = 1,
+            int pageSize = 20,
+            string sortParam = null,
+            bool sortDescending = false,
+            string thenSortParam = null,
+            bool thenSortDescending = false,
+            Dictionary<string, string> additionalParameters = null)
         {
             if (page <= 0)
             {
@@ -19,6 +25,7 @@ namespace LightQuery.Client
             var query = $"?page={page}" +
                         $"&pageSize={pageSize}"
                         + BuildSortParameter(sortParam, sortDescending)
+                        + BuildThenSortParameter(thenSortParam, thenSortDescending)
                         + BuildAdditionalParameters(additionalParameters);
             return query;
         }
@@ -30,6 +37,16 @@ namespace LightQuery.Client
                 return string.Empty;
             }
             var sortQuery = $"&sort={Uri.EscapeUriString(sortParam)}%20" + (sortDescending ? "desc" : "asc");
+            return sortQuery;
+        }
+
+        private static string BuildThenSortParameter(string thenSortParam, bool thenSortDescending)
+        {
+            if (string.IsNullOrWhiteSpace(thenSortParam))
+            {
+                return string.Empty;
+            }
+            var sortQuery = $"&thenSort={Uri.EscapeUriString(thenSortParam)}%20" + (thenSortDescending ? "desc" : "asc");
             return sortQuery;
         }
 

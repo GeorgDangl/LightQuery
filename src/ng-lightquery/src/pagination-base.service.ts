@@ -34,7 +34,7 @@ export abstract class PaginationBaseService<T> {
     }
 
     protected requery() {
-        var url = this.buildUrl();
+        const url = this.buildUrl();
         this.http.get<PaginationResult<T>>(url)
             .subscribe(result => {
                 this.lastPaginationResult = result;
@@ -78,6 +78,15 @@ export abstract class PaginationBaseService<T> {
         this.refresh();
     }
 
+    private _thenSort?: { propertyName: string, isDescending: boolean };
+    get thenSort(): { propertyName: string, isDescending: boolean } | null {
+        return this._thenSort;
+    }
+    set thenSort(value: { propertyName: string, isDescending: boolean }) {
+        this._thenSort = value;
+        this.refresh();
+    }
+
     private _additionalQueryParams: { [parameter: string]: string } = {};
     setQueryParameter(name: string, value: string) {
         this._additionalQueryParams[name] = value;
@@ -91,19 +100,25 @@ export abstract class PaginationBaseService<T> {
         if (!this.baseUrl) {
             return;
         }
-        var url = this.buildUrl();
+        const url = this.buildUrl();
         this.requestUrl.next(url);
     }
 
     private buildUrl(): string {
-        var url = `${this.baseUrl}?page=${this.page}&pageSize=${this.pageSize}`;
+        let url = `${this.baseUrl}?page=${this.page}&pageSize=${this.pageSize}`;
         if (this.sort) {
-            var sortParam = `sort=${this.sort.propertyName} ${this.sort.isDescending ? 'desc' : 'asc'}`;
+            const sortParam = `sort=${this.sort.propertyName} ${this.sort.isDescending ? 'desc' : 'asc'}`;
             url += `&${sortParam}`;
         }
-        for (var name in this._additionalQueryParams) {
+
+        if (this.thenSort && this.thenSort.propertyName) {
+            const thenSortParam = `thenSort=${this.thenSort.propertyName} ${this.thenSort.isDescending ? 'desc' : 'asc'}`;
+            url += `&${thenSortParam}`;
+        }
+
+        for (const name in this._additionalQueryParams) {
             if (this._additionalQueryParams.hasOwnProperty(name)) {
-                var value = this._additionalQueryParams[name];
+                const value = this._additionalQueryParams[name];
                 if (value) {
                     url += `&${name}=${value}`;
                 }

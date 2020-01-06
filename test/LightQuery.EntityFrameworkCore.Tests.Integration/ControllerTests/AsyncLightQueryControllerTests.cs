@@ -356,5 +356,65 @@ namespace LightQuery.EntityFrameworkCore.Tests.Integration.ControllerTests
             var actualResponse = await GetResponse<List<User>>(url);
             Assert.NotEmpty(actualResponse);
         }
+
+        [Fact]
+        public async Task SortByGenderThenByUserName()
+        {
+            var url = "AsyncLightQuery?sort=gender&thenSort=UserName";
+            var actualResponse = await GetResponse<List<User>>(url);
+
+            Assert.Equal(10, actualResponse.Count);
+            Assert.Equal("F", actualResponse[0].Gender);
+            Assert.Equal("F", actualResponse[1].Gender);
+            Assert.Equal("F", actualResponse[2].Gender);
+            Assert.Equal("F", actualResponse[3].Gender);
+            Assert.Equal("F", actualResponse[4].Gender);
+            Assert.Equal("M", actualResponse[5].Gender);
+            Assert.Equal("M", actualResponse[6].Gender);
+            Assert.Equal("M", actualResponse[7].Gender);
+            Assert.Equal("M", actualResponse[8].Gender);
+            Assert.Equal("M", actualResponse[9].Gender);
+
+            Assert.Equal("Alice", actualResponse[0].UserName);
+            Assert.Equal("Caroline", actualResponse[1].UserName);
+            Assert.Equal("Emilia", actualResponse[2].UserName);
+            Assert.Equal("Georgia", actualResponse[3].UserName);
+            Assert.Equal("Iris", actualResponse[4].UserName);
+            Assert.Equal("Bob", actualResponse[5].UserName);
+            Assert.Equal("Dave", actualResponse[6].UserName);
+            Assert.Equal("Fred", actualResponse[7].UserName);
+            Assert.Equal("Hank", actualResponse[8].UserName);
+            Assert.Equal("Joe", actualResponse[9].UserName);
+        }
+
+        [Fact]
+        public async Task SortByGenderThenByUserNameDescending()
+        {
+            var url = "AsyncLightQuery?sort=gender&thenSort=UserName desc";
+            var actualResponse = await GetResponse<List<User>>(url);
+
+            Assert.Equal(10, actualResponse.Count);
+            Assert.Equal("F", actualResponse[0].Gender);
+            Assert.Equal("F", actualResponse[1].Gender);
+            Assert.Equal("F", actualResponse[2].Gender);
+            Assert.Equal("F", actualResponse[3].Gender);
+            Assert.Equal("F", actualResponse[4].Gender);
+            Assert.Equal("M", actualResponse[5].Gender);
+            Assert.Equal("M", actualResponse[6].Gender);
+            Assert.Equal("M", actualResponse[7].Gender);
+            Assert.Equal("M", actualResponse[8].Gender);
+            Assert.Equal("M", actualResponse[9].Gender);
+
+            Assert.Equal("Iris", actualResponse[0].UserName);
+            Assert.Equal("Georgia", actualResponse[1].UserName);
+            Assert.Equal("Emilia", actualResponse[2].UserName);
+            Assert.Equal("Caroline", actualResponse[3].UserName);
+            Assert.Equal("Alice", actualResponse[4].UserName);
+            Assert.Equal("Joe", actualResponse[5].UserName);
+            Assert.Equal("Hank", actualResponse[6].UserName);
+            Assert.Equal("Fred", actualResponse[7].UserName);
+            Assert.Equal("Dave", actualResponse[8].UserName);
+            Assert.Equal("Bob", actualResponse[9].UserName);
+        }
     }
 }

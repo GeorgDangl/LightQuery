@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LightQuery.Client
@@ -14,11 +15,13 @@ namespace LightQuery.Client
     public class PaginationBaseService<T> : INotifyPropertyChanged, IDisposable
     {
         private readonly string _baseUrl;
-        private readonly Func<string, Task<HttpResponseMessage>> _getHttpAsync;
+        private readonly Func<string, CancellationToken, Task<HttpResponseMessage>> _getHttpAsync;
         private int _page = 1;
         private int _pageSize = 20;
         private string _sortProperty;
         private bool _sortDescending;
+        private string _thenSortProperty;
+        private bool _thenSortDescending;
         private readonly Dictionary<string, string> _additionalQueryParameters = new Dictionary<string, string>();
         private readonly BehaviorSubject<string> _requestUrl = new BehaviorSubject<string>(null);
         private readonly ReplaySubject<PaginationResult<T>> _paginationResultSource = new ReplaySubject<PaginationResult<T>>(1);
@@ -26,7 +29,15 @@ namespace LightQuery.Client
         private readonly Subject<string> _forceRefreshSource = new Subject<string>();
         private IDisposable _querySubscription;
 
-        public PaginationBaseService(string baseUrl, Func<string, Task<HttpResponseMessage>> getHttpAsync, DefaultPaginationOptions options = null)
+        public PaginationBaseService(string baseUrl,
+            Func<string, Task<HttpResponseMessage>> getHttpAsync,
+            DefaultPaginationOptions options = null)
+            : this(baseUrl, (url, _) => getHttpAsync == null ? throw new ArgumentNullException(nameof(getHttpAsync)) : getHttpAsync(url), options)
+        { }
+
+        public PaginationBaseService(string baseUrl,
+            Func<string, CancellationToken, Task<HttpResponseMessage>> getHttpAsync,
+            DefaultPaginationOptions options = null)
         {
             _baseUrl = baseUrl ?? string.Empty;
             _getHttpAsync = getHttpAsync ?? throw new ArgumentNullException(nameof(getHttpAsync));
@@ -40,6 +51,8 @@ namespace LightQuery.Client
                 PageSize = options.PageSize;
                 SetSortProperty(options.SortProperty);
                 SortDescending = options.SortDescending;
+                SetThenSortProperty(options.ThenSortProperty);
+                ThenSortDescending = options.ThenSortDescending;
             }
             SetupQuerySubscription();
             BuildUrl();
@@ -73,6 +86,14 @@ namespace LightQuery.Client
             set => SetProperty(ref _sortDescending, value);
         }
 
+        public string ThenSortProperty => _thenSortProperty;
+
+        public bool ThenSortDescending
+        {
+            get => _thenSortDescending;
+            set => SetProperty(ref _thenSortDescending, value);
+        }
+
         public void Dispose()
         {
             _querySubscription.Dispose();
@@ -80,24 +101,23 @@ namespace LightQuery.Client
 
         private void SetupQuerySubscription()
         {
-            _querySubscription = _forceRefreshSource
-                .Merge(_requestUrl.DistinctUntilChanged())
-                .SelectMany(async url =>
+            _querySubscription = Observable.Merge(_forceRefreshSource, _requestUrl.DistinctUntilChanged())
+                .Select(url =>
                 {
-                    try
+                    return Observable.DeferAsync(async token =>
                     {
-                        if (url == null)
+                        HttpResponseMessage httpResponse = null;
+                        if (url != null)
                         {
-                            return null;
+                            _requestRunningSource.OnNext(true);
+                            httpResponse = await _getHttpAsync(url, token);
                         }
-                        _requestRunningSource.OnNext(true);
-                        return await _getHttpAsync(url);
-                    }
-                    catch
-                    {
-                        return null;
-                    }
+
+                        return Observable.Return(httpResponse);
+                    });
                 })
+                .Switch()
+                .Where(httpResponse => httpResponse != null)
                 .Subscribe(async httpResponse =>
                 {
                     _requestRunningSource.OnNext(false);
@@ -158,6 +178,32 @@ namespace LightQuery.Client
             }
         }
 
+        public void SetThenSortProperty(string propertyName)
+        {
+            if (propertyName == null)
+            {
+                SetProperty(ref _thenSortProperty, null, nameof(ThenSortProperty));
+            }
+            else
+            {
+                CheckSortPropertyValidity(propertyName);
+                SetProperty(ref _thenSortProperty, propertyName, nameof(ThenSortProperty));
+            }
+        }
+
+        public void SetThenSortProperty<TKey>(Expression<Func<T, TKey>> sortProperty)
+        {
+            if (sortProperty == null)
+            {
+                SetThenSortProperty(null);
+            }
+            else
+            {
+                var parameterName = ExpressionPropertyAccessor.GetPropertyNameFromExpression(sortProperty);
+                SetThenSortProperty(parameterName);
+            }
+        }
+
         private void CheckSortPropertyValidity(string propertyName)
         {
             var propertyExistsOnType = ExpressionPropertyAccessor.PropertyExistsOnType<T>(propertyName);
@@ -194,7 +240,7 @@ namespace LightQuery.Client
 
         private void BuildUrl()
         {
-            var query = QueryBuilder.Build(Page, PageSize, SortProperty, SortDescending, _additionalQueryParameters);
+            var query = QueryBuilder.Build(Page, PageSize, SortProperty, SortDescending, ThenSortProperty, ThenSortDescending, _additionalQueryParameters);
             var url = $"{_baseUrl}{query}";
             _requestUrl.OnNext(url);
         }

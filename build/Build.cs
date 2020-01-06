@@ -381,6 +381,10 @@ class Build : NukeBuild
             }
             File.Copy(srcReadmePath, destReadmePath);
 
-            Npm("publish", ngAppDir);
+            var npmTag = GitVersion.BranchName.Equals("master") || GitVersion.BranchName.Equals("origin/master")
+            ? "latest"
+            : "next";
+
+            Npm($"publish --tag={npmTag}", ngAppDir);
         });
 }
