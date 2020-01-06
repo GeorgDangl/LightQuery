@@ -4,7 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
@@ -54,7 +57,7 @@ namespace LightQuery.Client.Tests
         [Fact]
         public void ArgumentNullExceptionForNullGetHttpAsyncAction()
         {
-            Assert.Throws<ArgumentNullException>("getHttpAsync", () => new PaginationBaseService<MockPayload>(string.Empty, null));
+            Assert.Throws<ArgumentNullException>("getHttpAsync", () => new PaginationBaseService<MockPayload>(string.Empty, (Func<string, Task<HttpResponseMessage>>)null));
         }
 
         [Fact]
@@ -77,6 +80,147 @@ namespace LightQuery.Client.Tests
             Assert.Equal(4, service.PageSize);
             Assert.True(service.SortDescending);
             Assert.Equal("Name", service.SortProperty);
+        }
+
+        public class Cancellation
+        {
+            [Fact]
+            public async Task CancelsFirstRequestWhenSecondOneIsSent_SortPropertyChanged()
+            {
+                var results = 0;
+                var requestsSent = 0;
+                Func<string, Task<HttpResponseMessage>> getHttpAsync = async _ =>
+                {
+                    requestsSent++;
+                    return (await GetResponseWithDelay(CancellationToken.None)).Item1;
+                };
+                var paginationService = new PaginationBaseService<User>("https://example.com", getHttpAsync);
+                paginationService.PaginationResult.Subscribe(_ => results++);
+
+                await Task.WhenAny(paginationService.PaginationResult.FirstAsync().ToTask(),
+                     Task.Delay(10_000)); // Timeout
+
+                Assert.Equal(1, results);
+                Assert.Equal(1, requestsSent);
+
+                paginationService.SetSortProperty("Email");
+                paginationService.SetSortProperty("UserName");
+
+                await Task.WhenAny(paginationService.PaginationResult.Skip(1).FirstAsync().ToTask(),
+                    Task.Delay(10_000)); // Timeout
+
+                Assert.Equal(2, results);
+                Assert.Equal(3, requestsSent);
+            }
+
+            [Fact]
+            public async Task CancelsFirstRequestWhenSecondOneIsSent_PageChanged()
+            {
+                var results = 0;
+                var requestsSent = 0;
+                Func<string, Task<HttpResponseMessage>> getHttpAsync = async _ =>
+                {
+                    requestsSent++;
+                    return (await GetResponseWithDelay(CancellationToken.None)).Item1;
+                };
+                var paginationService = new PaginationBaseService<User>("https://example.com", getHttpAsync);
+                paginationService.PaginationResult.Subscribe(_ => results++);
+
+                await Task.WhenAny(paginationService.PaginationResult.FirstAsync().ToTask(),
+                     Task.Delay(10_000)); // Timeout
+
+                Assert.Equal(1, results);
+                Assert.Equal(1, requestsSent);
+
+                paginationService.Page++;
+                paginationService.Page++;
+
+                await Task.WhenAny(paginationService.PaginationResult.Skip(1).FirstAsync().ToTask(),
+                    Task.Delay(10_000)); // Timeout
+
+                Assert.Equal(2, results);
+                Assert.Equal(3, requestsSent);
+            }
+
+            [Fact]
+            public async Task CancelsFirstRequestWhenSecondOneIsSent_UsesCancellationToken()
+            {
+                var results = 0;
+                var requestsSent = 0;
+                var requestsCancelled = new bool[3];
+                var responseTasks = new List<Task>();
+                var currentRequests = 0;
+                Func<string, CancellationToken, Task<HttpResponseMessage>> getHttpAsync = async (_, token) =>
+                {
+                    requestsSent++;
+                    var currentRequest = currentRequests++;
+                    var responseTask = GetResponseWithDelay(token);
+                    responseTasks.Add(responseTask);
+                    var response = await responseTask;
+                    requestsCancelled[currentRequest] = response.Item2;
+                    return response.Item1;
+                };
+                var paginationService = new PaginationBaseService<User>("https://example.com", getHttpAsync);
+                paginationService.PaginationResult.Subscribe(_ => results++);
+
+                await Task.WhenAny(paginationService.PaginationResult.FirstAsync().ToTask(),
+                     Task.Delay(10_000)); // Timeout
+
+                Assert.Equal(1, results);
+                Assert.Equal(1, requestsSent);
+
+                paginationService.Page++;
+                paginationService.Page++;
+
+                await Task.WhenAny(paginationService.PaginationResult.Skip(1).FirstAsync().ToTask(),
+                    Task.Delay(10_000)); // Timeout
+
+                Assert.Equal(2, results);
+                Assert.Equal(3, requestsSent);
+
+                Assert.False(requestsCancelled[0]);
+                Assert.True(requestsCancelled[1]);
+                Assert.False(requestsCancelled[2]);
+            }
+
+            private class User
+            {
+                public string Email { get; set; }
+                public string UserName { get; set; }
+            }
+
+            private async Task<(HttpResponseMessage, bool)> GetResponseWithDelay(CancellationToken cancellationToken)
+            {
+                // Adding a short delay to simulate a long running operation, e.g. a web request
+                await Task.Delay(10);
+
+                var httpResponse = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
+                var memStream = new MemoryStream();
+                var usersPaginated = new PaginationResult<User>
+                {
+                    Page = 1,
+                    PageSize = 10,
+                    TotalCount = 1,
+                    Data = new List<User>
+                {
+                    new User
+                    {
+                        Email = "george@example.com",
+                        UserName = "George"
+                    }
+                }
+                };
+                var usersJson = JsonConvert.SerializeObject(usersPaginated);
+                using (var sw = new StreamWriter(memStream, Encoding.UTF8, 2048, true))
+                {
+                    await sw.WriteAsync(usersJson);
+                }
+
+                memStream.Position = 0;
+                httpResponse.Content = new StreamContent(memStream);
+
+                return (httpResponse, cancellationToken.IsCancellationRequested);
+            }
         }
 
         public class ForceRefresh

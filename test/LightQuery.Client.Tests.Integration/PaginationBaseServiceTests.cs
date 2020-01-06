@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using LightQuery.IntegrationTestsServer;
 using Newtonsoft.Json;
@@ -18,6 +21,11 @@ namespace LightQuery.Client.Tests.Integration
         private class UsersService : PaginationBaseService<User>
         {
             public UsersService(Func<string, Task<HttpResponseMessage>> getHttpAsync, DefaultPaginationOptions options = null)
+                : this((url, _) => getHttpAsync(url), options)
+            { }
+
+            public UsersService(Func<string, CancellationToken, Task<HttpResponseMessage>> getHttpAsync,
+                DefaultPaginationOptions options = null)
                 : base("AsyncLightQuery", getHttpAsync, options)
             { }
         }
@@ -113,66 +121,111 @@ namespace LightQuery.Client.Tests.Integration
         public async Task CancelsFirstRequestWhenSecondOneIsSent_SortPropertyChanged()
         {
             var results = 0;
-            Func<string, Task<HttpResponseMessage>> getHttpAsync = _ => GetResponseWithDelay();
-            var paginationService = new PaginationBaseService<User>("https://example.com", getHttpAsync);
-            paginationService.PaginationResult.Subscribe(_ => results++);
-            await Task.Delay(100);
+            var requestsSent = 0;
+            var service = new UsersService((url, cancellationToken) =>
+            {
+                requestsSent++;
+                return _client.GetAsync(url, cancellationToken);
+            });
+
+            service.PaginationResult.Subscribe(_ => results++);
+
+            await Task.WhenAny(service.PaginationResult.FirstAsync().ToTask(),
+                 Task.Delay(10_000)); // Timeout
 
             Assert.Equal(1, results);
+            Assert.Equal(1, requestsSent);
 
-            paginationService.SetSortProperty("Email");
-            paginationService.SetSortProperty("UserName");
+            service.SetSortProperty("Email");
+            service.SetSortProperty("UserName");
 
-            await Task.Delay(100);
+            await Task.WhenAny(service.PaginationResult.Skip(1).FirstAsync().ToTask(),
+                Task.Delay(10_000)); // Timeout
+
             Assert.Equal(2, results);
+            Assert.Equal(3, requestsSent);
         }
 
         [Fact]
         public async Task CancelsFirstRequestWhenSecondOneIsSent_PageChanged()
         {
             var results = 0;
-            Func<string, Task<HttpResponseMessage>> getHttpAsync = _ => GetResponseWithDelay();
-            var paginationService = new PaginationBaseService<User>("https://example.com", getHttpAsync);
-            paginationService.PaginationResult.Subscribe(_ => results++);
-            await Task.Delay(100);
+            var requestsSent = 0;
+            var service = new UsersService((url, cancellationToken) =>
+            {
+                requestsSent++;
+                return _client.GetAsync(url, cancellationToken);
+            });
+
+            service.PaginationResult.Subscribe(_ => results++);
+
+            await Task.WhenAny(service.PaginationResult.FirstAsync().ToTask(),
+                 Task.Delay(10_000)); // Timeout
 
             Assert.Equal(1, results);
+            Assert.Equal(1, requestsSent);
 
-            paginationService.Page++;
-            paginationService.Page++;
+            service.Page++;
+            service.Page++;
 
-            await Task.Delay(100);
+            await Task.WhenAny(service.PaginationResult.Skip(1).FirstAsync().ToTask(),
+                Task.Delay(10_000)); // Timeout
+
             Assert.Equal(2, results);
+            Assert.Equal(3, requestsSent);
         }
 
-        private async Task<HttpResponseMessage> GetResponseWithDelay()
+        [Fact]
+        public async Task CancelsFirstRequestWhenSecondOneIsSent_UsesCancellationToken()
         {
-            await Task.Delay(10);
+            var results = 0;
+            var requestsSent = 0;
+            var requestsCancelled = new bool[3];
+            var responseTasks = new List<Task>();
+            var currentRequests = 0;
 
-            var httpResponse = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
-            var memStream = new MemoryStream();
-            var usersPaginated = new PaginationResult<User>
+
+            var service = new UsersService(async (url, cancellationToken) =>
             {
-                Page = 1,
-                PageSize = 10,
-                TotalCount = 1,
-                Data = new System.Collections.Generic.List<User>
+                requestsSent++;
+                var currentRequest = currentRequests++;
+                try
                 {
-                    new User
-                    {
-                        Email = "george@example.com"
-                    }
+                    var resultTask = _client.GetAsync(url, cancellationToken);
+                    await Task.Delay(100); // Need a small delay in case the server responds too quickly,
+                    // thus the request not being cancelled while it's en-route and therefore not throwing
+                    // an exception
+                    var result = await resultTask;
+                    requestsCancelled[currentRequest] = false;
+                    return result;
                 }
-            };
-            var usersJson = JsonConvert.SerializeObject(usersPaginated);
-            using (var sw = new StreamWriter(memStream, Encoding.UTF8, 2048, true))
-            {
-                await sw.WriteAsync(usersJson);
-            }
+                catch
+                {
+                    requestsCancelled[currentRequest] = true;
+                    return null;
+                }
+            });
 
-            memStream.Position = 0;
-            httpResponse.Content = new StreamContent(memStream);
-            return httpResponse;
+            service.PaginationResult.Subscribe(_ => results++);
+
+            await Task.WhenAny(service.PaginationResult.FirstAsync().ToTask(),
+                 Task.Delay(10_000)); // Timeout
+
+            Assert.Equal(1, results);
+            Assert.Equal(1, requestsSent);
+
+            service.Page++;
+            service.Page++;
+
+            await Task.WhenAny(service.PaginationResult.Skip(1).FirstAsync().ToTask(),
+                Task.Delay(10_000)); // Timeout
+
+            Assert.Equal(2, results);
+            Assert.Equal(3, requestsSent);
+
+            Assert.False(requestsCancelled[0]);
+            Assert.True(requestsCancelled[1]);
+            Assert.False(requestsCancelled[2]);
         }
     }
 }

@@ -7,6 +7,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LightQuery.Client
@@ -14,7 +15,7 @@ namespace LightQuery.Client
     public class PaginationBaseService<T> : INotifyPropertyChanged, IDisposable
     {
         private readonly string _baseUrl;
-        private readonly Func<string, Task<HttpResponseMessage>> _getHttpAsync;
+        private readonly Func<string, CancellationToken, Task<HttpResponseMessage>> _getHttpAsync;
         private int _page = 1;
         private int _pageSize = 20;
         private string _sortProperty;
@@ -30,6 +31,12 @@ namespace LightQuery.Client
 
         public PaginationBaseService(string baseUrl,
             Func<string, Task<HttpResponseMessage>> getHttpAsync,
+            DefaultPaginationOptions options = null)
+            : this(baseUrl, (url, _) => getHttpAsync == null ? throw new ArgumentNullException(nameof(getHttpAsync)) : getHttpAsync(url), options)
+        { }
+
+        public PaginationBaseService(string baseUrl,
+            Func<string, CancellationToken, Task<HttpResponseMessage>> getHttpAsync,
             DefaultPaginationOptions options = null)
         {
             _baseUrl = baseUrl ?? string.Empty;
@@ -97,21 +104,20 @@ namespace LightQuery.Client
             _querySubscription = Observable.Merge(_forceRefreshSource, _requestUrl.DistinctUntilChanged())
                 .Select(url =>
                 {
-                    try
+                    return Observable.DeferAsync(async token =>
                     {
-                        if (url == null)
+                        HttpResponseMessage httpResponse = null;
+                        if (url != null)
                         {
-                            return Task.FromResult<HttpResponseMessage>(null);
+                            _requestRunningSource.OnNext(true);
+                            httpResponse = await _getHttpAsync(url, token);
                         }
-                        _requestRunningSource.OnNext(true);
-                        return _getHttpAsync(url);
-                    }
-                    catch
-                    {
-                        return Task.FromResult<HttpResponseMessage>(null);
-                    }
+
+                        return Observable.Return(httpResponse);
+                    });
                 })
                 .Switch()
+                .Where(httpResponse => httpResponse != null)
                 .Subscribe(async httpResponse =>
                 {
                     _requestRunningSource.OnNext(false);

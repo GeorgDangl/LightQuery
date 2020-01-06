@@ -5,6 +5,7 @@ All notable changes to **LightQuery** are documented here.
 ## v1.8.0:
 - Add a `thenSort` parameter to specify a second sort option. This translates to something like `queryable.OrderBy(sort).ThenBy(thenSort)`
 - Fix C# client not cancelling previous requests when query parameters in the `PaginationBaseService` were changed. If a new request is started due to parameter changes while another request is still en-route, the previous request is discarded and no event is emitted for when the previous request completes
+- The C# client has now an additional constructor overload for the `PaginationBaseService` to be able to pass a `CancellationToken`
 
 ## v1.7.2:
 - Fix possible `NullReferenceException` in case of relational sorting where an invalid property name is passed via the query. Thanks to GitHub user @smitpatel for discovering it!
