@@ -102,18 +102,14 @@ namespace LightQuery.Client
         private void SetupQuerySubscription()
         {
             _querySubscription = Observable.Merge(_forceRefreshSource, _requestUrl.DistinctUntilChanged())
+                .Where(url => url != null)
                 .Select(url =>
                 {
                     return Observable.DeferAsync(async token =>
                     {
-                        HttpResponseMessage httpResponse = null;
-                        if (url != null)
-                        {
-                            _requestRunningSource.OnNext(true);
-                            httpResponse = await _getHttpAsync(url, token);
-                        }
-
-                        return Observable.Return(httpResponse);
+                        _requestRunningSource.OnNext(true);
+                        var response = await _getHttpAsync(url, token);
+                        return Observable.Return(response);
                     });
                 })
                 .Switch()

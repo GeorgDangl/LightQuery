@@ -270,3 +270,5 @@ docs/index.md
 *.coverageresults
 
 output/
+
+src/ng-lightquery/projects/ng-lightquery/karma-results.xml

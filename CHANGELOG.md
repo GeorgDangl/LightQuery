@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v1.8.1:
+- The Angular library was updateds to be compatible with Angular v9.1
+
 ## v1.8.0:
 - Add a `thenSort` parameter to specify a second sort option. This translates to something like `queryable.OrderBy(sort).ThenBy(thenSort)`
 - Fix C# client not cancelling previous requests when query parameters in the `PaginationBaseService` were changed. If a new request is started due to parameter changes while another request is still en-route, the previous request is discarded and no event is emitted for when the previous request completes
