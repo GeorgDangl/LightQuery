@@ -366,15 +366,16 @@ class Build : NukeBuild
         .Executes(() =>
         {
             var ngAppDir = SourceDirectory / "ng-lightquery";
+            var ngLibraryDir = ngAppDir / "dist" / "ng-lightquery";
             DeleteDirectory(ngAppDir / "dist");
 
             Npm("ci", ngAppDir);
 
-            Npm("run build", ngAppDir);
+            Npm("run buildLibrary", ngAppDir);
 
-            Npm($"version {GitVersion.NuGetVersion}", ngAppDir);
+            Npm($"version {GitVersion.NuGetVersion}", ngLibraryDir);
             var srcReadmePath = RootDirectory / "README.md";
-            var destReadmePath = ngAppDir / "README.md";
+            var destReadmePath = ngLibraryDir / "README.md";
             if (File.Exists(destReadmePath))
             {
                 File.Delete(destReadmePath);
@@ -385,6 +386,6 @@ class Build : NukeBuild
             ? "latest"
             : "next";
 
-            Npm($"publish --tag={npmTag}", ngAppDir);
+            Npm($"publish --tag={npmTag}", ngLibraryDir);
         });
 }

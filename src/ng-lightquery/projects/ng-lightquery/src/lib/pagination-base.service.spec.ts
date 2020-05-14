@@ -2,12 +2,9 @@
 import { TestBed, inject, async } from '@angular/core/testing';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { HttpClientModule } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { PaginationBaseService } from './pagination-base.service';
 import { PaginationResult } from './pagination-result';
-import { Observable } from 'rxjs';
-import { setTimeout } from 'core-js/library/web/timers';
 import { take, skip } from 'rxjs/operators';
 
 describe('PaginationBaseService', () => {

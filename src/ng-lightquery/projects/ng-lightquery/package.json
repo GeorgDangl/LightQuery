@@ -1,0 +1,12 @@
+{
+  "name": "ng-lightquery",
+  "version": "0.0.1",
+  "license": "MIT",
+  "repository": "https://github.com/GeorgDangl/LightQuery",
+  "description": "Client for the LightQuery pagination & filtering service",
+  "peerDependencies": {
+    "@angular/common": "^9.1.7",
+    "@angular/core": "^9.1.7",
+    "tslib": "^1.10.0"
+  }
+}
