@@ -359,7 +359,7 @@ class Build : NukeBuild
             DeleteFile(ngAppDir / "karma-results.xml");
 
             Npm("ci", ngAppDir);
-            Npm("run test", ngAppDir);
+            Npm("run test:ci", ngAppDir);
         });
 
     Target NgLibraryPublish => _ => _
