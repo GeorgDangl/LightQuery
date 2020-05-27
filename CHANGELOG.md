@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v1.9.0:
+- Addition of the **LightQuery.Swashbuckle** (thanks to GitHub user @berkayakcay) and **LightQuery.NSwag** packages to support Swagger & OpenAPI generation
+
 ## v1.8.1:
 - The Angular library was updated to be compatible with Angular v9.1
 
