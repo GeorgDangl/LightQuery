@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netcoreapp3.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\LightQuery.EntityFrameworkCore\LightQuery.EntityFrameworkCore.csproj" />
+      <ProjectReference Include="..\LightQuery\LightQuery.csproj" />
+    </ItemGroup>
+
+</Project>

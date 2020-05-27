@@ -45,6 +45,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LightQuery.Shared.Tests", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = ".build", "build\.build.csproj", "{506E6C78-4821-4269-A19A-7B60900EFBC6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LightQuery.Swashbuckle", "src\LightQuery.Swashbuckle\LightQuery.Swashbuckle.csproj", "{6C16698D-EA61-49B0-B24F-60B4E238C897}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -101,6 +103,10 @@ Global
 		{38C64E1E-28CD-46D9-A4B2-D2E59683F8C0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{506E6C78-4821-4269-A19A-7B60900EFBC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{506E6C78-4821-4269-A19A-7B60900EFBC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C16698D-EA61-49B0-B24F-60B4E238C897}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C16698D-EA61-49B0-B24F-60B4E238C897}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C16698D-EA61-49B0-B24F-60B4E238C897}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C16698D-EA61-49B0-B24F-60B4E238C897}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -118,6 +124,7 @@ Global
 		{8CCD27FA-22E5-41FA-A796-44290D427ED9} = {7F628AED-CB88-45FF-BF48-8EA02C691700}
 		{B2D54A8A-30DD-489C-847D-9347E4F7D436} = {6526DECE-8511-41B3-B5A6-C8170D362611}
 		{38C64E1E-28CD-46D9-A4B2-D2E59683F8C0} = {7F628AED-CB88-45FF-BF48-8EA02C691700}
+		{6C16698D-EA61-49B0-B24F-60B4E238C897} = {6526DECE-8511-41B3-B5A6-C8170D362611}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A225AC12-BAEB-44E1-8A7E-CE6E82AF1756}
