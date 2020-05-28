@@ -288,6 +288,28 @@ export class UsersDetailsService extends PaginationBaseService<User> implements 
 }
 ```
 
+## Swagger & OpenAPI Support
+
+The packages **LightQuery.NSwag** and **LightQuery.Swashbuckle** support the automatic generation
+of correct Swagger & OpenAPI parameter descriptions for the sort and pagination parameters.
+
+### Example with NSwag
+
+Just add the `LightQuery.NSwag.LightQueryOperationsProcessor` to your document generation:
+
+```csharp
+services.AddSwaggerDocument(nSwagConfig =>
+{
+    nSwagConfig.DocumentName = "swagger20";
+    nSwagConfig.OperationProcessors.Add(new LightQueryOperationsProcessor());
+});
+services.AddOpenApiDocument(nSwagConfig =>
+{
+    nSwagConfig.DocumentName = "openapi30";
+    nSwagConfig.OperationProcessors.Add(new LightQueryOperationsProcessor());
+});
+```
+
 ## Assembly Strong Naming & Usage in Signed Applications
 
 This module produces strong named assemblies when compiled. When consumers of this package require strongly named assemblies, for example when they
