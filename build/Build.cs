@@ -80,6 +80,7 @@ class Build : NukeBuild
             GlobDirectories(SourceDirectory / "LightQuery.EntityFrameworkCore", "**/bin", "**/obj").ForEach(DeleteDirectory);
             GlobDirectories(SourceDirectory / "LightQuery.Shared", "**/bin", "**/obj").ForEach(DeleteDirectory);
             GlobDirectories(SourceDirectory / "LightQuery.NSwag", "**/bin", "**/obj").ForEach(DeleteDirectory);
+            GlobDirectories(SourceDirectory / "LightQuery.Swashbuckle", "**/bin", "**/obj").ForEach(DeleteDirectory);
             GlobDirectories(RootDirectory / "test", "**/bin", "**/obj").ForEach(DeleteDirectory);
             EnsureCleanDirectory(OutputDirectory);
         });
