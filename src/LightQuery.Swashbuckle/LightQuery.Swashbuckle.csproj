@@ -1,16 +1,33 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>netcoreapp3.0</TargetFramework>
+        <TargetFrameworks>netcoreapp3.0;netstandard2.0;net461</TargetFrameworks>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <Authors>Georg Dangl</Authors>
+        <Company />
+        <Description>Extensions to use LightQuery with Swashbuckle</Description>
+        <Copyright>(c) $([System.DateTime]::Now.Year) Georg Dangl</Copyright>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/GeorgDangl/LightQuery</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/GeorgDangl/LightQuery.git</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>Asp-Net-Core Querying Sorting Filtering</PackageTags>
+        <PackageIcon>gd_icon_256.png</PackageIcon>
+        <SignAssembly>true</SignAssembly>
+        <!--        <AssemblyOriginatorKeyFile>LightQuery.Swashbuckle.snk</AssemblyOriginatorKeyFile>-->
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="5.4.1" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="5.4.1" />
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\LightQuery.EntityFrameworkCore\LightQuery.EntityFrameworkCore.csproj" />
-      <ProjectReference Include="..\LightQuery\LightQuery.csproj" />
+        <ProjectReference Include="..\LightQuery.EntityFrameworkCore\LightQuery.EntityFrameworkCore.csproj" />
+        <ProjectReference Include="..\LightQuery\LightQuery.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\gd_icon_256.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
 </Project>

@@ -15,12 +15,8 @@ namespace LightQuery.Swashbuckle
     /// <remarks>OpenAPI Support</remarks>
     public class LightQueryOperationFilter : IOperationFilter
     {
-        /*
-         * TODO : how can open api schema be parametric?
-         */
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            //Check for [SwaggerParameter] add defined parameter to the parameter list
             if (((ControllerActionDescriptor)context.ApiDescription.ActionDescriptor).MethodInfo.GetCustomAttributes().Any(a => a is AsyncLightQueryAttribute || a is LightQueryAttribute))
             {
                 // sort
@@ -36,7 +32,7 @@ namespace LightQuery.Swashbuckle
                         Example = new OpenApiString("CreatedAt desc")
                     }
                 });
-                
+
                 // thenSort
                 operation.Parameters.Add(new OpenApiParameter()
                 {
