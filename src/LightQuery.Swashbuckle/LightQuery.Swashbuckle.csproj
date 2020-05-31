@@ -15,6 +15,9 @@
         <PackageIcon>gd_icon_256.png</PackageIcon>
         <SignAssembly>true</SignAssembly>
         <AssemblyOriginatorKeyFile>LightQuery.Swashbuckle.snk</AssemblyOriginatorKeyFile>
+        <!-- This is required, otherwise Swashbuckle would try to generate OpenApi Documents on build
+             See: https://github.com/domaindrivendev/Swashbuckle/issues/1358 -->
+        <OpenApiGenerateDocuments>false</OpenApiGenerateDocuments>
     </PropertyGroup>
 
     <ItemGroup>
