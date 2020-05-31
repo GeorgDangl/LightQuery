@@ -14,7 +14,7 @@
         <PackageTags>Asp-Net-Core Querying Sorting Filtering</PackageTags>
         <PackageIcon>gd_icon_256.png</PackageIcon>
         <SignAssembly>true</SignAssembly>
-        <!--        <AssemblyOriginatorKeyFile>LightQuery.Swashbuckle.snk</AssemblyOriginatorKeyFile>-->
+        <AssemblyOriginatorKeyFile>LightQuery.Swashbuckle.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
 
     <ItemGroup>
