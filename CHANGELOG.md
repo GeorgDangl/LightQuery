@@ -2,8 +2,11 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v1.9.0:
+- Addition of the **LightQuery.Swashbuckle** (thanks to GitHub user @berkayakcay) and **LightQuery.NSwag** packages to support Swagger & OpenAPI generation
+
 ## v1.8.1:
-- The Angular library was updateds to be compatible with Angular v9.1
+- The Angular library was updated to be compatible with Angular v9.1
 
 ## v1.8.0:
 - Add a `thenSort` parameter to specify a second sort option. This translates to something like `queryable.OrderBy(sort).ThenBy(thenSort)`

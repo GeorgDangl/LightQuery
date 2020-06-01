@@ -19,6 +19,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\LightQuery.EntityFrameworkCore\LightQuery.EntityFrameworkCore.csproj" />
     <ProjectReference Include="..\..\src\LightQuery\LightQuery.csproj" />
+    <ProjectReference Include="..\..\src\LightQuery.NSwag\LightQuery.NSwag.csproj" />
+    <ProjectReference Include="..\..\src\LightQuery.Swashbuckle\LightQuery.Swashbuckle.csproj" />
   </ItemGroup>
 
 </Project>

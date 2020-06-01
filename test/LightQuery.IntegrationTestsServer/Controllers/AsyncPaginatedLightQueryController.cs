@@ -16,6 +16,7 @@ namespace LightQuery.IntegrationTestsServer.Controllers
 
         private readonly LightQueryContext _context;
 
+        [HttpGet]
         [AsyncLightQuery(forcePagination: true, defaultPageSize: 3)]
         public IActionResult GetValues(bool returnEmptyList = false)
         {

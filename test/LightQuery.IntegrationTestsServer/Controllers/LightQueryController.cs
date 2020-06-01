@@ -14,6 +14,7 @@ namespace LightQuery.IntegrationTestsServer.Controllers
 
         private readonly LightQueryContext _context;
 
+        [HttpGet]
         [LightQuery]
         public IActionResult GetValues()
         {

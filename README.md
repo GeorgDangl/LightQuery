@@ -107,7 +107,7 @@ e.g. sorting can be done by using `bankAccount.balance`. Take this example:
     {
         "name": "Bob",
         "bankAccount": null
-    },
+    }
 ]
 ```
 
@@ -286,6 +286,54 @@ export class UsersDetailsService extends PaginationBaseService<User> implements 
   disconnect() { }
 
 }
+```
+
+## Swagger & OpenAPI Support
+
+The packages **LightQuery.NSwag** and **LightQuery.Swashbuckle** support the automatic generation
+of correct Swagger & OpenAPI parameter descriptions for the sort and pagination parameters.
+
+### Example with NSwag
+
+Just add the `LightQuery.NSwag.LightQueryOperationsProcessor` to your document generation:
+
+```csharp
+services.AddSwaggerDocument(nSwagConfig =>
+{
+    nSwagConfig.DocumentName = "swagger20";
+    nSwagConfig.OperationProcessors.Add(new LightQueryOperationsProcessor());
+});
+services.AddOpenApiDocument(nSwagConfig =>
+{
+    nSwagConfig.DocumentName = "openapi30";
+    nSwagConfig.OperationProcessors.Add(new LightQueryOperationsProcessor());
+});
+```
+
+### Example with Swashbuckle
+
+Just add the `LightQuery.Swashbuckle.LightQueryOperationFilter` to your document generation:
+
+```csharp 
+services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("swagger20", new OpenApiInfo()
+    {
+        Description = "swagger20"
+    });
+    options.OperationFilter<LightQueryOperationFilter>();
+});
+
+services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("openapi30", new OpenApiInfo()
+    {
+        Description = "openapi30"
+    });
+    options.OperationFilter<LightQueryOperationFilter>();
+});
+
+
 ```
 
 ## Assembly Strong Naming & Usage in Signed Applications

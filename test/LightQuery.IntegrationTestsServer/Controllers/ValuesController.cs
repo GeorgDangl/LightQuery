@@ -14,6 +14,7 @@ namespace LightQuery.IntegrationTestsServer.Controllers
 
         private readonly LightQueryContext _context;
 
+        [HttpGet]
         public IActionResult GetValues()
         {
             var users = _context.Users.OrderBy(u => Guid.NewGuid());
