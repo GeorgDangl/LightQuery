@@ -5,8 +5,11 @@
   "repository": "https://github.com/GeorgDangl/LightQuery",
   "description": "Client for the LightQuery pagination & filtering service",
   "peerDependencies": {
-    "@angular/common": "^9.1.7",
-    "@angular/core": "^9.1.7",
-    "tslib": "^1.10.0"
+    "@angular/common": "^10.0.4",
+    "@angular/core": "^10.0.4"
+}
+,
+  "dependencies": {
+    "tslib": "^2.0.0"
   }
 }
