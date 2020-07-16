@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v1.9.1:
+- Drop tests for `netcoreapp2.0` and `netcoreapp3.0` and add tests for `netcoreapp3.1`
+
 ## v1.9.0:
 - Addition of the **LightQuery.Swashbuckle** (thanks to GitHub user @berkayakcay) and **LightQuery.NSwag** packages to support Swagger & OpenAPI generation
 
