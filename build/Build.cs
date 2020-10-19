@@ -224,7 +224,9 @@ class Build : NukeBuild
         .DependsOn(Restore)
         .Executes(() =>
         {
-            DocFXMetadata(x => x.AddProjects(DocFxFile));
+            DocFXMetadata(x => x
+                .SetEnvironmentVariable("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName)
+                .AddProjects(DocFxFile));
         });
 
     Target BuildDocumentation => _ => _
@@ -240,7 +242,9 @@ class Build : NukeBuild
 
             File.Copy(SolutionDirectory / "README.md", SolutionDirectory / "index.md");
 
-            DocFXBuild(x => x.SetConfigFile(DocFxFile));
+            DocFXBuild(x => x
+                .SetEnvironmentVariable("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName)
+                .SetConfigFile(DocFxFile));
 
             File.Delete(SolutionDirectory / "index.md");
             Directory.Delete(SolutionDirectory / "lightquery", true);
