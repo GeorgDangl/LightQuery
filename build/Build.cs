@@ -34,6 +34,7 @@ using static Nuke.Common.Tools.Npm.NpmTasks;
 using Nuke.Common.ProjectModel;
 using static Nuke.DocFX.DocFXTasks;
 using Nuke.DocFX;
+using Nuke.Common.BuildServers;
 
 class Build : NukeBuild
 {
@@ -195,6 +196,8 @@ class Build : NukeBuild
         .Requires(() => PublicMyGetApiKey)
         .Requires(() => NuGetApiKey)
         .Requires(() => Configuration.EqualsOrdinalIgnoreCase("Release"))
+        .OnlyWhenDynamic(() => Jenkins.Instance == null
+            || Jenkins.Instance.ChangeId == null)
         .Executes(() =>
         {
             GlobFiles(OutputDirectory, "*.nupkg").NotEmpty()
@@ -252,6 +255,8 @@ class Build : NukeBuild
         .DependsOn(BuildDocumentation)
         .Requires(() => DocuApiKey)
         .Requires(() => DocuBaseUrl)
+        .OnlyWhenDynamic(() => Jenkins.Instance == null
+            || Jenkins.Instance.ChangeId == null)
         .Executes(() =>
         {
              var changeLog = GetCompleteChangeLog(ChangeLogFile);
@@ -365,6 +370,8 @@ class Build : NukeBuild
         });
 
     Target NgLibraryPublish => _ => _
+        .OnlyWhenDynamic(() => Jenkins.Instance == null
+            || Jenkins.Instance.ChangeId == null)
         .Executes(() =>
         {
             var ngAppDir = SourceDirectory / "ng-lightquery";
