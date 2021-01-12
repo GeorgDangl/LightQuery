@@ -227,7 +227,7 @@ class Build : NukeBuild
         .Executes(() =>
         {
             DocFXMetadata(x => x
-                .SetEnvironmentVariable("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName)
+                .SetProcessEnvironmentVariable("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName)
                 .AddProjects(DocFxFile));
         });
 
@@ -245,7 +245,7 @@ class Build : NukeBuild
             File.Copy(SolutionDirectory / "README.md", SolutionDirectory / "index.md");
 
             DocFXBuild(x => x
-                .SetEnvironmentVariable("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName)
+                .SetProcessEnvironmentVariable("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName)
                 .SetConfigFile(DocFxFile));
 
             File.Delete(SolutionDirectory / "index.md");
