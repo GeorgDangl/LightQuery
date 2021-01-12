@@ -12,6 +12,7 @@ using Nuke.Common.Tools.DotCover;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.ReportGenerator;
+using Nuke.Common.Tools.Teams;
 using Nuke.Common.Utilities;
 using Nuke.Common.Utilities.Collections;
 using Nuke.GitHub;
@@ -62,6 +63,7 @@ class Build : NukeBuild
     [KeyVaultSecret] readonly string NuGetApiKey;
     [KeyVaultSecret("LightQuery-DocuApiKey")] readonly string DocuApiKey;
     [KeyVaultSecret] readonly string GitHubAuthenticationToken;
+    [KeyVaultSecret] readonly string DanglCiCdTeamsWebhookUrl;
 
     [Parameter] readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
 
@@ -73,6 +75,29 @@ class Build : NukeBuild
     string DocFxFile => SolutionDirectory / "docfx.json";
 
     string ChangeLogFile => RootDirectory / "CHANGELOG.md";
+
+    protected override void OnTargetFailed(string target)
+    {
+        if (IsServerBuild)
+        {
+            SendTeamsMessage("Build Failed", $"Target {target} failed for LightQuery, " +
+                        $"Branch: {GitRepository.Branch}", true);
+        }
+    }
+
+    void SendTeamsMessage(string title, string message, bool isError)
+    {
+        if (!string.IsNullOrWhiteSpace(DanglCiCdTeamsWebhookUrl))
+        {
+            var themeColor = isError ? "f44336" : "00acc1";
+            TeamsTasks
+                .SendTeamsMessage(m => m
+                    .SetTitle(title)
+                    .SetText(message)
+                    .SetThemeColor(themeColor),
+                    DanglCiCdTeamsWebhookUrl);
+        }
+    }
 
     Target Clean => _ => _
         .Executes(() =>
