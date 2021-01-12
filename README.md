@@ -1,6 +1,5 @@
 # LightQuery
-[![Build Status](https://jenkins.dangl.me/buildStatus/icon?job=LightQuery/dev)](https://jenkins.dangl.me/job/LightQuery/job/dev/)
-
+[![Build Status](https://jenkins.dangl.me/buildStatus/icon?job=GeorgDangl%2FLightQuery%2Fdev)](https://jenkins.dangl.me/job/GeorgDangl/job/LightQuery/job/dev/)  
 [Online Documentation](https://docs.dangl-it.com/Projects/LightQuery)
 
 This project aims to provide a lightweight `ActionFilterAttribute`
