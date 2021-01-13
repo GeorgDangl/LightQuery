@@ -243,6 +243,8 @@ class Build : NukeBuild
                             .SetTargetPath(x)
                             .SetSource("https://api.nuget.org/v3/index.json")
                             .SetApiKey(NuGetApiKey));
+
+                        SendTeamsMessage("New Release", $"New release available for LightQuery: {GitVersion.NuGetVersion}", false);
                     }
                 });
         });
