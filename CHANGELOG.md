@@ -2,6 +2,10 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v2.0.0
+- Added a compilation target for `net5.0` and added tests for `net5.0`
+- Dropped support for `netcoreapp3.0` and changed target to `netcoreapp3.1`
+
 ## v1.9.1:
 - Drop tests for `netcoreapp2.0` and `netcoreapp3.0` and add tests for `netcoreapp3.1`
 - The Angular library was updated to v10
