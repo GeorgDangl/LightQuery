@@ -69,20 +69,20 @@ export abstract class PaginationBaseService<T> {
         }
     }
 
-    private _sort?: { propertyName: string, isDescending: boolean };
+    private _sort?: { propertyName: string, isDescending: boolean } | null;
     get sort(): { propertyName: string, isDescending: boolean } | null {
         return this._sort;
     }
-    set sort(value: { propertyName: string, isDescending: boolean }) {
+    set sort(value: { propertyName: string, isDescending: boolean } | null) {
         this._sort = value;
         this.refresh();
     }
 
-    private _thenSort?: { propertyName: string, isDescending: boolean };
+    private _thenSort?: { propertyName: string, isDescending: boolean } | null;
     get thenSort(): { propertyName: string, isDescending: boolean } | null {
         return this._thenSort;
     }
-    set thenSort(value: { propertyName: string, isDescending: boolean }) {
+    set thenSort(value: { propertyName: string, isDescending: boolean } | null) {
         this._thenSort = value;
         this.refresh();
     }
