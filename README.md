@@ -113,6 +113,12 @@ e.g. sorting can be done by using `bankAccount.balance`. Take this example:
 If you apply the sorting expression `bankAccount.balance`, the user `Bob` will not be present in the
 result set because the `bankAccount` property is null. The query will only be applied to `George` and `Alice`.
 
+##### Handling Null Values in Relational Sorting
+
+With v2.0.0, **LightQuery** introduced a new property `wrapNestedSortInNullChecks` to the ASP.NET Core controller attributes.
+
+This defaults to `false` for regular `[LightQuery]` and to `true` for `[AsyncLightQuery]`. It controls whether nested sorting / relational sorting will introduce null checks, e.g. sorting by `x.SubProperty.SubId` is either translated as `.Where(x => x.SubProperty != null).OrderBy(x => x.SubProperty.SubId)` or directly as `.OrderBy(x => x.SubProperty.SubId)`. For Entity Framework (using the `[AsyncLightQuery]` attribute), the database provider usually handles null checking via appropriate join conditions and versions before .NET 5 might produce errors otherwise.
+
 #### ThenSort
 
 **LightQuery** supports an additional sort level via the `thenSort` parameter. For example, take the following url:

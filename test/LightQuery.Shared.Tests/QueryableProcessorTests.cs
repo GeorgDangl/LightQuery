@@ -617,6 +617,28 @@ namespace LightQuery.Shared.Tests
         }
 
         [Fact]
+        public void KeepsNullThirdLevelPropertiesWithCamelCasedQuery()
+        {
+            var orders = new[]
+                {
+                    new Order{Title = "#1" },
+                    new Order{Title = "#2", Product = new Product{ Detail = new ProductDetail{Barcode = "#456" } } },
+                    new Order{Title = "#3", Product = new Product{ Detail = new ProductDetail{Barcode = "#123" } } },
+                    new Order{Title = "#4", Product = new Product{ Detail = new ProductDetail{Barcode = "#789" } } },
+                    new Order{Title = "#5" },
+                }
+               .OrderBy(x => Guid.NewGuid())
+               .AsQueryable();
+
+            var sortOption = new SortOption
+            {
+                PropertyName = "product.detail.barcode",
+                IsDescending = false
+            };
+            Assert.Throws<NullReferenceException>(() => orders.ApplySorting(sortOption, null, false).Cast<Order>().ToList());
+        }
+
+        [Fact]
         public void ReturnsUnfilteredForInvalidRelationalSort()
         {
             var orders = new[]

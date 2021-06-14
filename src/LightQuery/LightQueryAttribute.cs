@@ -8,11 +8,15 @@ namespace LightQuery
 {
     public class LightQueryAttribute : ActionFilterAttribute
     {
-        public LightQueryAttribute(bool forcePagination = false, int defaultPageSize = QueryParser.DEFAULT_PAGE_SIZE, string defaultSort = null)
+        public LightQueryAttribute(bool forcePagination = false,
+            int defaultPageSize = QueryParser.DEFAULT_PAGE_SIZE,
+            string defaultSort = null,
+            bool wrapNestedSortInNullChecks = true)
         {
             _forcePagination = forcePagination;
             _defaultPageSize = defaultPageSize;
             _defaultSort = defaultSort;
+            _wrapNestedSortInNullChecks = wrapNestedSortInNullChecks;
             if (!_defaultSort.IsValidSortParameter())
             {
                 throw new System.ArgumentException("Please specifiy either 'asc' or 'desc' as the sort direction for the defaultSort parameter and ensure it has not more than two segments", nameof(defaultSort));
@@ -22,6 +26,7 @@ namespace LightQuery
         private readonly bool _forcePagination;
         private readonly int _defaultPageSize;
         private readonly string _defaultSort;
+        private readonly bool _wrapNestedSortInNullChecks;
 
         public override void OnResultExecuting(ResultExecutingContext context)
         {
@@ -32,7 +37,10 @@ namespace LightQuery
                 return;
             }
 
-            var queryContainer = ContextProcessor.GetQueryContainer(context, _defaultPageSize, _defaultSort);
+            var queryContainer = ContextProcessor.GetQueryContainer(context,
+                _defaultPageSize,
+                _defaultSort,
+                _wrapNestedSortInNullChecks);
             if (queryContainer.ObjectResult == null)
             {
                 return;
