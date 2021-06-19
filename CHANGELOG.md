@@ -6,6 +6,7 @@ All notable changes to **LightQuery** are documented here.
 - Added a compilation target for `net5.0` and added tests for `net5.0`
 - Dropped support for `netcoreapp3.0` and changed target to `netcoreapp3.1`
 - Added a new property `wrapNestedSortInNullChecks` to the ASP.NET Core controller attributes. This defaults to `false` for regular `[LightQuery]` and to `true` for `[AsyncLightQuery]`. It controls whether nested sorting / relational sorting will introduce null checks, e.g. sorting by `x.SubProperty.SubId` is either translated as `.Where(x => x.SubProperty != null).OrderBy(x => x.SubProperty.SubId)` or directly as `.OrderBy(x => x.SubProperty.SubId)`
+- Added a `debounceTime(0)` pipe to the Angular `PaginationBaseService<T>`, to ensure that changing multiple options of the service in code doesn't result in sending a separate request (which is then cancelled) for every change
 
 ## v1.9.1:
 - Drop tests for `netcoreapp2.0` and `netcoreapp3.0` and add tests for `netcoreapp3.1`
