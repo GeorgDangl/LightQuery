@@ -24,13 +24,13 @@ export abstract class PaginationBaseService<T> {
     this.requestUrl
       .pipe(
         distinctUntilChanged(),
+        merge(this.forceRefreshUrl),
         // We're putting a 0 (zero) debounce time here, mostly to
         // ensure that when multiple changes are applied via code, e.g.
         // setting a page number and a query parameter, we don't send two requests
         // and cancel the first but wait until the code has executed
         // to just send a single request
         debounceTime(0),
-        merge(this.forceRefreshUrl),
         switchMap((url: string) => {
           return this.http
             .get<PaginationResult<T>>(url)
