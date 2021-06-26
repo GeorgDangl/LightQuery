@@ -1,10 +1,9 @@
-import { Observable, ReplaySubject, Subject, empty } from 'rxjs';
+import { EMPTY, ReplaySubject, Subject, merge } from 'rxjs';
 import {
   catchError,
   debounceTime,
   distinctUntilChanged,
   filter,
-  merge,
   switchMap,
 } from 'rxjs/operators';
 
@@ -21,10 +20,9 @@ export abstract class PaginationBaseService<T> {
   private forceRefreshUrl = new Subject<string>();
 
   constructor(protected http: HttpClient) {
-    this.requestUrl
+    merge(this.requestUrl, this.forceRefreshUrl)
       .pipe(
         distinctUntilChanged(),
-        merge(this.forceRefreshUrl),
         // We're putting a 0 (zero) debounce time here, mostly to
         // ensure that when multiple changes are applied via code, e.g.
         // setting a page number and a query parameter, we don't send two requests
@@ -34,7 +32,7 @@ export abstract class PaginationBaseService<T> {
         switchMap((url: string) => {
           return this.http
             .get<PaginationResult<T>>(url)
-            .pipe(catchError((er) => empty()));
+            .pipe(catchError((_) => EMPTY));
         }),
         filter((r) => r != null)
       )
