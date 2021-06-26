@@ -120,6 +120,7 @@ describe('PaginationBaseService', () => {
     httpMock.expectOne('/users?page=1&pageSize=20');
     httpMock.verify();
     service.forceRefresh();
+    await delay(1);
     httpMock.expectOne('/users?page=1&pageSize=20');
     httpMock.verify();
   }));
@@ -148,13 +149,28 @@ describe('PaginationBaseService', () => {
     expect(hasReceivedResponse).toBeFalsy();
   }));
 
-  it('cancels first request when second request send', async(async () => {
+  it('cancels first request when second request sent', async(async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
     let httpMock = getHttpMock();
     const firstRequest = httpMock.expectOne('/users?page=1&pageSize=20');
     service.forceRefresh();
+    await delay(1);
+    const secondRequest = httpMock.expectOne('/users?page=1&pageSize=20');
+    expect(firstRequest.cancelled).toBeTruthy();
+    expect(secondRequest.cancelled).toBeFalsy();
+  }));
+
+  it('does not send two requests when calling forceRefresh twice subsequently', async(async () => {
+    let service = getService();
+    service.baseUrl = '/users';
+    await delay(1);
+    let httpMock = getHttpMock();
+    const firstRequest = httpMock.expectOne('/users?page=1&pageSize=20');
+    service.forceRefresh();
+    service.forceRefresh();
+    await delay(1);
     const secondRequest = httpMock.expectOne('/users?page=1&pageSize=20');
     expect(firstRequest.cancelled).toBeTruthy();
     expect(secondRequest.cancelled).toBeFalsy();
@@ -173,6 +189,7 @@ describe('PaginationBaseService', () => {
     expect(hasReceivedResponse).toBeFalsy();
     httpMock.verify();
     service.forceRefresh();
+    await delay(1);
     const secondRequest = httpMock.expectOne('/users?page=1&pageSize=20');
     secondRequest.flush({});
     expect(hasReceivedResponse).toBeTruthy();
@@ -237,6 +254,7 @@ describe('PaginationBaseService', () => {
       });
 
     requeryAction(service); // This is currently either calling 'forceRefresh()' or 'requery()'
+    await delay(1);
 
     const secondRequest = httpMock.expectOne('/users?page=1&pageSize=20');
     const secondPaginationResponse: PaginationResult<User> = {

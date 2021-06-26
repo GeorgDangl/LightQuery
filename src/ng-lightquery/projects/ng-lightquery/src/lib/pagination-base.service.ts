@@ -20,9 +20,8 @@ export abstract class PaginationBaseService<T> {
   private forceRefreshUrl = new Subject<string>();
 
   constructor(protected http: HttpClient) {
-    merge(this.requestUrl, this.forceRefreshUrl)
+    merge(this.requestUrl.pipe(distinctUntilChanged()), this.forceRefreshUrl)
       .pipe(
-        distinctUntilChanged(),
         // We're putting a 0 (zero) debounce time here, mostly to
         // ensure that when multiple changes are applied via code, e.g.
         // setting a page number and a query parameter, we don't send two requests
