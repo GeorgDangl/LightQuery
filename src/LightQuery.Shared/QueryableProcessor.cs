@@ -47,7 +47,10 @@ namespace LightQuery.Shared
             return Expression.Lambda(body, param);
         }
 
-        public static IQueryable ApplySorting(this IQueryable queryable, SortOption sortOption, SortOption thenSortOption)
+        public static IQueryable ApplySorting(this IQueryable queryable,
+            SortOption sortOption,
+            SortOption thenSortOption,
+            bool wrapNestedSortInNullChecks = true)
         {
             if (queryable == null)
             {
@@ -65,7 +68,7 @@ namespace LightQuery.Shared
             }
 
             var orderMethodName = sortOption.IsDescending ? nameof(Queryable.OrderByDescending) : nameof(Queryable.OrderBy);
-            var result = ApplySorting(queryable, orderMethodName, sortOption.PropertyName);
+            var result = ApplySorting(queryable, orderMethodName, sortOption.PropertyName, wrapNestedSortInNullChecks);
 
             if (thenSortOption != null
                 && !string.IsNullOrWhiteSpace(thenSortOption.PropertyName)
@@ -73,13 +76,13 @@ namespace LightQuery.Shared
                 // only working on the regular sort property
             {
                 var thenOrderMethodName = thenSortOption.IsDescending ? nameof(Queryable.ThenByDescending) : nameof(Queryable.ThenBy);
-                result = ApplySorting(result, thenOrderMethodName, thenSortOption.PropertyName);
+                result = ApplySorting(result, thenOrderMethodName, thenSortOption.PropertyName, wrapNestedSortInNullChecks);
             }
 
             return result;
         }
 
-        private static IQueryable ApplySorting(IQueryable queryable, string sortMethodName, string propertyName)
+        private static IQueryable ApplySorting(IQueryable queryable, string sortMethodName, string propertyName, bool wrapNestedSortInNullChecks)
         {
             var orderingProperty = GetPropertyInfoRecursively(queryable, propertyName);
             if (orderingProperty.declaringType == null
@@ -94,8 +97,11 @@ namespace LightQuery.Shared
                 return queryable;
             }
 
-            // If this is a nested expression, it should additionally add null checks to exclude null children
-            queryable = queryable.WrapInNullChecksIfAccessingNestedProperties(queryable.ElementType, propertyName);
+            if (wrapNestedSortInNullChecks)
+            {
+                // If this is a nested expression, it should additionally add null checks to exclude null children
+                queryable = queryable.WrapInNullChecksIfAccessingNestedProperties(queryable.ElementType, propertyName);
+            }
             var wrappedExpression = Expression.Call(typeof(Queryable),
                 sortMethodName,
                 new[] { orderingProperty.declaringType, orderingProperty.property.PropertyType },

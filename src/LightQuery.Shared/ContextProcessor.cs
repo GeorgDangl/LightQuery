@@ -7,7 +7,10 @@ namespace LightQuery.Shared
 {
     public static class ContextProcessor
     {
-        public static QueryContainer GetQueryContainer(ResultExecutingContext context, int defaultPageSize, string defaultSort)
+        public static QueryContainer GetQueryContainer(ResultExecutingContext context,
+            int defaultPageSize,
+            string defaultSort,
+            bool wrapNestedSortInNullChecks)
         {
             if (context == null)
             {
@@ -22,7 +25,7 @@ namespace LightQuery.Shared
             var queryOptions = QueryParser.GetQueryOptions(context.HttpContext.Request.Query, defaultPageSize, defaultSort);
             var sortedResult = queryOptions.Sort == null
                 ? queryable
-                : queryable.ApplySorting(queryOptions.Sort, queryOptions.ThenSort);
+                : queryable.ApplySorting(queryOptions.Sort, queryOptions.ThenSort, wrapNestedSortInNullChecks);
             objectResult.Value = sortedResult;
             return new QueryContainer(objectResult, sortedResult, queryOptions);
         }

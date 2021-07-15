@@ -93,7 +93,7 @@ namespace LightQuery.Shared.Tests.Regression
         }
 
         [Fact]
-        public async Task CanSortOnNestedProperty()
+        public async Task CanSortOnNestedProperty_WhenWrappingInNullChecks()
         {
             // This test ensures that relational sorting works with SQLite
             var context = await GetContextAsync();
@@ -104,7 +104,7 @@ namespace LightQuery.Shared.Tests.Regression
                 PropertyName = "FavoriteRestaurant.Street"
             };
 
-            var orderedQuery = QueryableProcessor.ApplySorting(usersQueryable, sortOption, null);
+            var orderedQuery = QueryableProcessor.ApplySorting(usersQueryable, sortOption, null, true);
 
             dynamic dynamicOrderedQuery = orderedQuery;
 
@@ -113,6 +113,28 @@ namespace LightQuery.Shared.Tests.Regression
             // It should only have two results since the added null checks remove
             // the user with the missing FavoriteRestaurant
             Assert.Equal(2, count);
+        }
+
+        [Fact]
+        public async Task CanSortOnNestedProperty_WhenNotWrappingInNullChecks()
+        {
+            // This test ensures that relational sorting works with SQLite
+            var context = await GetContextAsync();
+
+            var usersQueryable = context.Users;
+            var sortOption = new SortOption
+            {
+                PropertyName = "FavoriteRestaurant.Street"
+            };
+
+            var orderedQuery = QueryableProcessor.ApplySorting(usersQueryable, sortOption, null, false);
+
+            dynamic dynamicOrderedQuery = orderedQuery;
+
+            var count = Queryable.Count(dynamicOrderedQuery);
+
+            // It should have all three results
+            Assert.Equal(3, count);
         }
     }
 }

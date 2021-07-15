@@ -1,12 +1,18 @@
-using Nuke.Azure.KeyVault;
 using Nuke.CoberturaConverter;
 using Nuke.Common;
+using Nuke.Common.CI.Jenkins;
 using Nuke.Common.Git;
+using Nuke.Common.IO;
+using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
+using Nuke.Common.Tools.AzureKeyVault;
+using Nuke.Common.Tools.AzureKeyVault.Attributes;
+using Nuke.Common.Tools.DocFX;
 using Nuke.Common.Tools.DotCover;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.ReportGenerator;
+using Nuke.Common.Tools.Teams;
 using Nuke.Common.Utilities;
 using Nuke.Common.Utilities.Collections;
 using Nuke.GitHub;
@@ -20,20 +26,17 @@ using System.Xml.Linq;
 using System.Xml.XPath;
 using static Nuke.CoberturaConverter.CoberturaConverterTasks;
 using static Nuke.Common.ChangeLog.ChangelogTasks;
-using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.IO.XmlTasks;
+using static Nuke.Common.Tools.DocFX.DocFXTasks;
 using static Nuke.Common.Tools.DotCover.DotCoverTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
+using static Nuke.Common.Tools.Npm.NpmTasks;
 using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
 using static Nuke.GitHub.ChangeLogExtensions;
 using static Nuke.GitHub.GitHubTasks;
 using static Nuke.WebDocu.WebDocuTasks;
-using static Nuke.Common.Tools.Npm.NpmTasks;
-using Nuke.Common.ProjectModel;
-using static Nuke.DocFX.DocFXTasks;
-using Nuke.DocFX;
 
 class Build : NukeBuild
 {
@@ -51,7 +54,7 @@ class Build : NukeBuild
     [Parameter] readonly string KeyVaultClientId;
     [Parameter] readonly string KeyVaultClientSecret;
 
-    [GitVersion] readonly GitVersion GitVersion;
+    [GitVersion(Framework = "netcoreapp3.1")] readonly GitVersion GitVersion;
     [GitRepository] readonly GitRepository GitRepository;
 
     [KeyVaultSecret] readonly string DocuBaseUrl;
@@ -60,6 +63,7 @@ class Build : NukeBuild
     [KeyVaultSecret] readonly string NuGetApiKey;
     [KeyVaultSecret("LightQuery-DocuApiKey")] readonly string DocuApiKey;
     [KeyVaultSecret] readonly string GitHubAuthenticationToken;
+    [KeyVaultSecret] readonly string DanglCiCdTeamsWebhookUrl;
 
     [Parameter] readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
 
@@ -71,6 +75,29 @@ class Build : NukeBuild
     string DocFxFile => SolutionDirectory / "docfx.json";
 
     string ChangeLogFile => RootDirectory / "CHANGELOG.md";
+
+    protected override void OnTargetFailed(string target)
+    {
+        if (IsServerBuild)
+        {
+            SendTeamsMessage("Build Failed", $"Target {target} failed for LightQuery, " +
+                        $"Branch: {GitRepository.Branch}", true);
+        }
+    }
+
+    void SendTeamsMessage(string title, string message, bool isError)
+    {
+        if (!string.IsNullOrWhiteSpace(DanglCiCdTeamsWebhookUrl))
+        {
+            var themeColor = isError ? "f44336" : "00acc1";
+            TeamsTasks
+                .SendTeamsMessage(m => m
+                    .SetTitle(title)
+                    .SetText(message)
+                    .SetThemeColor(themeColor),
+                    DanglCiCdTeamsWebhookUrl);
+        }
+    }
 
     Target Clean => _ => _
         .Executes(() =>
@@ -99,7 +126,7 @@ class Build : NukeBuild
             DotNetBuild(x => x
                 .SetConfiguration(Configuration)
                 .EnableNoRestore()
-                .SetFileVersion(GitVersion.GetNormalizedFileVersion())
+                .SetFileVersion(GitVersion.AssemblySemFileVer)
                 .SetAssemblyVersion($"{GitVersion.Major}.{GitVersion.Minor}.{GitVersion.Patch}.0")
                 .SetInformationalVersion(GitVersion.InformationalVersion));
         });
@@ -168,6 +195,7 @@ class Build : NukeBuild
 
             // This is the report that's pretty and visualized in Jenkins
             ReportGenerator(c => c
+                .SetFramework("netcoreapp3.0")
                  .SetReports(OutputDirectory / "coverage.xml")
                  .SetTargetDirectory(OutputDirectory / "CoverageReport"));
 
@@ -195,6 +223,8 @@ class Build : NukeBuild
         .Requires(() => PublicMyGetApiKey)
         .Requires(() => NuGetApiKey)
         .Requires(() => Configuration.EqualsOrdinalIgnoreCase("Release"))
+        .OnlyWhenDynamic(() => Jenkins.Instance == null
+            || Jenkins.Instance.ChangeId == null)
         .Executes(() =>
         {
             GlobFiles(OutputDirectory, "*.nupkg").NotEmpty()
@@ -213,6 +243,8 @@ class Build : NukeBuild
                             .SetTargetPath(x)
                             .SetSource("https://api.nuget.org/v3/index.json")
                             .SetApiKey(NuGetApiKey));
+
+                        SendTeamsMessage("New Release", $"New release available for LightQuery: {GitVersion.NuGetVersion}", false);
                     }
                 });
         });
@@ -221,7 +253,9 @@ class Build : NukeBuild
         .DependsOn(Restore)
         .Executes(() =>
         {
-            DocFXMetadata(x => x.AddProjects(DocFxFile));
+            DocFXMetadata(x => x
+                .SetProcessEnvironmentVariable("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName)
+                .AddProjects(DocFxFile));
         });
 
     Target BuildDocumentation => _ => _
@@ -237,7 +271,9 @@ class Build : NukeBuild
 
             File.Copy(SolutionDirectory / "README.md", SolutionDirectory / "index.md");
 
-            DocFXBuild(x => x.SetConfigFile(DocFxFile));
+            DocFXBuild(x => x
+                .SetProcessEnvironmentVariable("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName)
+                .SetConfigFile(DocFxFile));
 
             File.Delete(SolutionDirectory / "index.md");
             Directory.Delete(SolutionDirectory / "lightquery", true);
@@ -252,6 +288,8 @@ class Build : NukeBuild
         .DependsOn(BuildDocumentation)
         .Requires(() => DocuApiKey)
         .Requires(() => DocuBaseUrl)
+        .OnlyWhenDynamic(() => Jenkins.Instance == null
+            || Jenkins.Instance.ChangeId == null)
         .Executes(() =>
         {
              var changeLog = GetCompleteChangeLog(ChangeLogFile);
@@ -365,6 +403,8 @@ class Build : NukeBuild
         });
 
     Target NgLibraryPublish => _ => _
+        .OnlyWhenDynamic(() => Jenkins.Instance == null
+            || Jenkins.Instance.ChangeId == null)
         .Executes(() =>
         {
             var ngAppDir = SourceDirectory / "ng-lightquery";
