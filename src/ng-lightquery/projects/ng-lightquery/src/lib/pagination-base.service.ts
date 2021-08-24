@@ -1,4 +1,4 @@
-import { EMPTY, ReplaySubject, Subject, merge } from 'rxjs';
+import { EMPTY, ReplaySubject, Subject, merge, Observable } from 'rxjs';
 import {
   catchError,
   debounceTime,
@@ -152,5 +152,18 @@ export abstract class PaginationBaseService<T> {
       }
     }
     return url;
+  }
+
+  private buildUrlAll(): string {
+    const url = `${this.baseUrl}?page=1&pageSize=`;
+    return url;
+  }
+
+  getAll(): Observable<PaginationResult<T>> {
+    if (!this.baseUrl) {
+      return;
+    }
+    const url = this.buildUrlAll();
+    return this.http.get<PaginationResult<T>>(url);
   }
 }
