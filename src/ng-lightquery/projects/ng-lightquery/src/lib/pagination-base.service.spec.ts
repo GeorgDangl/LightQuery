@@ -61,7 +61,8 @@ describe('PaginationBaseService', () => {
     service.baseUrl = '/users';
     await delay(1);
     let httpMock = getHttpMock();
-    httpMock.expectOne('/users?page=1&pageSize=20');
+    const req = httpMock.expectOne('/users?page=1&pageSize=20');
+    expect(req.request.method).toBe('GET');
     httpMock.verify();
     service.page++;
     await delay(1);
@@ -74,7 +75,8 @@ describe('PaginationBaseService', () => {
     service.baseUrl = '/users';
     await delay(1);
     let httpMock = getHttpMock();
-    httpMock.expectOne('/users?page=1&pageSize=20');
+    const req = httpMock.expectOne('/users?page=1&pageSize=20');
+    expect(req.request.method).toBe('GET');
     httpMock.verify();
     service.pageSize++;
     await delay(1);
@@ -87,7 +89,8 @@ describe('PaginationBaseService', () => {
     service.baseUrl = '/users';
     await delay(1);
     let httpMock = getHttpMock();
-    httpMock.expectOne('/users?page=1&pageSize=20');
+    const req = httpMock.expectOne('/users?page=1&pageSize=20');
+    expect(req.request.method).toBe('GET');
     httpMock.verify();
     service.setQueryParameter('filter', 'byName');
     await delay(1);
@@ -100,7 +103,8 @@ describe('PaginationBaseService', () => {
     service.baseUrl = '/users';
     await delay(1);
     let httpMock = getHttpMock();
-    httpMock.expectOne('/users?page=1&pageSize=20');
+    const req = httpMock.expectOne('/users?page=1&pageSize=20');
+    expect(req.request.method).toBe('GET');
     httpMock.verify();
     service.setQueryParameter('filter', 'byName');
     await delay(1);
@@ -117,7 +121,8 @@ describe('PaginationBaseService', () => {
     service.baseUrl = '/users';
     await delay(1);
     let httpMock = getHttpMock();
-    httpMock.expectOne('/users?page=1&pageSize=20');
+    const req = httpMock.expectOne('/users?page=1&pageSize=20');
+    expect(req.request.method).toBe('GET');
     httpMock.verify();
     service.forceRefresh();
     await delay(1);
@@ -134,7 +139,20 @@ describe('PaginationBaseService', () => {
     service.setQueryParameter('filter', 'byName');
     await delay(1);
     let httpMock = getHttpMock();
-    httpMock.expectOne('/users?page=2&pageSize=13&filter=byName');
+    const req = httpMock.expectOne('/users?page=2&pageSize=13&filter=byName');
+    expect(req.request.method).toBe('GET');
+  }));
+
+  it('calls url to get All items', async(async () => {
+    let service = getService();
+    service.baseUrl = '/users';
+    await delay(1);
+    service.getAll()
+      .toPromise();
+    await delay(1);
+    let httpMock = getHttpMock();
+    const req = httpMock.expectOne('/users?page=1&pageSize=500');
+    expect(req.request.method).toBe('GET');
   }));
 
   it('does not emit result on error response', async(async () => {
