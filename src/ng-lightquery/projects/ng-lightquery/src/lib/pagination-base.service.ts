@@ -1,10 +1,11 @@
-import { EMPTY, ReplaySubject, Subject, merge } from 'rxjs';
+import { EMPTY, Observable, ReplaySubject, Subject, merge, of } from 'rxjs';
 import {
   catchError,
   debounceTime,
   distinctUntilChanged,
   filter,
   switchMap,
+  take,
 } from 'rxjs/operators';
 
 import { HttpClient } from '@angular/common/http';
@@ -152,5 +153,42 @@ export abstract class PaginationBaseService<T> {
       }
     }
     return url;
+  }
+
+  private buildUrlAll(page: number): string {
+    const url = `${this.baseUrl}?page=${page}&pageSize=500`;
+    return url;
+  }
+
+  getAll(): Observable<T[]> {
+    if (!this.baseUrl) {
+      return of(null);
+    }
+    let hasMore = true;
+    let currentPage = 1;
+    const listResultAll: T[] = [];
+    const listResultAllSource = new Subject<T[]>();
+
+    const getData = () => {
+      if (!hasMore) {
+        listResultAllSource.next(listResultAll);
+        listResultAllSource.complete();
+        return;
+      }
+
+      const url = this.buildUrlAll(currentPage++);
+      this.http.get<PaginationResult<T>>(url).subscribe((c) => {
+        if (c.page !== currentPage - 1) {
+          hasMore = false;
+        } else if (c.data.length) {
+          listResultAll.push(...c.data);
+          hasMore = true;
+        }
+        getData();
+      });
+    };
+    getData();
+
+    return listResultAllSource.asObservable().pipe(take(1));
   }
 }
