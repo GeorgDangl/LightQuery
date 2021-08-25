@@ -147,12 +147,48 @@ describe('PaginationBaseService', () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
-    service.getAll()
-      .toPromise();
+    service.getAll().toPromise();
     await delay(1);
     let httpMock = getHttpMock();
     const req = httpMock.expectOne('/users?page=1&pageSize=500');
     expect(req.request.method).toBe('GET');
+  }));
+
+  it('makes multiple requests when calling getAll', async(async () => {
+    let service = getService();
+    service.baseUrl = '/users';
+    await delay(1);
+    const getAllPromise = service.getAll().toPromise();
+
+    await delay(1);
+    let httpMock = getHttpMock();
+    let req = httpMock.expectOne('/users?page=1&pageSize=500');
+    expect(req.request.method).toBe('GET');
+    const response: PaginationResult<User> = {
+      page: 1,
+      pageSize: 1,
+      totalCount: 2,
+      data: [{ id: 1, userName: 'Alice' }],
+    };
+    req.flush(response);
+
+    await delay(1);
+    req = httpMock.expectOne('/users?page=2&pageSize=500');
+    expect(req.request.method).toBe('GET');
+    response.page = 2;
+    response.data = [{ id: 2, userName: 'Bob' }];
+    req.flush(response);
+
+    await delay(1);
+    req = httpMock.expectOne('/users?page=3&pageSize=500');
+    expect(req.request.method).toBe('GET');
+    req.flush(response);
+
+    const returnedResult = await getAllPromise;
+    expect(returnedResult.length).toBe(2);
+
+    expect(returnedResult[0].id).toBe(1);
+    expect(returnedResult[1].id).toBe(2);
   }));
 
   it('does not emit result on error response', async(async () => {
