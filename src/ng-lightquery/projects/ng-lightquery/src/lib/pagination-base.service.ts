@@ -1,10 +1,11 @@
-import { EMPTY, ReplaySubject, Subject, merge, Observable } from 'rxjs';
+import { EMPTY, ReplaySubject, Subject, merge, Observable, of } from 'rxjs';
 import {
   catchError,
   debounceTime,
   distinctUntilChanged,
   filter,
   switchMap,
+  take,
 } from 'rxjs/operators';
 
 import { HttpClient } from '@angular/common/http';
@@ -154,16 +155,40 @@ export abstract class PaginationBaseService<T> {
     return url;
   }
 
-  private buildUrlAll(): string {
-    const url = `${this.baseUrl}?page=1&pageSize=`;
+  private buildUrlAll(page: number): string {
+    const url = `${this.baseUrl}?page=${page}&pageSize=500`;
     return url;
   }
 
-  getAll(): Observable<PaginationResult<T>> {
+  getAll(): Observable<T[]> {
     if (!this.baseUrl) {
-      return;
+      return of(null);
     }
-    const url = this.buildUrlAll();
-    return this.http.get<PaginationResult<T>>(url);
+    let hasMore = true;
+    let currentPage = 1;
+    const listResultAll: T[] = [];
+    const listResultAllSource = new Subject<T[]>();
+
+    const getData = () => {
+      if (!hasMore) {
+        listResultAllSource.next(listResultAll);
+        return;
+      }
+
+      const url = this.buildUrlAll(currentPage++);
+      this.http.get<PaginationResult<T>>(url)
+        .subscribe(c => {
+          if (c.page !== currentPage - 1) {
+            hasMore = false;
+          } else if (c.data.length) {
+            listResultAll.push(...c.data);
+            hasMore = true;
+          }
+          getData();
+        });
+    };
+    getData();
+
+    return listResultAllSource.asObservable().pipe(take(1));
   }
 }

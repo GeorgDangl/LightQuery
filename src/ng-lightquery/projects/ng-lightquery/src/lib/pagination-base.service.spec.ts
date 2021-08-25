@@ -148,11 +148,10 @@ describe('PaginationBaseService', () => {
     service.baseUrl = '/users';
     await delay(1);
     service.getAll()
-      .pipe(take(1))
       .toPromise();
     await delay(1);
     let httpMock = getHttpMock();
-    const req = httpMock.expectOne('/users?page=1&pageSize=');
+    const req = httpMock.expectOne('/users?page=1&pageSize=500');
     expect(req.request.method).toBe('GET');
   }));
 
