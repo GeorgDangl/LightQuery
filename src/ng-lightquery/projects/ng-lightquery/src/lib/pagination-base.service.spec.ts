@@ -39,6 +39,7 @@ describe('PaginationBaseService', () => {
   it('returns the correct result', async(async () => {
     let service = getService();
     service.baseUrl = '/users';
+    service.page = 1;
     await delay(1);
     let httpMock = getHttpMock();
     const request = httpMock.expectOne('/users?page=1&pageSize=20');
@@ -59,6 +60,7 @@ describe('PaginationBaseService', () => {
   it('requeries again on page change', async(async () => {
     let service = getService();
     service.baseUrl = '/users';
+    service.page = 1;
     await delay(1);
     let httpMock = getHttpMock();
     const req = httpMock.expectOne('/users?page=1&pageSize=20');
@@ -73,6 +75,7 @@ describe('PaginationBaseService', () => {
   it('requeries again on pageSize change', async(async () => {
     let service = getService();
     service.baseUrl = '/users';
+    service.page = 1;
     await delay(1);
     let httpMock = getHttpMock();
     const req = httpMock.expectOne('/users?page=1&pageSize=20');
@@ -87,6 +90,7 @@ describe('PaginationBaseService', () => {
   it('requeries again on parameter addition', async(async () => {
     let service = getService();
     service.baseUrl = '/users';
+    service.page = 1;
     await delay(1);
     let httpMock = getHttpMock();
     const req = httpMock.expectOne('/users?page=1&pageSize=20');
@@ -101,6 +105,7 @@ describe('PaginationBaseService', () => {
   it('requeries again on parameter change', async(async () => {
     let service = getService();
     service.baseUrl = '/users';
+    service.page = 1;
     await delay(1);
     let httpMock = getHttpMock();
     const req = httpMock.expectOne('/users?page=1&pageSize=20');
@@ -119,6 +124,7 @@ describe('PaginationBaseService', () => {
   it('requeries again on force refresh', async(async () => {
     let service = getService();
     service.baseUrl = '/users';
+    service.page = 1;
     await delay(1);
     let httpMock = getHttpMock();
     const req = httpMock.expectOne('/users?page=1&pageSize=20');
@@ -152,6 +158,7 @@ describe('PaginationBaseService', () => {
   it('calls the correct url', async(async () => {
     let service = getService();
     service.baseUrl = '/users';
+    // service.page = 1;
     await delay(1);
     service.pageSize = 13;
     service.page = 2;
@@ -277,6 +284,7 @@ describe('PaginationBaseService', () => {
     let hasReceivedResponse = false;
     let service = getService();
     service.baseUrl = '/users';
+    service.page = 1;
     await delay(1);
     service.paginationResult.subscribe((r) => (hasReceivedResponse = true));
     let httpMock = getHttpMock();
@@ -288,6 +296,7 @@ describe('PaginationBaseService', () => {
   it('cancels first request when second request sent', async(async () => {
     let service = getService();
     service.baseUrl = '/users';
+    service.page = 1;
     await delay(1);
     let httpMock = getHttpMock();
     const firstRequest = httpMock.expectOne('/users?page=1&pageSize=20');
@@ -301,6 +310,7 @@ describe('PaginationBaseService', () => {
   it('does not send two requests when calling forceRefresh twice subsequently', async(async () => {
     let service = getService();
     service.baseUrl = '/users';
+    service.page = 1;
     await delay(1);
     let httpMock = getHttpMock();
     const firstRequest = httpMock.expectOne('/users?page=1&pageSize=20');
@@ -316,6 +326,7 @@ describe('PaginationBaseService', () => {
     let hasReceivedResponse = false;
     let service = getService();
     service.baseUrl = '/users';
+    service.page = 1;
     await delay(1);
     service.paginationResult.subscribe((r) => (hasReceivedResponse = true));
     let httpMock = getHttpMock();
@@ -355,6 +366,7 @@ describe('PaginationBaseService', () => {
     // Something learned today!
     let service = getService();
     service.baseUrl = '/users';
+    service.page = 1;
     await delay(1);
 
     let httpMock = getHttpMock();

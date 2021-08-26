@@ -90,10 +90,8 @@ export abstract class PaginationBaseService<T> implements OnDestroy {
     return this._page;
   }
   set page(value: number) {
-    if (value !== this._page) {
-      this._page = value;
-      this.refresh();
-    }
+    this._page = value;
+    this.refresh();
   }
 
   private _pageSize: number = 20;
