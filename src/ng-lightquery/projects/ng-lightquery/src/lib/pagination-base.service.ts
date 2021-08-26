@@ -82,7 +82,6 @@ export abstract class PaginationBaseService<T> implements OnDestroy {
   set baseUrl(value: string) {
     if (value !== this._baseUrl) {
       this._baseUrl = value;
-      this.refresh();
     }
   }
 
