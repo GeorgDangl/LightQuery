@@ -154,6 +154,39 @@ describe('PaginationBaseService', () => {
     expect(req.request.method).toBe('GET');
   }));
 
+  it('returns data when all data is on single, first page after calling getAll', async(async () => {
+    let service = getService();
+    service.baseUrl = '/users';
+    await delay(1);
+    const getAllPromise = service.getAll().toPromise();
+
+    await delay(1);
+    let httpMock = getHttpMock();
+    let req = httpMock.expectOne('/users?page=1&pageSize=500');
+    expect(req.request.method).toBe('GET');
+    const response: PaginationResult<User> = {
+      page: 1,
+      pageSize: 20,
+      totalCount: 2,
+      data: [
+        { id: 1, userName: 'Alice' },
+        { id: 2, userName: 'Bob' },
+      ],
+    };
+    req.flush(response);
+
+    await delay(1);
+    req = httpMock.expectOne('/users?page=2&pageSize=500');
+    expect(req.request.method).toBe('GET');
+    req.flush(response);
+
+    const returnedResult = await getAllPromise;
+    expect(returnedResult.length).toBe(2);
+
+    expect(returnedResult[0].id).toBe(1);
+    expect(returnedResult[1].id).toBe(2);
+  }));
+
   it('makes multiple requests when calling getAll', async(async () => {
     let service = getService();
     service.baseUrl = '/users';
