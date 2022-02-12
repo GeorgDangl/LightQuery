@@ -195,7 +195,7 @@ class Build : NukeBuild
 
             // This is the report that's pretty and visualized in Jenkins
             ReportGenerator(c => c
-                .SetFramework("netcoreapp3.0")
+                 .SetFramework("net5.0")
                  .SetReports(OutputDirectory / "coverage.xml")
                  .SetTargetDirectory(OutputDirectory / "CoverageReport"));
 
