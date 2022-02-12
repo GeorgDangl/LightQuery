@@ -227,8 +227,11 @@ class Build : NukeBuild
             || Jenkins.Instance.ChangeId == null)
         .Executes(() =>
         {
-            GlobFiles(OutputDirectory, "*.nupkg").NotEmpty()
+            var packages = GlobFiles(OutputDirectory, "*.nupkg")
                 .Where(x => !x.EndsWith("symbols.nupkg"))
+                .ToList();
+            Assert.NotEmpty(packages);
+            packages
                 .ForEach(x =>
                 {
                     DotNetNuGetPush(s => s
@@ -317,7 +320,8 @@ class Build : NukeBuild
             var completeChangeLog = $"## {releaseTag}" + Environment.NewLine + latestChangeLog;
 
             var repositoryInfo = GetGitHubRepositoryInfo(GitRepository);
-            var nuGetPackages = GlobFiles(OutputDirectory, "*.nupkg").NotEmpty().ToArray();
+            var nuGetPackages = GlobFiles(OutputDirectory, "*.nupkg").ToArray();
+            Assert.NotEmpty(nuGetPackages);
 
             await PublishRelease(x => x
                     .SetArtifactPaths(nuGetPackages)
@@ -332,7 +336,7 @@ class Build : NukeBuild
     void PrependFrameworkToTestresults()
     {
         var testResults = GlobFiles(OutputDirectory, "*testresults*.xml").ToList();
-        Logger.Log(LogLevel.Normal, $"Found {testResults.Count} test result files on which to append the framework.");
+        Serilog.Log.Debug($"Found {testResults.Count} test result files on which to append the framework.");
         foreach (var testResultFile in testResults)
         {
             var frameworkName = GetFrameworkNameFromFilename(testResultFile);
@@ -356,7 +360,7 @@ class Build : NukeBuild
         // since in Jenkins, the format is internally converted to JUnit. Aterwards, results with the same timestamps are
         // ignored. See here for how the code is translated to JUnit format by the Jenkins plugin:
         // https://github.com/jenkinsci/xunit-plugin/blob/d970c50a0501f59b303cffbfb9230ba977ce2d5a/src/main/resources/org/jenkinsci/plugins/xunit/types/xunitdotnet-2.0-to-junit.xsl#L75-L79
-        Logger.Log(LogLevel.Normal, "Updating \"run-time\" attributes in assembly entries to prevent Jenkins to treat them as duplicates");
+        Serilog.Log.Debug("Updating \"run-time\" attributes in assembly entries to prevent Jenkins to treat them as duplicates");
         var firstXdoc = XDocument.Load(testResults[0]);
         var runtime = DateTime.Now;
         var firstAssemblyNodes = firstXdoc.Root.Elements().Where(e => e.Name.LocalName == "assembly");
