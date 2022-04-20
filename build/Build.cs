@@ -160,21 +160,28 @@ class Build : NukeBuild
                     .SetCoverletOutputFormat(CoverletOutputFormat.cobertura)
                     .EnableNoBuild()
                     .SetTestAdapterPath(".")
-                    .SetProcessArgumentConfigurator(a => a
-                        .Add($"/p:Include=[LightQuery*]*")
-                        .Add($"/p:ExcludeByAttribute=\\\"Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute\\\"")
-                        )
                     .CombineWith(cc => testProjects
                         .SelectMany(testProject =>
                         {
                             var projectDirectory = Path.GetDirectoryName(testProject);
                             var projectName = Path.GetFileNameWithoutExtension(testProject);
                             var targetFrameworks = GetTestFrameworksForProjectFile(testProject);
-                            return targetFrameworks.Select(targetFramework => cc
+                            return targetFrameworks
+                            .Select(targetFramework => cc
                                 .SetProjectFile(testProject)
                                 .SetFramework(targetFramework)
                                 .SetLoggers($"xunit;LogFilePath={OutputDirectory / projectName}_testresults-{targetFramework}.xml")
-                                .SetCoverletOutput($"{OutputDirectory / projectName}_coverage.xml"));
+                                .SetCoverletOutput($"{OutputDirectory / projectName}_coverage.xml")
+                                .SetProcessArgumentConfigurator(a => a
+                                    .Add($"/p:Include=[LightQuery*]*")
+                                    .Add($"/p:ExcludeByAttribute=\\\"Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute\\\"")
+                                    // This part is required to ensure that xUnit isn't using app domains or shadow copying, since coverlet
+                                    // needs to modify the dlls to collect coverage. See here for more information:
+                                    // https://github.com/coverlet-coverage/coverlet/issues/347
+                                    // Also, this argument must be at the end.
+                                    .Add("-- RunConfiguration.DisableAppDomain=true")
+                                    )
+                                );
                         })),
                             degreeOfParallelism: Environment.ProcessorCount,
                             completeOnFailure: true);
