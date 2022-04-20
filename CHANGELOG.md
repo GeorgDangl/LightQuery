@@ -2,6 +2,10 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v2.2.0:
+- Added a dedicated target for .NET 6 for the Entity Framework Core projects
+- Added tests for .NET 6
+
 ## v2.1.1:
 - Dropped tests for `netcoreapp2.1`
 
