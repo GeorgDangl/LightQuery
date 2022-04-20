@@ -12,11 +12,11 @@
 
   <ItemGroup>
     <PackageDownload Include="GitVersion.Tool" Version="[5.8.1]" />
-    <PackageReference Include="Nuke.Common" Version="6.0.1" />
+    <PackageReference Include="Nuke.Common" Version="6.0.2" />
     <PackageReference Include="Nuke.WebDocu" Version="4.0.0" />
     <PackageReference Include="Nuke.GitHub" Version="3.0.0" />
-    <PackageReference Include="ReportGenerator" Version="5.0.4" />
-    <PackageReference Include="docfx.console" Version="2.59.0">
+    <PackageReference Include="ReportGenerator" Version="5.1.4" />
+    <PackageReference Include="docfx.console" Version="2.59.2">
       <ExcludeAssets>build</ExcludeAssets>
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; native; contentfiles; analyzers</IncludeAssets>
