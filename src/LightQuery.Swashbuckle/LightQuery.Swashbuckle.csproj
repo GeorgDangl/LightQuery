@@ -33,4 +33,9 @@
         <None Include="..\..\gd_icon_256.png" Pack="true" PackagePath="\" />
     </ItemGroup>
 
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <DebugType>portable</DebugType>
+    <DebugSymbols>True</DebugSymbols>
+  </PropertyGroup>
+
 </Project>

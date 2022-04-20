@@ -1,4 +1,3 @@
-using Nuke.CoberturaConverter;
 using Nuke.Common;
 using Nuke.Common.CI.Jenkins;
 using Nuke.Common.Git;
@@ -7,8 +6,8 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.AzureKeyVault;
 using Nuke.Common.Tools.AzureKeyVault.Attributes;
+using Nuke.Common.Tools.Coverlet;
 using Nuke.Common.Tools.DocFX;
-using Nuke.Common.Tools.DotCover;
 using Nuke.Common.Tools.DotNet;
 using Nuke.Common.Tools.GitVersion;
 using Nuke.Common.Tools.ReportGenerator;
@@ -24,19 +23,18 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using static Nuke.CoberturaConverter.CoberturaConverterTasks;
 using static Nuke.Common.ChangeLog.ChangelogTasks;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.IO.XmlTasks;
 using static Nuke.Common.Tools.DocFX.DocFXTasks;
-using static Nuke.Common.Tools.DotCover.DotCoverTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 using static Nuke.Common.Tools.Npm.NpmTasks;
 using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
 using static Nuke.GitHub.ChangeLogExtensions;
 using static Nuke.GitHub.GitHubTasks;
 using static Nuke.WebDocu.WebDocuTasks;
+using static Nuke.Common.IO.TextTasks;
 
 class Build : NukeBuild
 {
@@ -148,64 +146,88 @@ class Build : NukeBuild
 
     Target Coverage => _ => _
         .DependsOn(Compile)
-        .Executes(async () =>
+        .Executes(() =>
         {
             var testProjects = GlobFiles(SolutionDirectory / "test", "**/*.csproj")
                 .Where(t => !t.EndsWith("LightQuery.IntegrationTestsServer.csproj"))
                 .ToList();
 
+            var hasFailedTests = false;
             try
             {
-                var dotnetPath = ToolPathResolver.GetPathExecutable("dotnet");
-                var snapshotIndex = 0;
-                DotCoverCover(c => c
-                        .SetTargetExecutable(dotnetPath)
-                        .SetFilters("+:LightQuery")
-                        .SetAttributeFilters("System.CodeDom.Compiler.GeneratedCodeAttribute")
-                        .CombineWith(cc => testProjects.SelectMany(testProject =>
+                DotNetTest(c => c
+                    .EnableCollectCoverage()
+                    .SetCoverletOutputFormat(CoverletOutputFormat.cobertura)
+                    .EnableNoBuild()
+                    .SetTestAdapterPath(".")
+                    .SetProcessArgumentConfigurator(a => a
+                        .Add($"/p:Include=[LightQuery*]*")
+                        .Add($"/p:ExcludeByAttribute=\\\"Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute\\\"")
+                        )
+                    .CombineWith(cc => testProjects
+                        .SelectMany(testProject =>
                         {
                             var projectDirectory = Path.GetDirectoryName(testProject);
+                            var projectName = Path.GetFileNameWithoutExtension(testProject);
                             var targetFrameworks = GetTestFrameworksForProjectFile(testProject);
-                            return targetFrameworks.Select(targetFramework =>
-                            {
-                                snapshotIndex++;
-                                return cc
-                                    .SetTargetWorkingDirectory(projectDirectory)
-                                    .SetOutputFile(OutputDirectory / $"coverage{snapshotIndex:00}.snapshot")
-                                    .SetTargetArguments($"test --no-build -f {targetFramework} --test-adapter-path:. \"--logger:xunit;LogFilePath={OutputDirectory}/{snapshotIndex}_testresults-{targetFramework}.xml\"");
-                            });
-                        })), degreeOfParallelism: System.Environment.ProcessorCount);
+                            return targetFrameworks.Select(targetFramework => cc
+                                .SetProjectFile(testProject)
+                                .SetFramework(targetFramework)
+                                .SetLoggers($"xunit;LogFilePath={OutputDirectory / projectName}_testresults-{targetFramework}.xml")
+                                .SetCoverletOutput($"{OutputDirectory / projectName}_coverage.xml"));
+                        })),
+                            degreeOfParallelism: Environment.ProcessorCount,
+                            completeOnFailure: true);
             }
-            finally
+            catch
             {
-                PrependFrameworkToTestresults();
+                hasFailedTests = true;
             }
 
-            var snapshots = GlobFiles(OutputDirectory, "*.snapshot")
-               .Aggregate((c, n) => c + ";" + n);
+            PrependFrameworkToTestresults();
 
-            DotCoverMerge(c => c
-                .SetSource(snapshots)
-                .SetOutputFile(OutputDirectory / "coverage.snapshot"));
-
-            DotCoverReport(c => c
-                .SetSource(OutputDirectory / "coverage.snapshot")
-                .SetOutputFile(OutputDirectory / "coverage.xml")
-                .SetReportType(DotCoverReportType.DetailedXml));
-
-            // This is the report that's pretty and visualized in Jenkins
+            // Merge coverage reports, otherwise they might not be completely
+            // picked up by Jenkins
             ReportGenerator(c => c
-                 .SetFramework("net5.0")
-                 .SetReports(OutputDirectory / "coverage.xml")
-                 .SetTargetDirectory(OutputDirectory / "CoverageReport"));
+                .SetFramework("net5.0")
+                .SetReports(OutputDirectory / "*_coverage*.xml")
+                .SetTargetDirectory(OutputDirectory)
+                .SetReportTypes(ReportTypes.Cobertura));
 
-            // This is the report in Cobertura format that integrates so nice in Jenkins
-            // dashboard and allows to extract more metrics and set build health based
-            // on coverage readings
-            await DotCoverToCobertura(s => s
-                    .SetInputFile(OutputDirectory / "coverage.xml")
-                    .SetOutputFile(OutputDirectory / "cobertura_coverage.xml"));
+            MakeSourceEntriesRelativeInCoberturaFormat(OutputDirectory / "Cobertura.xml");
+
+            if (hasFailedTests)
+            {
+                Assert.Fail("Some tests have failed");
+            }
         });
+
+    private void MakeSourceEntriesRelativeInCoberturaFormat(string coberturaReportPath)
+    {
+        var originalText = ReadAllText(coberturaReportPath);
+        var xml = XDocument.Parse(originalText);
+
+        var xDoc = XDocument.Load(coberturaReportPath);
+
+        var sourcesEntry = xDoc
+            .Root
+            .Elements()
+            .Where(e => e.Name.LocalName == "sources")
+            .Single();
+        var basePath = sourcesEntry.Value;
+
+        var filenameAttributes = xDoc
+            .Root
+            .Descendants()
+            .Where(d => d.Attributes().Any(a => a.Name.LocalName == "filename"))
+            .Select(d => d.Attributes().First(a => a.Name.LocalName == "filename"));
+        foreach (var filenameAttribute in filenameAttributes)
+        {
+            filenameAttribute.Value = filenameAttribute.Value.Substring(basePath.Length);
+        }
+
+        xDoc.Save(coberturaReportPath);
+    }
 
     IEnumerable<string> GetTestFrameworksForProjectFile(string projectFile)
     {

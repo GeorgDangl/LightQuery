@@ -44,14 +44,6 @@ pipeline {
                         maxNumberOfBuilds: 0,
                         onlyStable: false,
                         zoomCoverageChart: false)
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: false,
-                        reportDir: 'output/CoverageReport',
-                        reportFiles: 'index.htm',
-                        reportName: 'Coverage Report',
-                        reportTitles: ''])
                 }
             }
         }
