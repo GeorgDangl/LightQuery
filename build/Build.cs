@@ -221,7 +221,29 @@ class Build : NukeBuild
             .Elements()
             .Where(e => e.Name.LocalName == "sources")
             .Single();
-        var basePath = sourcesEntry.Value;
+
+        string basePath;
+        if (sourcesEntry.HasElements)
+        {
+            var elements = sourcesEntry.Elements().ToList();
+            basePath = elements
+                .Select(e => e.Value)
+                .OrderBy(p => p.Length)
+                .First();
+            foreach (var element in elements)
+            {
+                if (element.Value != basePath)
+                {
+                    element.Remove();
+                }
+            }
+        }
+        else
+        {
+            basePath = sourcesEntry.Value;
+        }
+
+        Serilog.Log.Information($"Normalizing Cobertura report to base path: \"{basePath}\"");
 
         var filenameAttributes = xDoc
             .Root
@@ -230,7 +252,10 @@ class Build : NukeBuild
             .Select(d => d.Attributes().First(a => a.Name.LocalName == "filename"));
         foreach (var filenameAttribute in filenameAttributes)
         {
-            filenameAttribute.Value = filenameAttribute.Value.Substring(basePath.Length);
+            if (filenameAttribute.Value.StartsWith(basePath))
+            {
+                filenameAttribute.Value = filenameAttribute.Value.Substring(basePath.Length);
+            }
         }
 
         xDoc.Save(coberturaReportPath);
