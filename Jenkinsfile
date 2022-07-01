@@ -72,7 +72,12 @@ pipeline {
         always {
             step([$class: 'Mailer',
                 notifyEveryUnstableBuild: true,
-                recipients: "georg@dangl.me",
+                recipients: [
+                    emailextrecipients([
+                        [$class: 'CulpritsRecipientProvider'],
+                        [$class: 'RequesterRecipientProvider']
+                        ])
+                    ].join(' '),
                 sendToIndividuals: true])
             cleanWs()
         }
