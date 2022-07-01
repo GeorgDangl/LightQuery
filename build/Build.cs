@@ -174,6 +174,7 @@ class Build : NukeBuild
                                 .SetCoverletOutput($"{OutputDirectory / projectName}_coverage.xml")
                                 .SetProcessArgumentConfigurator(a => a
                                     .Add($"/p:Include=[LightQuery*]*")
+                                    .Add($"/p:Exclude=[*Test*]*")
                                     .Add($"/p:ExcludeByAttribute=\\\"Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute\\\"")
                                     // This part is required to ensure that xUnit isn't using app domains or shadow copying, since coverlet
                                     // needs to modify the dlls to collect coverage. See here for more information:
