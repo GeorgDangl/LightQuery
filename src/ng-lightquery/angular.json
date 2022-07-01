@@ -28,20 +28,7 @@
             "tsConfig": "projects/ng-lightquery/tsconfig.spec.json",
             "karmaConfig": "projects/ng-lightquery/karma.conf.js"
           }
-        },
-        "lint": {
-          "builder": "@angular-devkit/build-angular:tslint",
-          "options": {
-            "tsConfig": [
-              "projects/ng-lightquery/tsconfig.lib.json",
-              "projects/ng-lightquery/tsconfig.spec.json"
-            ],
-            "exclude": [
-              "**/node_modules/**"
-            ]
-          }
         }
       }
-    }},
-  "defaultProject": "ng-lightquery"
+    }}
 }

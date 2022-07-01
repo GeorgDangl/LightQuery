@@ -38,20 +38,12 @@ pipeline {
                             xUnitDotNet(deleteOutputFiles: true, failIfNotNew: true, pattern: '**/*testresults.xml', stopProcessingIfError: false)
                         ])
                     cobertura(
-                        coberturaReportFile: 'output/cobertura_coverage.xml',
+                        coberturaReportFile: 'output/Cobertura.xml',
                         failUnhealthy: false,
                         failUnstable: false,
                         maxNumberOfBuilds: 0,
                         onlyStable: false,
                         zoomCoverageChart: false)
-                    publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: false,
-                        reportDir: 'output/CoverageReport',
-                        reportFiles: 'index.htm',
-                        reportName: 'Coverage Report',
-                        reportTitles: ''])
                 }
             }
         }
@@ -80,7 +72,12 @@ pipeline {
         always {
             step([$class: 'Mailer',
                 notifyEveryUnstableBuild: true,
-                recipients: "georg@dangl.me",
+                recipients: [
+                    emailextrecipients([
+                        [$class: 'CulpritsRecipientProvider'],
+                        [$class: 'RequesterRecipientProvider']
+                        ])
+                    ].join(' '),
                 sendToIndividuals: true])
             cleanWs()
         }
