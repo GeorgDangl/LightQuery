@@ -6,6 +6,7 @@ All notable changes to **LightQuery** are documented here.
 - Added a dedicated target for .NET 6 for the Entity Framework Core projects
 - Added tests for .NET 6
 - Dropped tests for `netcoreapp2.1`
+- The Angular client was updated to Angular v14
 
 ## v2.1.0:
 - The Angular client was updated to Angular v12
