@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v2.2.1:
+- Added an optional parameter to the LightQuery client for Angular to supply custom query parameters when calling `getAll()`
+
 ## v2.2.0:
 - Added a dedicated target for .NET 6 for the Entity Framework Core projects
 - Added tests for .NET 6
