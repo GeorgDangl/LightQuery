@@ -160,7 +160,7 @@ export abstract class PaginationBaseService<T> {
     return url;
   }
 
-  getAll(): Observable<T[]> {
+  getAll(additionalQueryParams?: { [name: string]: string }): Observable<T[]> {
     if (!this.baseUrl) {
       return of(null);
     }
@@ -168,6 +168,12 @@ export abstract class PaginationBaseService<T> {
     let currentPage = 1;
     const listResultAll: T[] = [];
     const listResultAllSource = new Subject<T[]>();
+    let addFilter = '';
+    if (additionalQueryParams) {
+      addFilter = Object.keys(additionalQueryParams)
+        .map((name) => `&${name}=${additionalQueryParams[name]}`)
+        .join('');
+    }
 
     const getData = () => {
       if (!hasMore) {
@@ -176,7 +182,7 @@ export abstract class PaginationBaseService<T> {
         return;
       }
 
-      const url = this.buildUrlAll(currentPage++);
+      const url = this.buildUrlAll(currentPage++) + addFilter;
       this.http.get<PaginationResult<T>>(url).subscribe((c) => {
         if (c.page !== currentPage - 1) {
           hasMore = false;
