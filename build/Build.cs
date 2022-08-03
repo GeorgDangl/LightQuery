@@ -124,6 +124,7 @@ class Build : NukeBuild
             DotNetBuild(x => x
                 .SetConfiguration(Configuration)
                 .EnableNoRestore()
+                .SetProcessArgumentConfigurator(a => a.Add("-nodereuse:false"))
                 .SetFileVersion(GitVersion.AssemblySemFileVer)
                 .SetAssemblyVersion($"{GitVersion.Major}.{GitVersion.Minor}.{GitVersion.Patch}.0")
                 .SetInformationalVersion(GitVersion.InformationalVersion));
@@ -173,7 +174,9 @@ class Build : NukeBuild
                                 .SetLoggers($"xunit;LogFilePath={OutputDirectory / projectName}_testresults-{targetFramework}.xml")
                                 .SetCoverletOutput($"{OutputDirectory / projectName}_coverage.xml")
                                 .SetProcessArgumentConfigurator(a => a
+                                    .Add("-nodereuse:false")
                                     .Add($"/p:Include=[LightQuery*]*")
+                                    .Add($"/p:Exclude=[*Test*]*")
                                     .Add($"/p:ExcludeByAttribute=\\\"Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute\\\"")
                                     // This part is required to ensure that xUnit isn't using app domains or shadow copying, since coverlet
                                     // needs to modify the dlls to collect coverage. See here for more information:
