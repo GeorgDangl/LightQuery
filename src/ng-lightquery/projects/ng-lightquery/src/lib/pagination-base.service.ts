@@ -1,4 +1,5 @@
 import { EMPTY, Observable, ReplaySubject, Subject, merge, of } from 'rxjs';
+import { Injectable, OnDestroy } from '@angular/core';
 import {
   catchError,
   debounceTime,
@@ -6,19 +7,20 @@ import {
   filter,
   switchMap,
   take,
+  takeUntil,
 } from 'rxjs/operators';
 
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
 import { PaginationResult } from './pagination-result';
 
 @Injectable()
-export abstract class PaginationBaseService<T> {
+export abstract class PaginationBaseService<T> implements OnDestroy {
   protected paginationResultSource = new ReplaySubject<PaginationResult<T>>(1);
   protected lastPaginationResult: PaginationResult<T>;
   paginationResult = this.paginationResultSource.asObservable();
   private requestUrl = new Subject<string>();
   private forceRefreshUrl = new Subject<string>();
+  private $destroyed = new Subject();
 
   constructor(protected http: HttpClient) {
     merge(this.requestUrl.pipe(distinctUntilChanged()), this.forceRefreshUrl)
@@ -34,7 +36,8 @@ export abstract class PaginationBaseService<T> {
             .get<PaginationResult<T>>(url)
             .pipe(catchError((_) => EMPTY));
         }),
-        filter((r) => r != null)
+        filter((r) => r != null),
+        takeUntil(this.$destroyed)
       )
       .subscribe(
         (result) => {
@@ -45,6 +48,14 @@ export abstract class PaginationBaseService<T> {
           /* Does nothing on error */
         }
       );
+  }
+
+  ngOnDestroy(): void {
+    this.$destroyed.next();
+    this.$destroyed.complete();
+    this.requestUrl.complete();
+    this.paginationResultSource.complete();
+    this.forceRefreshUrl.complete();
   }
 
   public forceRefresh() {
