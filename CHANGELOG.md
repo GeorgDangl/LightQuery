@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v2.2.2:
+- The `PaginationBaseService` in the Angular library now destroys it's subscription internally in the `ngOnDestroy` lifecycle hook
+
 ## v2.2.1:
 - Added an optional parameter to the LightQuery client for Angular to supply custom query parameters when calling `getAll()`
 
