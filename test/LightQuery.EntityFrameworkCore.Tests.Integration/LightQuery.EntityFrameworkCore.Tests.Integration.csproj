@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFrameworks>net7.0;net6.0;net5.0;netcoreapp3.1;net461</TargetFrameworks>
     <IsPackable>false</IsPackable>
+    <!-- We're keeping end-of-lifetime targets still around, so we disable the warning -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

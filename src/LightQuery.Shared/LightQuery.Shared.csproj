@@ -15,6 +15,8 @@
     <PackageIcon>gd_icon_256.png</PackageIcon>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>LightQuery.Shared.snk</AssemblyOriginatorKeyFile>
+    <!-- We're keeping end-of-lifetime targets still around, so we disable the warning -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'=='netcoreapp3.1' Or '$(TargetFramework)'=='net5.0' Or '$(TargetFramework)'=='net7.0'">

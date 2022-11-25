@@ -4,6 +4,8 @@
     <TargetFrameworks>net7.0;net6.0;net5.0;netcoreapp3.1;net461</TargetFrameworks>
     <DefineConstants Condition="'$(TargetFramework)'=='netcoreapp3.1' Or '$(TargetFramework)'=='net5.0' Or '$(TargetFramework)'=='net6.0' Or '$(TargetFramework)'=='net7.0'">NETCORE3</DefineConstants>
     <IsPackable>false</IsPackable>
+    <!-- We're keeping end-of-lifetime targets still around, so we disable the warning -->
+    <CheckEolTargetFramework>false</CheckEolTargetFramework>
   </PropertyGroup>
 
   <ItemGroup Condition="'$(TargetFramework)'!='netcoreapp3.1' And '$(TargetFramework)'!='net5.0' And '$(TargetFramework)'!='net6.0' And '$(TargetFramework)'!='net7.0'">
