@@ -167,8 +167,9 @@ Example:
 
 ### Async Materialization
 
-The `LightQuery.EntityFrameworkCore` package provides an `AsyncLightQueryAttribute`. This can be used
-for data sources that support async materialization of queries, e.g. `var result = await context.Users.ToListAsync()`.
+The `LightQuery.EntityFrameworkCore` package provides an `AsyncLightQueryAttribute`. This can be used for data sources that support async materialization of queries, e.g. `ToListAsync()`. To use it, you also need to return just an `IQueryable` because **LightQuery** will itself call the async methods when materializing the result.
+
+So, to return a paginatable list of users that is asynchronously materialized, just return something like `OK(context.Users)`.
 
 ## Documentation - C# Client
 

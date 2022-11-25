@@ -52,7 +52,7 @@ class Build : NukeBuild
     [Parameter] readonly string KeyVaultClientId;
     [Parameter] readonly string KeyVaultClientSecret;
 
-    [GitVersion(Framework = "netcoreapp3.1")] readonly GitVersion GitVersion;
+    [GitVersion(Framework = "net6.0")] readonly GitVersion GitVersion;
     [GitRepository] readonly GitRepository GitRepository;
 
     [KeyVaultSecret] readonly string DocuBaseUrl;
@@ -157,8 +157,12 @@ class Build : NukeBuild
             try
             {
                 DotNetTest(c => c
-                    .EnableCollectCoverage()
-                    .SetCoverletOutputFormat(CoverletOutputFormat.cobertura)
+                    .SetDataCollector("XPlat Code Coverage")
+                    .SetResultsDirectory(OutputDirectory)
+                    .AddRunSetting("DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format", "cobertura")
+                    .AddRunSetting("DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Include", "[LightQuery*]*")
+                    .AddRunSetting("DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Exclude", "[*Tests*]*")
+                    .AddRunSetting("DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.ExcludeByAttribute", "Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute")
                     .EnableNoBuild()
                     .SetTestAdapterPath(".")
                     .CombineWith(cc => testProjects
@@ -175,16 +179,11 @@ class Build : NukeBuild
                                 .SetCoverletOutput($"{OutputDirectory / projectName}_coverage.xml")
                                 .SetProcessArgumentConfigurator(a => a
                                     .Add("-nodereuse:false")
-                                    .Add($"/p:Include=[LightQuery*]*")
-                                    .Add($"/p:Exclude=[*Test*]*")
-                                    .Add($"/p:ExcludeByAttribute=\\\"Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute\\\"")
                                     // This part is required to ensure that xUnit isn't using app domains or shadow copying, since coverlet
                                     // needs to modify the dlls to collect coverage. See here for more information:
                                     // https://github.com/coverlet-coverage/coverlet/issues/347
                                     // Also, this argument must be at the end.
-                                    .Add("-- RunConfiguration.DisableAppDomain=true")
-                                    )
-                                );
+                                    .Add("-- RunConfiguration.DisableAppDomain=true")));
                         })),
                             degreeOfParallelism: Environment.ProcessorCount,
                             completeOnFailure: true);
@@ -199,8 +198,8 @@ class Build : NukeBuild
             // Merge coverage reports, otherwise they might not be completely
             // picked up by Jenkins
             ReportGenerator(c => c
-                .SetFramework("net5.0")
-                .SetReports(OutputDirectory / "*_coverage*.xml")
+                .SetFramework("net6.0")
+                .SetReports(OutputDirectory / "**/*cobertura.xml")
                 .SetTargetDirectory(OutputDirectory)
                 .SetReportTypes(ReportTypes.Cobertura));
 
@@ -303,10 +302,10 @@ class Build : NukeBuild
                             .SetTargetPath(x)
                             .SetSource("https://api.nuget.org/v3/index.json")
                             .SetApiKey(NuGetApiKey));
-
-                        SendTeamsMessage("New Release", $"New release available for LightQuery: {GitVersion.NuGetVersion}", false);
                     }
                 });
+
+            SendTeamsMessage("New Release", $"New release available for LightQuery: {GitVersion.NuGetVersion}", false);
         });
 
     Target BuildDocFxMetadata => _ => _

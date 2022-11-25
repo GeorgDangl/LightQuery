@@ -2,6 +2,10 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v2.3.0:
+- Added a dedicated target for .NET 7
+- Added tests for .NET 7
+
 ## v2.2.2:
 - The `PaginationBaseService` in the Angular library now destroys it's subscription internally in the `ngOnDestroy` lifecycle hook
 

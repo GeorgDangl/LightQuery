@@ -36,7 +36,7 @@ namespace LightQuery.Client
             {
                 return string.Empty;
             }
-            var sortQuery = $"&sort={Uri.EscapeUriString(sortParam)}%20" + (sortDescending ? "desc" : "asc");
+            var sortQuery = $"&sort={Uri.EscapeDataString(sortParam)}%20" + (sortDescending ? "desc" : "asc");
             return sortQuery;
         }
 
@@ -46,7 +46,7 @@ namespace LightQuery.Client
             {
                 return string.Empty;
             }
-            var sortQuery = $"&thenSort={Uri.EscapeUriString(thenSortParam)}%20" + (thenSortDescending ? "desc" : "asc");
+            var sortQuery = $"&thenSort={Uri.EscapeDataString(thenSortParam)}%20" + (thenSortDescending ? "desc" : "asc");
             return sortQuery;
         }
 
@@ -59,7 +59,7 @@ namespace LightQuery.Client
             var query = string.Empty;
             foreach (var parameter in additionalParameters)
             {
-                query += $"&{Uri.EscapeUriString(parameter.Key)}" + (string.IsNullOrWhiteSpace(parameter.Value) ? string.Empty : $"={Uri.EscapeUriString(parameter.Value)}");
+                query += $"&{Uri.EscapeDataString(parameter.Key)}" + (string.IsNullOrWhiteSpace(parameter.Value) ? string.Empty : $"={Uri.EscapeDataString(parameter.Value)}");
             }
             return query;
         }
