@@ -11,7 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageDownload Include="GitVersion.Tool" Version="[5.10.3]" />
+    <PackageDownload Include="GitVersion.Tool" Version="[5.11.1]" />
     <PackageReference Include="Nuke.Common" Version="6.2.1" />
     <PackageReference Include="Nuke.WebDocu" Version="4.0.1" />
     <PackageReference Include="Nuke.GitHub" Version="3.0.0" />
