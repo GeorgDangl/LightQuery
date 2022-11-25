@@ -192,7 +192,7 @@ namespace LightQuery.Client.Tests
             private async Task<(HttpResponseMessage, bool)> GetResponseWithDelay(CancellationToken cancellationToken)
             {
                 // Adding a short delay to simulate a long running operation, e.g. a web request
-                await Task.Delay(250);
+                await Task.Delay(1_000);
 
                 var httpResponse = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
                 var memStream = new MemoryStream();
