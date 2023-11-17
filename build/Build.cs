@@ -5,7 +5,6 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.AzureKeyVault;
-using Nuke.Common.Tools.AzureKeyVault.Attributes;
 using Nuke.Common.Tools.Coverlet;
 using Nuke.Common.Tools.DocFX;
 using Nuke.Common.Tools.DotNet;
@@ -24,8 +23,6 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using static Nuke.Common.ChangeLog.ChangelogTasks;
-using static Nuke.Common.IO.FileSystemTasks;
-using static Nuke.Common.IO.PathConstruction;
 using static Nuke.Common.IO.XmlTasks;
 using static Nuke.Common.Tools.DocFX.DocFXTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
@@ -34,34 +31,35 @@ using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
 using static Nuke.GitHub.ChangeLogExtensions;
 using static Nuke.GitHub.GitHubTasks;
 using static Nuke.WebDocu.WebDocuTasks;
-using static Nuke.Common.IO.TextTasks;
 
 class Build : NukeBuild
 {
     public static int Main () => Execute<Build>(x => x.Compile);
 
-    [KeyVaultSettings(
-        BaseUrlParameterName = nameof(KeyVaultBaseUrl),
-        ClientIdParameterName = nameof(KeyVaultClientId),
-        ClientSecretParameterName = nameof(KeyVaultClientSecret))]
-    readonly KeyVaultSettings KeyVaultSettings;
+    [AzureKeyVaultConfiguration(
+            BaseUrlParameterName = nameof(KeyVaultBaseUrl),
+            ClientIdParameterName = nameof(KeyVaultClientId),
+            ClientSecretParameterName = nameof(KeyVaultClientSecret),
+            TenantIdParameterName = nameof(KeyVaultTenantId))]
+    readonly AzureKeyVaultConfiguration KeyVaultSettings;
 
-    [KeyVault] readonly KeyVault KeyVault;
+    [AzureKeyVault] readonly AzureKeyVault KeyVault;
 
     [Parameter] readonly string KeyVaultBaseUrl;
     [Parameter] readonly string KeyVaultClientId;
     [Parameter] readonly string KeyVaultClientSecret;
+    [Parameter] readonly string KeyVaultTenantId;
 
     [GitVersion(Framework = "net6.0")] readonly GitVersion GitVersion;
     [GitRepository] readonly GitRepository GitRepository;
 
-    [KeyVaultSecret] readonly string DocuBaseUrl;
-    [KeyVaultSecret] readonly string PublicMyGetSource;
-    [KeyVaultSecret] readonly string PublicMyGetApiKey;
-    [KeyVaultSecret] readonly string NuGetApiKey;
-    [KeyVaultSecret("LightQuery-DocuApiKey")] readonly string DocuApiKey;
-    [KeyVaultSecret] readonly string GitHubAuthenticationToken;
-    [KeyVaultSecret] readonly string DanglCiCdTeamsWebhookUrl;
+    [AzureKeyVaultSecret] readonly string DocuBaseUrl;
+    [AzureKeyVaultSecret] readonly string DanglPublicFeedSource;
+    [AzureKeyVaultSecret] readonly string FeedzAccessToken;
+    [AzureKeyVaultSecret] readonly string NuGetApiKey;
+    [AzureKeyVaultSecret("LightQuery-DocuApiKey")] readonly string DocuApiKey;
+    [AzureKeyVaultSecret] readonly string GitHubAuthenticationToken;
+    [AzureKeyVaultSecret] readonly string DanglCiCdTeamsWebhookUrl;
 
     [Parameter] readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
 
@@ -100,14 +98,14 @@ class Build : NukeBuild
     Target Clean => _ => _
         .Executes(() =>
         {
-            GlobDirectories(SourceDirectory / "LightQuery", "**/bin", "**/obj").ForEach(DeleteDirectory);
-            GlobDirectories(SourceDirectory / "LightQuery.Client", "**/bin", "**/obj").ForEach(DeleteDirectory);
-            GlobDirectories(SourceDirectory / "LightQuery.EntityFrameworkCore", "**/bin", "**/obj").ForEach(DeleteDirectory);
-            GlobDirectories(SourceDirectory / "LightQuery.Shared", "**/bin", "**/obj").ForEach(DeleteDirectory);
-            GlobDirectories(SourceDirectory / "LightQuery.NSwag", "**/bin", "**/obj").ForEach(DeleteDirectory);
-            GlobDirectories(SourceDirectory / "LightQuery.Swashbuckle", "**/bin", "**/obj").ForEach(DeleteDirectory);
-            GlobDirectories(RootDirectory / "test", "**/bin", "**/obj").ForEach(DeleteDirectory);
-            EnsureCleanDirectory(OutputDirectory);
+            (SourceDirectory / "LightQuery").GlobDirectories("**/bin", "**/obj").ForEach(d => d.DeleteDirectory());
+            (SourceDirectory / "LightQuery.Client").GlobDirectories("**/bin", "**/obj").ForEach(d => d.DeleteDirectory());
+            (SourceDirectory / "LightQuery.EntityFrameworkCore").GlobDirectories("**/bin", "**/obj").ForEach(d => d.DeleteDirectory());
+            (SourceDirectory / "LightQuery.Shared").GlobDirectories("**/bin", "**/obj").ForEach(d => d.DeleteDirectory());
+            (SourceDirectory / "LightQuery.NSwag").GlobDirectories("**/bin", "**/obj").ForEach(d => d.DeleteDirectory());
+            (SourceDirectory / "LightQuery.Swashbuckle").GlobDirectories("**/bin", "**/obj").ForEach(d => d.DeleteDirectory());
+            (RootDirectory / "test").GlobDirectories("**/bin", "**/obj").ForEach(d => d.DeleteDirectory());
+            OutputDirectory.CreateOrCleanDirectory();
         });
 
     Target Restore => _ => _
@@ -149,7 +147,8 @@ class Build : NukeBuild
         .DependsOn(Compile)
         .Executes(() =>
         {
-            var testProjects = GlobFiles(SolutionDirectory / "test", "**/*.csproj")
+            var testProjects = (SolutionDirectory / "test").GlobFiles("**/*.csproj")
+                .Select(t => t.ToString())
                 .Where(t => !t.EndsWith("LightQuery.IntegrationTestsServer.csproj"))
                 .ToList();
 
@@ -211,9 +210,9 @@ class Build : NukeBuild
             }
         });
 
-    private void MakeSourceEntriesRelativeInCoberturaFormat(string coberturaReportPath)
+    private void MakeSourceEntriesRelativeInCoberturaFormat(AbsolutePath coberturaReportPath)
     {
-        var originalText = ReadAllText(coberturaReportPath);
+        var originalText = coberturaReportPath.ReadAllText();
         var xml = XDocument.Parse(originalText);
 
         var xDoc = XDocument.Load(coberturaReportPath);
@@ -275,15 +274,16 @@ class Build : NukeBuild
 
     Target Push => _ => _
         .DependsOn(Pack)
-        .Requires(() => PublicMyGetSource)
-        .Requires(() => PublicMyGetApiKey)
+        .Requires(() => DanglPublicFeedSource)
+        .Requires(() => FeedzAccessToken)
         .Requires(() => NuGetApiKey)
         .Requires(() => Configuration.EqualsOrdinalIgnoreCase("Release"))
         .OnlyWhenDynamic(() => Jenkins.Instance == null
             || Jenkins.Instance.ChangeId == null)
         .Executes(() =>
         {
-            var packages = GlobFiles(OutputDirectory, "*.nupkg")
+            var packages = OutputDirectory.GlobFiles("*.nupkg")
+                .Select(p => p.ToString())
                 .Where(x => !x.EndsWith("symbols.nupkg"))
                 .ToList();
             Assert.NotEmpty(packages);
@@ -292,8 +292,8 @@ class Build : NukeBuild
                 {
                     DotNetNuGetPush(s => s
                         .SetTargetPath(x)
-                        .SetSource(PublicMyGetSource)
-                        .SetApiKey(PublicMyGetApiKey));
+                        .SetSource(DanglPublicFeedSource)
+                        .SetApiKey(FeedzAccessToken));
 
                     if (GitVersion.BranchName.Equals("master") || GitVersion.BranchName.Equals("origin/master"))
                     {
@@ -376,7 +376,7 @@ class Build : NukeBuild
             var completeChangeLog = $"## {releaseTag}" + Environment.NewLine + latestChangeLog;
 
             var repositoryInfo = GetGitHubRepositoryInfo(GitRepository);
-            var nuGetPackages = GlobFiles(OutputDirectory, "*.nupkg").ToArray();
+            var nuGetPackages = OutputDirectory.GlobFiles("*.nupkg").Select(f => f.ToString()).ToArray();
             Assert.NotEmpty(nuGetPackages);
 
             await PublishRelease(x => x
@@ -391,7 +391,7 @@ class Build : NukeBuild
 
     void PrependFrameworkToTestresults()
     {
-        var testResults = GlobFiles(OutputDirectory, "*testresults*.xml").ToList();
+        var testResults = OutputDirectory.GlobFiles("*testresults*.xml").ToList();
         Serilog.Log.Debug($"Found {testResults.Count} test result files on which to append the framework.");
         foreach (var testResultFile in testResults)
         {
@@ -438,7 +438,7 @@ class Build : NukeBuild
         }
 
         firstXdoc.Save(OutputDirectory / "testresults.xml");
-        testResults.ForEach(DeleteFile);
+        testResults.ForEach(d => d.DeleteFile());
     }
 
     string GetFrameworkNameFromFilename(string filename)
@@ -454,9 +454,9 @@ class Build : NukeBuild
         .Executes(() =>
         {
             var ngAppDir = SourceDirectory / "ng-lightquery";
-            DeleteDirectory(ngAppDir / "dist");
-            DeleteDirectory(ngAppDir / "coverage");
-            DeleteFile(ngAppDir / "karma-results.xml");
+            (ngAppDir / "dist").DeleteDirectory();
+            (ngAppDir / "coverage").DeleteDirectory();
+            (ngAppDir / "karma-results.xml").DeleteFile();
 
             Npm("ci", ngAppDir);
             Npm("run test:ci", ngAppDir);
@@ -469,7 +469,7 @@ class Build : NukeBuild
         {
             var ngAppDir = SourceDirectory / "ng-lightquery";
             var ngLibraryDir = ngAppDir / "dist" / "ng-lightquery";
-            DeleteDirectory(ngAppDir / "dist");
+            (ngAppDir / "dist").DeleteDirectory();
 
             Npm("ci", ngAppDir);
 
