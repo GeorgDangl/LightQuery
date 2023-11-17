@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0;net5.0;netcoreapp3.1;netstandard2.0;net461</TargetFrameworks>
+    <TargetFrameworks>net8.0;net7.0;net5.0;netcoreapp3.1;netstandard2.0;net461</TargetFrameworks>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>Georg Dangl</Authors>
     <Company />
@@ -20,7 +20,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="NSwag.AspNetCore" Version="13.18.0" />
+    <PackageReference Condition="'$(TargetFramework)'!='net8.0'" Include="NSwag.AspNetCore" Version="13.18.0" />
+    <!-- For .NET 8, we currently need a preview version of NSwag -->
+    <PackageReference Condition="'$(TargetFramework)'=='net8.0'" Include="NSwag.AspNetCore" Version="14.0.0-preview010" />
   </ItemGroup>
   
   <ItemGroup>

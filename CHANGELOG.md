@@ -2,6 +2,10 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v2.4.0:
+- Added a dedicated target for .NET 8
+- Added tests for .NET 8
+
 ## v2.3.0:
 - Added a dedicated target for .NET 7
 - Added tests for .NET 7
