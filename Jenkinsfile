@@ -2,7 +2,6 @@ pipeline {
     agent {
         node {
             label 'master'
-            customWorkspace 'workspace/LightQuery'
         }
     }
     environment {
