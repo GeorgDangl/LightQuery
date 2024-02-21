@@ -9,6 +9,7 @@ pipeline {
         KeyVaultBaseUrl = credentials('AzureCiKeyVaultBaseUrl')
         KeyVaultClientId = credentials('AzureCiKeyVaultClientId')
         KeyVaultClientSecret = credentials('AzureCiKeyVaultClientSecret')
+        KeyVaultTenantId = credentials('AzureKeyVaultTenantId')
     }
     stages {
         stage ('Test') {

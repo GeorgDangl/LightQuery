@@ -59,6 +59,10 @@ export abstract class PaginationBaseService<T> implements OnDestroy {
   }
 
   public forceRefresh() {
+    if (!this.baseUrl) {
+      return;
+    }
+
     const url = this.buildUrl();
     this.forceRefreshUrl.next(url);
   }

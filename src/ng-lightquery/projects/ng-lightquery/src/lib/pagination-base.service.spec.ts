@@ -130,6 +130,25 @@ describe('PaginationBaseService', () => {
     httpMock.verify();
   }));
 
+  it('does not requery on forceRefresh if no base url set', async(async () => {
+    let service = getService();
+    service.baseUrl = '/users';
+    await delay(1);
+    let httpMock = getHttpMock();
+    const req = httpMock.expectOne('/users?page=1&pageSize=20');
+    expect(req.request.method).toBe('GET');
+    httpMock.verify();
+    service.forceRefresh();
+    await delay(1);
+    httpMock.expectOne('/users?page=1&pageSize=20');
+    httpMock.verify();
+    service.baseUrl = '';
+    service.forceRefresh();
+    await delay(1);
+    httpMock.expectNone('?page=1&pageSize=20');
+    httpMock.verify();
+  }));
+
   it('calls the correct url', async(async () => {
     let service = getService();
     service.baseUrl = '/users';
