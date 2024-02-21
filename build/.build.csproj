@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <RootNamespace></RootNamespace>
     <IsPackable>False</IsPackable>
@@ -12,10 +12,10 @@
 
   <ItemGroup>
     <PackageDownload Include="GitVersion.Tool" Version="[5.12.0]" />
-    <PackageReference Include="Nuke.Common" Version="7.0.6" />
-    <PackageReference Include="Nuke.WebDocu" Version="5.0.0" />
-    <PackageReference Include="Nuke.GitHub" Version="5.0.0" />
-    <PackageReference Include="ReportGenerator" Version="5.1.12" />
+    <PackageReference Include="Nuke.Common" Version="8.0.0" />
+    <PackageReference Include="Nuke.WebDocu" Version="5.0.1" />
+    <PackageReference Include="Nuke.GitHub" Version="5.0.1" />
+    <PackageReference Include="ReportGenerator" Version="5.2.1" />
     <PackageReference Include="docfx.console" Version="2.59.4">
       <ExcludeAssets>build</ExcludeAssets>
       <PrivateAssets>all</PrivateAssets>
