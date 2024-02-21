@@ -44,11 +44,7 @@ namespace LightQuery.IntegrationTestsServer
                 options.OperationFilter<LightQueryOperationFilter>();
             });
             
-#if NETCORE3
             services.AddMvc(mvcOptions => mvcOptions.EnableEndpointRouting = false); ;
-#else
-            services.AddMvc();
-#endif
         }
 
         public void Configure(IApplicationBuilder app)

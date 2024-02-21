@@ -5,7 +5,8 @@ All notable changes to **LightQuery** are documented here.
 ## v2.4.0:
 - Added a dedicated target for .NET 8
 - Added tests for .NET 8
-- `forceRefresh` on the Angular client no longer causes a request if now base url for the service is configured
+- `forceRefresh` on the Angular client no longer causes a request if no base url for the service is configured
+- Dropped tests and dedicated targets for .NET Framework 4.6.1, .NET Core 3.1 and .NET 5.0
 
 ## v2.3.0:
 - Added a dedicated target for .NET 7

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Xunit;
-#if !NETCORE3
+#if NET6
 using Microsoft.AspNetCore.Http.Internal;
 #endif
 
