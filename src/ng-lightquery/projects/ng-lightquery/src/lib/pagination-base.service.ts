@@ -131,6 +131,15 @@ export abstract class PaginationBaseService<T> implements OnDestroy {
     this._additionalQueryParams[name] = value;
     this.refresh();
   }
+  removeQueryParameter(parameterName?: string) {
+    if (parameterName) {
+      const { [parameterName]: extraProp, ...rest } = this._additionalQueryParams;
+      this._additionalQueryParams = rest;
+    } else {
+      this._additionalQueryParams = {};
+    }
+    this.refresh();
+  }
   getQueryParameter(parameterName: string): string | null {
     return this._additionalQueryParams[parameterName] || null;
   }

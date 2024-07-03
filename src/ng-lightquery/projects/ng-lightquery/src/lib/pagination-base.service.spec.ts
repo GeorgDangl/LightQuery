@@ -96,6 +96,11 @@ describe('PaginationBaseService', () => {
     await delay(1);
     httpMock.expectOne('/users?page=1&pageSize=20&filter=byName');
     httpMock.verify();
+
+    service.removeQueryParameter('filter');
+    await delay(1);
+    httpMock.expectOne('/users?page=1&pageSize=20');
+    httpMock.verify();
   }));
 
   it('requeries again on parameter change', async(async () => {
