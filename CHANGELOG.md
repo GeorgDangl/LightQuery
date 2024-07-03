@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v2.4.1:
+- The Angular client now has a `removeQueryParameter` method
+
 ## v2.4.0:
 - Added a dedicated target for .NET 8
 - Added tests for .NET 8
