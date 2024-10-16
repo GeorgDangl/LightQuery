@@ -8,10 +8,7 @@
           "src": "./src/LightQuery"
         }
       ],
-      "dest": "lightquery",
-      "properties": {
-          "TargetFramework": "netstandard2.0"
-      }
+      "dest": "lightquery"
     },
 	{
       "src": [
@@ -21,10 +18,7 @@
           "src": "./src/LightQuery.Client"
         }
       ],
-      "dest": "client",
-      "properties": {
-          "TargetFramework": "netstandard2.0"
-      }
+      "dest": "client"
     },
 	{
       "src": [
@@ -34,10 +28,7 @@
           "src": "./src/LightQuery.Shared"
         }
       ],
-      "dest": "shared",
-      "properties": {
-          "TargetFramework": "netstandard2.0"
-      }
+      "dest": "shared"
     },
 	{
       "src": [
@@ -47,10 +38,7 @@
           "src": "./src/LightQuery.EntityFrameworkCore"
         }
       ],
-      "dest": "efcore",
-      "properties": {
-          "TargetFramework": "netstandard2.0"
-      }
+      "dest": "efcore"
     }
   ],
   "build":{
