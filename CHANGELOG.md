@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v2.4.2:
+- The Angular client was updated to Angular v18
+
 ## v2.4.1:
 - The Angular client now has a `removeQueryParameter` method
 
