@@ -1,11 +1,8 @@
-import {
-  HttpClientTestingModule,
-  HttpTestingController,
-} from '@angular/common/http/testing';
-import { TestBed, async, inject } from '@angular/core/testing';
+import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed, inject } from '@angular/core/testing';
 import { skip, take } from 'rxjs/operators';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { PaginationBaseService } from './pagination-base.service';
 import { PaginationResult } from './pagination-result';
@@ -17,9 +14,9 @@ describe('PaginationBaseService', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule],
-      providers: [UserService],
-    });
+    imports: [],
+    providers: [UserService, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+});
   });
 
   it('can provide HttpClient', inject(
@@ -36,7 +33,7 @@ describe('PaginationBaseService', () => {
     expect(service instanceof UserService).toBeTruthy();
   });
 
-  it('returns the correct result', async(async () => {
+  it('returns the correct result', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -54,9 +51,9 @@ describe('PaginationBaseService', () => {
       .toPromise();
     expect(serviceResult.totalCount).toBe(1);
     httpMock.verify();
-  }));
+  });
 
-  it('requeries again on page change', async(async () => {
+  it('requeries again on page change', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -68,9 +65,9 @@ describe('PaginationBaseService', () => {
     await delay(1);
     httpMock.expectOne('/users?page=2&pageSize=20');
     httpMock.verify();
-  }));
+  });
 
-  it('requeries again on pageSize change', async(async () => {
+  it('requeries again on pageSize change', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -82,9 +79,9 @@ describe('PaginationBaseService', () => {
     await delay(1);
     httpMock.expectOne('/users?page=1&pageSize=21');
     httpMock.verify();
-  }));
+  });
 
-  it('requeries again on parameter addition', async(async () => {
+  it('requeries again on parameter addition', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -101,9 +98,9 @@ describe('PaginationBaseService', () => {
     await delay(1);
     httpMock.expectOne('/users?page=1&pageSize=20');
     httpMock.verify();
-  }));
+  });
 
-  it('requeries again on parameter change', async(async () => {
+  it('requeries again on parameter change', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -119,9 +116,9 @@ describe('PaginationBaseService', () => {
     await delay(1);
     httpMock.expectOne('/users?page=1&pageSize=20&filter=byAge');
     httpMock.verify();
-  }));
+  });
 
-  it('requeries again on force refresh', async(async () => {
+  it('requeries again on force refresh', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -133,9 +130,9 @@ describe('PaginationBaseService', () => {
     await delay(1);
     httpMock.expectOne('/users?page=1&pageSize=20');
     httpMock.verify();
-  }));
+  });
 
-  it('does not requery on forceRefresh if no base url set', async(async () => {
+  it('does not requery on forceRefresh if no base url set', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -152,9 +149,9 @@ describe('PaginationBaseService', () => {
     await delay(1);
     httpMock.expectNone('?page=1&pageSize=20');
     httpMock.verify();
-  }));
+  });
 
-  it('calls the correct url', async(async () => {
+  it('calls the correct url', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -165,9 +162,9 @@ describe('PaginationBaseService', () => {
     let httpMock = getHttpMock();
     const req = httpMock.expectOne('/users?page=2&pageSize=13&filter=byName');
     expect(req.request.method).toBe('GET');
-  }));
+  });
 
-  it('calls url to get All items', async(async () => {
+  it('calls url to get All items', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -176,9 +173,9 @@ describe('PaginationBaseService', () => {
     let httpMock = getHttpMock();
     const req = httpMock.expectOne('/users?page=1&pageSize=500');
     expect(req.request.method).toBe('GET');
-  }));
+  });
 
-  it('returns data when all data is on single, first page after calling getAll', async(async () => {
+  it('returns data when all data is on single, first page after calling getAll', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -209,9 +206,9 @@ describe('PaginationBaseService', () => {
 
     expect(returnedResult[0].id).toBe(1);
     expect(returnedResult[1].id).toBe(2);
-  }));
+  });
 
-  it('makes multiple requests when calling getAll', async(async () => {
+  it('makes multiple requests when calling getAll', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -246,9 +243,9 @@ describe('PaginationBaseService', () => {
 
     expect(returnedResult[0].id).toBe(1);
     expect(returnedResult[1].id).toBe(2);
-  }));
+  });
 
-  it('makes multiple requests when calling getAll with addition params', async(async () => {
+  it('makes multiple requests when calling getAll with addition params', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -276,9 +273,9 @@ describe('PaginationBaseService', () => {
 
     expect(returnedResult[0].id).toBe(1);
     expect(returnedResult[0].userName).toBe('Alice');
-  }));
+  });
 
-  it('does not emit result on error response', async(async () => {
+  it('does not emit result on error response', async () => {
     let hasReceivedResponse = false;
     let service = getService();
     service.baseUrl = '/users';
@@ -288,9 +285,9 @@ describe('PaginationBaseService', () => {
     const request = httpMock.expectOne('/users?page=1&pageSize=20');
     request.error(new ErrorEvent('error'));
     expect(hasReceivedResponse).toBeFalsy();
-  }));
+  });
 
-  it('cancels first request when second request sent', async(async () => {
+  it('cancels first request when second request sent', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -301,9 +298,9 @@ describe('PaginationBaseService', () => {
     const secondRequest = httpMock.expectOne('/users?page=1&pageSize=20');
     expect(firstRequest.cancelled).toBeTruthy();
     expect(secondRequest.cancelled).toBeFalsy();
-  }));
+  });
 
-  it('does not send two requests when calling forceRefresh twice subsequently', async(async () => {
+  it('does not send two requests when calling forceRefresh twice subsequently', async () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
@@ -315,9 +312,9 @@ describe('PaginationBaseService', () => {
     const secondRequest = httpMock.expectOne('/users?page=1&pageSize=20');
     expect(firstRequest.cancelled).toBeTruthy();
     expect(secondRequest.cancelled).toBeFalsy();
-  }));
+  });
 
-  it('does not break observable chain when receiving an error', async(async () => {
+  it('does not break observable chain when receiving an error', async () => {
     let hasReceivedResponse = false;
     let service = getService();
     service.baseUrl = '/users';
@@ -334,15 +331,15 @@ describe('PaginationBaseService', () => {
     const secondRequest = httpMock.expectOne('/users?page=1&pageSize=20');
     secondRequest.flush({});
     expect(hasReceivedResponse).toBeTruthy();
-  }));
+  });
 
-  it('updates cached last pagination result before anouncing new result with forceRefresh', async(async () => {
+  it('updates cached last pagination result before anouncing new result with forceRefresh', async () => {
     await asyncStyleCacheCheck((s) => s.forceRefresh());
-  }));
+  });
 
-  it('updates cached last pagination result before anouncing new result with requery', async(async () => {
+  it('updates cached last pagination result before anouncing new result with requery', async () => {
     await asyncStyleCacheCheck((s) => s.publicRequery());
-  }));
+  });
 
   let asyncStyleCacheCheck = async (requeryAction: (UserService) => void) => {
     // This is a regression for the following bug:
