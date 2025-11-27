@@ -9,8 +9,8 @@ import { PaginationResult } from './pagination-result';
 
 describe('PaginationBaseService', () => {
   let getHttpMock: () => HttpTestingController = () =>
-    TestBed.get(HttpTestingController);
-  let getService: () => UserService = () => TestBed.get(UserService);
+    TestBed.inject(HttpTestingController);
+  let getService: () => UserService = () => TestBed.inject(UserService);
 
   beforeEach(() => {
     TestBed.configureTestingModule({

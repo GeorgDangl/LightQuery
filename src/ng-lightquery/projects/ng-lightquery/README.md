@@ -1,6 +1,6 @@
 # NgLightquery
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.7.
+This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 21.0.1.
 
 ## Code scaffolding
 
