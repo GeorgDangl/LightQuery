@@ -7,7 +7,7 @@
     "build": "ng build",
     "buildLibrary": "ng build ng-lightquery --configuration production",
     "test": "ng test --no-watch",
-    "test:ci": "ng test --karma-config projects/ng-lightquery/karma.conf.ci.js",
+    "test:ci": "ng test --no-watch --karma-config projects/ng-lightquery/karma.conf.ci.js",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },
