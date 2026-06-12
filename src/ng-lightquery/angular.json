@@ -18,16 +18,14 @@
           "configurations": {
             "production": {
               "tsConfig": "projects/ng-lightquery/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/ng-lightquery/tsconfig.lib.dev.json"
             }
           }
         },
         "test": {
-          "builder": "@angular/build:karma",
-          "options": {
-            "main": "projects/ng-lightquery/src/test.ts",
-            "tsConfig": "projects/ng-lightquery/tsconfig.spec.json",
-            "karmaConfig": "projects/ng-lightquery/karma.conf.js"
-          }
+          "builder": "@angular/build:unit-test"
         }
       }
     }
