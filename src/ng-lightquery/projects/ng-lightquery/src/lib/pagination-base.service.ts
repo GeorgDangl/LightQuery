@@ -51,7 +51,7 @@ export abstract class PaginationBaseService<T> implements OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.$destroyed.next();
+    this.$destroyed.next(true);
     this.$destroyed.complete();
     this.requestUrl.complete();
     this.paginationResultSource.complete();
