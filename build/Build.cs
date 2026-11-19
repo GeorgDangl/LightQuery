@@ -1,19 +1,19 @@
-using Nuke.Common;
-using Nuke.Common.CI.Jenkins;
-using Nuke.Common.Git;
-using Nuke.Common.IO;
-using Nuke.Common.ProjectModel;
-using Nuke.Common.Tooling;
-using Nuke.Common.Tools.AzureKeyVault;
-using Nuke.Common.Tools.Coverlet;
-using Nuke.Common.Tools.DotNet;
-using Nuke.Common.Tools.GitVersion;
-using Nuke.Common.Tools.ReportGenerator;
-using Nuke.Common.Tools.Teams;
-using Nuke.Common.Utilities;
-using Nuke.Common.Utilities.Collections;
-using Nuke.GitHub;
-using Nuke.WebDocu;
+using Fallout.Common;
+using Fallout.Common.CI.Jenkins;
+using Fallout.Common.Git;
+using Fallout.Common.IO;
+using Fallout.Common.ProjectModel;
+using Fallout.Common.Tooling;
+using Fallout.Common.Tools.AzureKeyVault;
+using Fallout.Common.Tools.Coverlet;
+using Fallout.Common.Tools.DotNet;
+using Fallout.Common.Tools.GitVersion;
+using Fallout.Common.Tools.ReportGenerator;
+using Fallout.Common.Tools.Teams;
+using Fallout.Common.Utilities;
+using Fallout.Common.Utilities.Collections;
+using Fallout.GitHub;
+using Fallout.WebDocu;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -21,16 +21,16 @@ using System.IO;
 using System.Linq;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using static Nuke.Common.ChangeLog.ChangelogTasks;
-using static Nuke.Common.IO.XmlTasks;
-using static Nuke.Common.Tools.DotNet.DotNetTasks;
-using static Nuke.Common.Tools.Npm.NpmTasks;
-using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
-using static Nuke.GitHub.ChangeLogExtensions;
-using static Nuke.GitHub.GitHubTasks;
-using static Nuke.WebDocu.WebDocuTasks;
+using static Fallout.Common.ChangeLog.ChangelogTasks;
+using static Fallout.Common.IO.XmlTasks;
+using static Fallout.Common.Tools.DotNet.DotNetTasks;
+using static Fallout.Common.Tools.Npm.NpmTasks;
+using static Fallout.Common.Tools.ReportGenerator.ReportGeneratorTasks;
+using static Fallout.GitHub.ChangeLogExtensions;
+using static Fallout.GitHub.GitHubTasks;
+using static Fallout.WebDocu.WebDocuTasks;
 
-class Build : NukeBuild
+class Build : FalloutBuild
 {
     public static int Main () => Execute<Build>(x => x.Compile);
 
@@ -120,7 +120,7 @@ class Build : NukeBuild
             DotNetBuild(x => x
                 .SetConfiguration(Configuration)
                 .EnableNoRestore()
-                .SetProcessArgumentConfigurator(a => a.Add("-nodereuse:false"))
+                .AddProcessAdditionalArguments("-nodereuse:false")
                 .SetFileVersion(GitVersion.AssemblySemFileVer)
                 .SetAssemblyVersion($"{GitVersion.Major}.{GitVersion.Minor}.{GitVersion.Patch}.0")
                 .SetInformationalVersion(GitVersion.InformationalVersion));
@@ -174,13 +174,12 @@ class Build : NukeBuild
                                 .SetFramework(targetFramework)
                                 .SetLoggers($"xunit;LogFilePath={OutputDirectory / projectName}_testresults-{targetFramework}.xml")
                                 .SetCoverletOutput($"{OutputDirectory / projectName}_coverage.xml")
-                                .SetProcessArgumentConfigurator(a => a
-                                    .Add("-nodereuse:false")
+                                .AddProcessAdditionalArguments("-nodereuse:false")
                                     // This part is required to ensure that xUnit isn't using app domains or shadow copying, since coverlet
                                     // needs to modify the dlls to collect coverage. See here for more information:
                                     // https://github.com/coverlet-coverage/coverlet/issues/347
                                     // Also, this argument must be at the end.
-                                    .Add("-- RunConfiguration.DisableAppDomain=true")));
+                                    .AddProcessAdditionalArguments("-- RunConfiguration.DisableAppDomain=true"));
                         })),
                             degreeOfParallelism: Environment.ProcessorCount,
                             completeOnFailure: true);
@@ -312,7 +311,7 @@ class Build : NukeBuild
         {
             var environmentVariables = EnvironmentInfo.Variables.ToDictionary();
             environmentVariables.Add("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName);
-            var docFxPath = NuGetToolPathResolver.GetPackageExecutable("docfx", "tools/net8.0/any/docfx.dll");
+            var docFxPath = NuGetToolPathResolver.GetPackageExecutable("docfx", "tools/net10.0/any/docfx.dll");
             DotNet($"{docFxPath} metadata {DocFxFile}", environmentVariables: environmentVariables);
         });
 
@@ -334,8 +333,9 @@ class Build : NukeBuild
 
             var environmentVariables = EnvironmentInfo.Variables.ToDictionary();
             environmentVariables.Add("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName);
-            var docFxPath = NuGetToolPathResolver.GetPackageExecutable("docfx", "tools/net8.0/any/docfx.dll");
+            var docFxPath = NuGetToolPathResolver.GetPackageExecutable("docfx", "tools/net10.0/any/docfx.dll");
             DotNet($"{docFxPath} {DocFxFile}", environmentVariables: environmentVariables);
+            MarkdownDocumentation.Create(DocFxFile, OutputDirectory / "docs-markdown");
 
             File.Delete(SolutionDirectory / "index.md");
             Directory.Delete(SolutionDirectory / "lightquery", true);
@@ -343,8 +343,6 @@ class Build : NukeBuild
             Directory.Delete(SolutionDirectory / "shared", true);
             Directory.Delete(SolutionDirectory / "efcore", true);
 
-            MarkdownDocumentation.Build(SolutionDirectory, OutputDirectory / "docs",
-                OutputDirectory / "docs-markdown", requireApi: true);
         });
 
     Target UploadDocumentation => _ => _
@@ -358,15 +356,14 @@ class Build : NukeBuild
         {
              var changeLog = GetCompleteChangeLog(ChangeLogFile);
 
-            MarkdownDocumentation.Publish(DocuBaseUrl, DocuApiKey, GitVersion.NuGetVersion,
-                OutputDirectory / "docs-markdown.zip",
-                () => WebDocu(s => s
-                    .SetDocuBaseUrl(DocuBaseUrl)
-                    .SetDocuApiKey(DocuApiKey)
-                    .SetMarkdownChangelog(changeLog)
-                    .SetSourceDirectory(OutputDirectory / "docs")
-                    .SetVersion(GitVersion.NuGetVersion)
-                ));
+            WebDocu(s => s
+                .SetDocuBaseUrl(DocuBaseUrl)
+                .SetDocuApiKey(DocuApiKey)
+                .SetMarkdownChangelog(changeLog)
+                .SetMarkdownPackagePath(OutputDirectory / "docs-markdown.zip")
+                .SetSourceDirectory(OutputDirectory / "docs")
+                .SetVersion(GitVersion.NuGetVersion)
+            );
         });
 
     Target PublishGitHubRelease => _ => _

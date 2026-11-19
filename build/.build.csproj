@@ -1,28 +1,28 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
+    <RollForward>Major</RollForward>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <RootNamespace></RootNamespace>
     <IsPackable>False</IsPackable>
     <NoWarn>CS0649;CS0169</NoWarn>
-    <NukeTelemetryVersion>1</NukeTelemetryVersion>
+    <FalloutTelemetryVersion>1</FalloutTelemetryVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageDownload Include="GitVersion.Tool" Version="[5.12.0]" />
-    <PackageReference Include="ReverseMarkdown" Version="4.6.0" />
-    <PackageReference Include="Nuke.Common" Version="8.1.2" />
-    <PackageReference Include="Nuke.WebDocu" Version="6.0.0" />
-    <PackageReference Include="Nuke.GitHub" Version="6.0.0" />
+    <PackageReference Include="Fallout.Common" Version="10.5.0" />
+    <PackageReference Include="Dangl.Fallout.WebDocu" Version="8.0.1" />
+    <PackageReference Include="Dangl.Fallout.GitHub" Version="8.0.1" />
     <PackageReference Include="ReportGenerator" Version="5.3.11" />
-    <PackageDownload Include="docfx" Version="[2.77.0]" />
+    <PackageDownload Include="docfx" Version="[2.78.5]" />
   </ItemGroup>
 
   <ItemGroup>
-    <NukeMetadata Include="**\*.json" Exclude="bin\**;obj\**" />
-    <NukeExternalFiles Include="**\*.*.ext" Exclude="bin\**;obj\**" />
+    <FalloutMetadata Include="**\*.json" Exclude="bin\**;obj\**" />
+    <FalloutExternalFiles Include="**\*.*.ext" Exclude="bin\**;obj\**" />
     
     <!-- Common build related files -->
   </ItemGroup>

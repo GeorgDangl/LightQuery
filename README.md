@@ -355,20 +355,12 @@ security or provide tamper-proof binaries, as the key is available in the source
 [MIT Licence](LICENCE.md)
 
 
-## Markdown documentation publishing
+## Build and Markdown documentation
 
-`BuildDocumentation` also generates `output/docs-markdown` and `output/docs-markdown.zip`.
-Start with `index.md` (the source README), or `toc.md` for all articles and API pages.
-Changelog/license text and linked documentation assets are included; the ZIP has no
-enclosing directory.
+Build automation uses [Fallout](https://github.com/GeorgDangl/Fallout) with the .NET 10 SDK or newer. The bootstrap scripts use `.fallout` configuration and install .NET 10 when a compatible SDK is unavailable.
 
-The Markdown renderer converts the existing published DocFX article HTML, including
-API signatures, code examples and anchors. This keeps the current documentation
-toolchain and public project boundaries intact, without requiring newer DocFX or
-migrating the legacy NUKE build. It does not modify documentation sources.
+`BuildDocumentation` generates the HTML site in `output/docs` and native DocFX Markdown API documentation, articles and assets in `output/docs-markdown`, with an adjacent ZIP archive. Start at `index.md`; API reference directories follow the HTML documentation's project scopes.
 
-`UploadDocumentation` uploads HTML first, then sends the Markdown ZIP to
-`/API/MarkdownDocuments/Upload` with the same API key and exact version. Generation
-or upload errors fail publishing; existing branch gates and version-conflict policies
-are preserved. `TestMarkdownDocumentation` exercises packaging, links, assets,
-failure handling and the multipart contract using only a local HTTP server.
+`TestMarkdownDocumentation` checks native API preservation, archive layout, article links, resource globs, exclusions and missing entry-point errors without publishing.
+
+`UploadDocumentation` uses `Dangl.Fallout.WebDocu` to upload the Markdown archive after HTML for the same explicit version. Existing API keys, branch gates, downloadable assets and version-conflict policies are preserved. Markdown documentation is available to AI agents through the DanglDocu MCP server.
