@@ -2,6 +2,9 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v2.4.3:
+- **LightQuery** now also produces Markdown documentation. This can be easily accessed by AI agents via the MCP server implementation in **Dangl**Docu.
+
 ## v2.4.2:
 - The Angular client was updated to Angular v18
 
