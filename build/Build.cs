@@ -58,6 +58,7 @@ class Build : FalloutBuild
     [AzureKeyVaultSecret("LightQuery-DocuApiKey")] readonly string DocuApiKey;
     [AzureKeyVaultSecret] readonly string GitHubAuthenticationToken;
     [AzureKeyVaultSecret] readonly string DanglCiCdTeamsWebhookUrl;
+    [AzureKeyVaultSecret("NpmDanglJenkinsAccessToken")] readonly string NpmAccessToken;
 
     [Parameter] readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
 
@@ -468,6 +469,7 @@ class Build : FalloutBuild
         });
 
     Target NgLibraryPublish => _ => _
+        .Requires(() => NpmAccessToken)
         .OnlyWhenDynamic(() => Jenkins.Instance == null
             || Jenkins.Instance.ChangeId == null)
         .Executes(() =>
@@ -493,6 +495,20 @@ class Build : FalloutBuild
             ? "latest"
             : "next";
 
-            Npm($"publish --tag={npmTag}", ngLibraryDir);
+            PublishNpmPackage(ngLibraryDir, NpmAccessToken, npmTag);
         });
+
+    static void PublishNpmPackage(AbsolutePath packageDirectory, string accessToken, string tag)
+    {
+        var npmrcPath = packageDirectory / ".npmrc";
+        try
+        {
+            npmrcPath.WriteAllText($"registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken={accessToken}\n");
+            Npm($"publish --access public --tag={tag}", packageDirectory);
+        }
+        finally
+        {
+            npmrcPath.DeleteFile();
+        }
+    }
 }
