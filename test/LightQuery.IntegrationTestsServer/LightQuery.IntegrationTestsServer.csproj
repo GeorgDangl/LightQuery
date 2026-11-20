@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net7.0;net6.0</TargetFrameworks>
+    <TargetFrameworks>net11.0;net8.0;net7.0;net6.0</TargetFrameworks>
     <IsPackable>false</IsPackable>
     <!-- We're keeping end-of-lifetime targets still around, so we disable the warning -->
     <CheckEolTargetFramework>false</CheckEolTargetFramework>
@@ -20,6 +20,11 @@
   <ItemGroup Condition="'$(TargetFramework)'=='net8.0'">
     <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.0" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework)'=='net11.0'">
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="11.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="11.0.0" />
   </ItemGroup>
 
   <ItemGroup>

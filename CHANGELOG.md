@@ -6,6 +6,7 @@ All notable changes to **LightQuery** are documented here.
 - **LightQuery** now also produces Markdown documentation. This can be easily accessed by AI agents via the MCP server implementation in **Dangl**Docu.
 - Updated the Angular client to Angular v22.3, TypeScript v6.0 and RxJS v7.8, and migrated library packaging and tests to the `@angular/build` builders.
 - The Angular client now requires Angular v22 or later.
+- Added a dedicated target for .NET 11 and added tests for .NET 11
 
 ## v2.4.1:
 - The Angular client now has a `removeQueryParameter` method
