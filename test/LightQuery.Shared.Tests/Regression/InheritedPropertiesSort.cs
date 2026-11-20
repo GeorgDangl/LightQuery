@@ -1,15 +1,13 @@
 ﻿using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace LightQuery.Shared.Tests.Regression
 {
-    public class InheritedPropertiesSortWithSqlite
+    public class InheritedPropertiesSortWithSqlite : IDisposable
     {
         public class UserBase
         {
@@ -36,9 +34,14 @@ namespace LightQuery.Shared.Tests.Regression
             public DbSet<UserBase> Users { get; set; }
         }
 
-        private static Dictionary<string, SqliteConnection> _connections = new Dictionary<string, SqliteConnection>();
+        private SqliteConnection _connection;
 
-        private static async Task<AppDbContext> GetContextAsync()
+        public void Dispose()
+        {
+            _connection?.Dispose();
+        }
+
+        private async Task<AppDbContext> GetContextAsync()
         {
             var connectionId = Guid.NewGuid().ToString();
             var connectionString = new SqliteConnectionStringBuilder
@@ -47,15 +50,13 @@ namespace LightQuery.Shared.Tests.Regression
                 Cache = SqliteCacheMode.Shared,
                 Mode = SqliteOpenMode.Memory
             }.ToString();
-            var connection = new SqliteConnection(connectionString);
-            await connection.OpenAsync();
-            _connections.Add(connectionId, connection);
+            _connection = new SqliteConnection(connectionString);
+            await _connection.OpenAsync();
 
-            var serviceProvider = new ServiceCollection()
-                .AddDbContext<AppDbContext>(options => options
-                .UseSqlite(connectionString))
-                .BuildServiceProvider();
-            using (var setupContext = serviceProvider.CreateScope().ServiceProvider.GetRequiredService<AppDbContext>())
+            var options = new DbContextOptionsBuilder<AppDbContext>()
+                .UseSqlite(_connection)
+                .Options;
+            using (var setupContext = new AppDbContext(options))
             {
                 await setupContext.Database.EnsureCreatedAsync();
                 setupContext.Users.Add(new UserBase { Name = "George", FavoriteRestaurant = new Restaurant { Street = "Main Street" } });
@@ -64,13 +65,13 @@ namespace LightQuery.Shared.Tests.Regression
                 await setupContext.SaveChangesAsync();
             }
 
-            return serviceProvider.GetRequiredService<AppDbContext>();
+            return new AppDbContext(options);
         }
 
         [Fact]
         public async Task CanSortOnPropertyFromBaseClassWhenProjectedToDerivedClass()
         {
-            var context = await GetContextAsync();
+            using var context = await GetContextAsync();
 
             var usersQueryable = context.Users
                 .Select(u => new User
@@ -96,7 +97,7 @@ namespace LightQuery.Shared.Tests.Regression
         public async Task CanSortOnNestedProperty_WhenWrappingInNullChecks()
         {
             // This test ensures that relational sorting works with SQLite
-            var context = await GetContextAsync();
+            using var context = await GetContextAsync();
 
             var usersQueryable = context.Users;
             var sortOption = new SortOption
@@ -119,7 +120,7 @@ namespace LightQuery.Shared.Tests.Regression
         public async Task CanSortOnNestedProperty_WhenNotWrappingInNullChecks()
         {
             // This test ensures that relational sorting works with SQLite
-            var context = await GetContextAsync();
+            using var context = await GetContextAsync();
 
             var usersQueryable = context.Users;
             var sortOption = new SortOption

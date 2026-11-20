@@ -181,14 +181,14 @@ namespace LightQuery.Client.Tests.Integration
             var results = 0;
             var requestsSent = 0;
             var requestsCancelled = new bool[3];
-            var responseTasks = new List<Task>();
             var currentRequests = 0;
 
 
-            var service = new UsersService(async (url, cancellationToken) =>
+            using var service = new UsersService(async (url, cancellationToken) =>
             {
                 requestsSent++;
                 var currentRequest = currentRequests++;
+                using var registration = cancellationToken.Register(() => requestsCancelled[currentRequest] = true);
                 try
                 {
                     var resultTask = _client.GetAsync(url, cancellationToken);
@@ -196,20 +196,17 @@ namespace LightQuery.Client.Tests.Integration
                     // thus the request not being cancelled while it's en-route and therefore not throwing
                     // an exception
                     var result = await resultTask;
-                    requestsCancelled[currentRequest] = false;
                     return result;
                 }
-                catch
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
-                    requestsCancelled[currentRequest] = true;
                     return null;
                 }
             });
 
             service.PaginationResult.Subscribe(_ => results++);
 
-            await Task.WhenAny(service.PaginationResult.FirstAsync().ToTask(),
-                 Task.Delay(10_000)); // Timeout
+            await service.PaginationResult.FirstAsync().ToTask().WaitAsync(_testResultTimeout);
 
             Assert.Equal(1, results);
             Assert.Equal(1, requestsSent);
@@ -217,8 +214,7 @@ namespace LightQuery.Client.Tests.Integration
             service.Page++;
             service.Page++;
 
-            await Task.WhenAny(service.PaginationResult.Skip(1).FirstAsync().ToTask(),
-                Task.Delay(10_000)); // Timeout
+            await service.PaginationResult.Skip(1).FirstAsync().ToTask().WaitAsync(_testResultTimeout);
 
             Assert.Equal(2, results);
             Assert.Equal(3, requestsSent);

@@ -41,7 +41,11 @@ Includes LightQuery models and the QueryBuilder utility
 
 ## Testing
 
-Tests are run via `powershell ./build.ps1 Coverage` (or `build.sh Coverage`) in the root directory.
+Tests are run via `powershell .\build.ps1 Coverage` (or `build.sh Coverage`) in the root directory.
+The .NET tests use xUnit.v3 and Microsoft Testing Platform on .NET 8 and .NET 11.
+Each test assembly enables `ParallelMode.All` in `AssemblyInfo.cs`, allowing all tests to run in parallel.
+The `Coverage` target collects Cobertura coverage with Coverlet.MTP and merges xUnit XML results for Jenkins.
+To run tests without coverage, use `dotnet test` in the root directory (requires the .NET 10 SDK or later).
 
 ## Documentation - Server
 

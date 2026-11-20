@@ -148,23 +148,20 @@ namespace LightQuery.Client.Tests
                 var results = 0;
                 var requestsSent = 0;
                 var requestsCancelled = new bool[3];
-                var responseTasks = new List<Task>();
                 var currentRequests = 0;
                 Func<string, CancellationToken, Task<HttpResponseMessage>> getHttpAsync = async (_, token) =>
                 {
                     requestsSent++;
                     var currentRequest = currentRequests++;
+                    using var registration = token.Register(() => requestsCancelled[currentRequest] = true);
                     var responseTask = GetResponseWithDelay(token);
-                    responseTasks.Add(responseTask);
                     var response = await responseTask;
-                    requestsCancelled[currentRequest] = response.Item2;
                     return response.Item1;
                 };
-                var paginationService = new PaginationBaseService<User>("https://example.com", getHttpAsync);
+                using var paginationService = new PaginationBaseService<User>("https://example.com", getHttpAsync);
                 paginationService.PaginationResult.Subscribe(_ => results++);
 
-                await Task.WhenAny(paginationService.PaginationResult.FirstAsync().ToTask(),
-                     Task.Delay(10_000)); // Timeout
+                await paginationService.PaginationResult.FirstAsync().ToTask().WaitAsync(TimeSpan.FromSeconds(10));
 
                 Assert.Equal(1, results);
                 Assert.Equal(1, requestsSent);
@@ -172,8 +169,7 @@ namespace LightQuery.Client.Tests
                 paginationService.Page++;
                 paginationService.Page++;
 
-                await Task.WhenAny(paginationService.PaginationResult.Skip(1).FirstAsync().ToTask(),
-                    Task.Delay(10_000)); // Timeout
+                await paginationService.PaginationResult.Skip(1).FirstAsync().ToTask().WaitAsync(TimeSpan.FromSeconds(10));
 
                 Assert.Equal(2, results);
                 Assert.Equal(3, requestsSent);

@@ -5,7 +5,6 @@ using Fallout.Common.IO;
 using Fallout.Common.ProjectModel;
 using Fallout.Common.Tooling;
 using Fallout.Common.Tools.AzureKeyVault;
-using Fallout.Common.Tools.Coverlet;
 using Fallout.Common.Tools.DotNet;
 using Fallout.Common.Tools.GitVersion;
 using Fallout.Common.Tools.ReportGenerator;
@@ -154,38 +153,26 @@ class Build : FalloutBuild
             try
             {
                 DotNetTest(c => c
-                    .SetDataCollector("XPlat Code Coverage")
+                    .SetConfiguration(Configuration)
                     .SetResultsDirectory(OutputDirectory)
-                    .AddRunSetting("DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format", "cobertura")
-                    .AddRunSetting("DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Include", "[LightQuery*]*")
-                    .AddRunSetting("DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Exclude", "[*Tests*]*")
-                    .AddRunSetting("DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.ExcludeByAttribute", "Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute")
                     .EnableNoBuild()
-                    .SetTestAdapterPath(".")
                     .CombineWith(cc => testProjects
                         .SelectMany(testProject =>
                         {
-                            var projectDirectory = Path.GetDirectoryName(testProject);
                             var projectName = Path.GetFileNameWithoutExtension(testProject);
                             var targetFrameworks = GetTestFrameworksForProjectFile(testProject);
                             return targetFrameworks
                             .Select(targetFramework => cc
                                 .SetProjectFile(testProject)
                                 .SetFramework(targetFramework)
-                                .SetLoggers($"xunit;LogFilePath={OutputDirectory / projectName}_testresults-{targetFramework}.xml")
-                                .SetCoverletOutput($"{OutputDirectory / projectName}_coverage.xml")
-                                .AddProcessAdditionalArguments("-nodereuse:false")
-                                    // This part is required to ensure that xUnit isn't using app domains or shadow copying, since coverlet
-                                    // needs to modify the dlls to collect coverage. See here for more information:
-                                    // https://github.com/coverlet-coverage/coverlet/issues/347
-                                    // Also, this argument must be at the end.
-                                    .AddProcessAdditionalArguments("-- RunConfiguration.DisableAppDomain=true"));
+                                .AddProcessAdditionalArguments($"--coverlet --coverlet-output-format cobertura --coverlet-file-prefix {projectName}-{targetFramework} --coverlet-include [LightQuery*]* --coverlet-exclude [*Tests*]* --coverlet-exclude-by-attribute Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute -- --report-spekt-xunit --report-spekt-xunit-filename \"{OutputDirectory / projectName}_testresults-{targetFramework}.xml\""));
                         })),
                             degreeOfParallelism: Environment.ProcessorCount,
                             completeOnFailure: true);
             }
-            catch
+            catch (Exception exception)
             {
+                Serilog.Log.Error(exception, "Test execution failed; collecting available reports before failing the build");
                 hasFailedTests = true;
             }
 
@@ -195,7 +182,7 @@ class Build : FalloutBuild
             // picked up by Jenkins
             ReportGenerator(c => c
                 .SetFramework("net6.0")
-                .SetReports(OutputDirectory / "**/*cobertura.xml")
+                .SetReports(OutputDirectory / "**/*.coverage.cobertura*.xml")
                 .SetTargetDirectory(OutputDirectory)
                 .SetReportTypes(ReportTypes.Cobertura));
 
@@ -241,6 +228,7 @@ class Build : FalloutBuild
             basePath = sourcesEntry.Value;
         }
 
+        basePath = basePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
         Serilog.Log.Information($"Normalizing Cobertura report to base path: \"{basePath}\"");
 
         var filenameAttributes = xDoc
@@ -250,9 +238,10 @@ class Build : FalloutBuild
             .Select(d => d.Attributes().First(a => a.Name.LocalName == "filename"));
         foreach (var filenameAttribute in filenameAttributes)
         {
-            if (filenameAttribute.Value.StartsWith(basePath))
+            var filename = filenameAttribute.Value.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            if (filename.StartsWith(basePath))
             {
-                filenameAttribute.Value = filenameAttribute.Value.Substring(basePath.Length);
+                filenameAttribute.Value = filename.Substring(basePath.Length);
             }
         }
 
@@ -395,7 +384,8 @@ class Build : FalloutBuild
 
     void PrependFrameworkToTestresults()
     {
-        var testResults = OutputDirectory.GlobFiles("*testresults*.xml").ToList();
+        var testResults = OutputDirectory.GlobFiles("*_testresults-*.xml").ToList();
+        Assert.NotEmpty(testResults);
         Serilog.Log.Debug($"Found {testResults.Count} test result files on which to append the framework.");
         foreach (var testResultFile in testResults)
         {
