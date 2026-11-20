@@ -186,7 +186,7 @@ namespace LightQuery.EntityFrameworkCore.Tests.Integration.ControllerTests
         {
             var url = "AsyncLightQuery?sort=registrationDate";
             var actualResponse = await GetResponse<List<User>>(url);
-            Assert.Single(actualResponse.Where(u => u.LastLoginDate != null));
+            Assert.Single(actualResponse, u => u.LastLoginDate != null);
         }
 
         [Fact]
@@ -194,7 +194,7 @@ namespace LightQuery.EntityFrameworkCore.Tests.Integration.ControllerTests
         {
             var url = "AsyncLightQuery?sort=registrationDate desc";
             var actualResponse = await GetResponse<List<User>>(url);
-            Assert.Single(actualResponse.Where(u => u.LastLoginDate != null));
+            Assert.Single(actualResponse, u => u.LastLoginDate != null);
         }
 
         [Fact]
@@ -204,7 +204,7 @@ namespace LightQuery.EntityFrameworkCore.Tests.Integration.ControllerTests
             var actualResponse = await GetResponse<PaginationResult<User>>(url);
             Assert.Equal(2, actualResponse.Page);
             Assert.Equal(3, actualResponse.PageSize);
-            Assert.Single(actualResponse.Data.Where(u => u.LastLoginDate != null));
+            Assert.Single(actualResponse.Data, u => u.LastLoginDate != null);
         }
 
         [Fact]
@@ -214,7 +214,7 @@ namespace LightQuery.EntityFrameworkCore.Tests.Integration.ControllerTests
             var actualResponse = await GetResponse<PaginationResult<User>>(url);
             Assert.Equal(2, actualResponse.Page);
             Assert.Equal(3, actualResponse.PageSize);
-            Assert.Empty(actualResponse.Data.Where(u => u.LastLoginDate != null));
+            Assert.DoesNotContain(actualResponse.Data, u => u.LastLoginDate != null);
         }
 
         [Fact]
