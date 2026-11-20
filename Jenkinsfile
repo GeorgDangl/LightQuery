@@ -38,13 +38,7 @@ pipeline {
                         tools: [
                             xUnitDotNet(deleteOutputFiles: true, failIfNotNew: true, pattern: '**/*testresults.xml', stopProcessingIfError: false)
                         ])
-                    cobertura(
-                        coberturaReportFile: 'output/Cobertura.xml',
-                        failUnhealthy: false,
-                        failUnstable: false,
-                        maxNumberOfBuilds: 0,
-                        onlyStable: false,
-                        zoomCoverageChart: false)
+                    recordCoverage(tools: [[parser: 'COBERTURA', pattern: 'output/Cobertura.xml']])
                 }
             }
         }
