@@ -8,16 +8,17 @@ using Fallout.Common.Tools.AzureKeyVault;
 using Fallout.Common.Tools.DotNet;
 using Fallout.Common.Tools.GitVersion;
 using Fallout.Common.Tools.ReportGenerator;
-using Fallout.Common.Tools.Teams;
 using Fallout.Common.Utilities;
 using Fallout.Common.Utilities.Collections;
 using Fallout.GitHub;
 using Fallout.WebDocu;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Xml.Linq;
 using System.Xml.XPath;
 using static Fallout.Common.ChangeLog.ChangelogTasks;
@@ -73,22 +74,32 @@ class Build : FalloutBuild
     {
         if (IsServerBuild)
         {
-            SendTeamsMessage("Build Failed", $"Target {target} failed for LightQuery, " +
+            SendTeamsMessage(DanglCiCdTeamsWebhookUrl, "Build Failed", $"Target {target} failed for LightQuery, " +
                         $"Branch: {GitRepository.Branch}", true);
         }
     }
 
-    void SendTeamsMessage(string title, string message, bool isError)
+    static void SendTeamsMessage(string webhookUrl, string title, string message, bool isError)
     {
-        if (!string.IsNullOrWhiteSpace(DanglCiCdTeamsWebhookUrl))
+        if (!string.IsNullOrWhiteSpace(webhookUrl))
         {
             var themeColor = isError ? "f44336" : "00acc1";
-            TeamsTasks
-                .SendTeamsMessage(m => m
-                    .SetTitle(title)
-                    .SetText(message)
-                    .SetThemeColor(themeColor),
-                    DanglCiCdTeamsWebhookUrl);
+
+            Serilog.Log.Information("Sending Teams message with title {Title}", title);
+            var payload = JsonConvert.SerializeObject(new Dictionary<string, string>
+            {
+                ["@type"] = "MessageCard",
+                ["themeColor"] = themeColor,
+                ["title"] = title,
+                ["text"] = message
+            });
+
+            using var httpClient = new HttpClient();
+            using var content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
+            using var response = httpClient.PostAsync(webhookUrl, content).GetAwaiter().GetResult();
+
+            Assert.True(response.IsSuccessStatusCode,
+                $"Teams webhook failed with status {response.StatusCode}");
         }
     }
 
@@ -291,7 +302,7 @@ class Build : FalloutBuild
                     }
                 });
 
-            SendTeamsMessage("New Release", $"New release available for LightQuery: {GitVersion.NuGetVersion}", false);
+            SendTeamsMessage(DanglCiCdTeamsWebhookUrl, "New Release", $"New release available for LightQuery: {GitVersion.NuGetVersion}", false);
         });
 
     Target BuildDocFxMetadata => _ => _

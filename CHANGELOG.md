@@ -15,6 +15,7 @@ All notable changes to **LightQuery** are documented here.
 - Migrated .NET tests to xUnit.v3 with all tests running in parallel, and updated the build to use Microsoft Testing Platform and Coverlet.MTP.
 - Dropped .NET 6 and .NET 7 test targets because xUnit.v3 requires .NET 8 or later; library targets remain unchanged.
 - `AsyncLightQueryAttribute` now propagates request cancellation to Entity Framework Core count and materialization queries.
+- Updated CI Teams notifications to send JSON webhook messages directly and accept successful HTTP responses without requiring a legacy response body.
 
 ## v2.4.1:
 - The Angular client now has a `removeQueryParameter` method
