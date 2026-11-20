@@ -353,3 +353,14 @@ security or provide tamper-proof binaries, as the key is available in the source
 ---
 
 [MIT Licence](LICENCE.md)
+
+
+## Build and Markdown documentation
+
+Build automation uses [Fallout](https://github.com/GeorgDangl/Fallout) with the .NET 10 SDK or newer. The bootstrap scripts use `.fallout` configuration and install .NET 10 when a compatible SDK is unavailable.
+
+`BuildDocumentation` generates the HTML site in `output/docs` and native DocFX Markdown API documentation, articles and assets in `output/docs-markdown`, with an adjacent ZIP archive. Start at `index.md`; API reference directories follow the HTML documentation's project scopes.
+
+`TestMarkdownDocumentation` checks native API preservation, archive layout, article links, resource globs, exclusions and missing entry-point errors without publishing.
+
+`UploadDocumentation` uses `Dangl.Fallout.WebDocu` to upload the Markdown archive after HTML for the same explicit version. Existing API keys, branch gates, downloadable assets and version-conflict policies are preserved. Markdown documentation is available to AI agents through the DanglDocu MCP server.

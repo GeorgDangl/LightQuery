@@ -39,6 +39,70 @@
         }
       ],
       "dest": "efcore"
+    },
+    {
+      "src": [
+        {
+          "files": [
+            "LightQuery.csproj"
+          ],
+          "exclude": [
+            "**/bin/**",
+            "**/obj/**"
+          ],
+          "src": "./src/LightQuery"
+        }
+      ],
+      "dest": "output/docs-markdown/lightquery",
+      "outputFormat": "markdown"
+    },
+    {
+      "src": [
+        {
+          "files": [
+            "LightQuery.Client.csproj"
+          ],
+          "exclude": [
+            "**/bin/**",
+            "**/obj/**"
+          ],
+          "src": "./src/LightQuery.Client"
+        }
+      ],
+      "dest": "output/docs-markdown/client",
+      "outputFormat": "markdown"
+    },
+    {
+      "src": [
+        {
+          "files": [
+            "LightQuery.Shared.csproj"
+          ],
+          "exclude": [
+            "**/bin/**",
+            "**/obj/**"
+          ],
+          "src": "./src/LightQuery.Shared"
+        }
+      ],
+      "dest": "output/docs-markdown/shared",
+      "outputFormat": "markdown"
+    },
+    {
+      "src": [
+        {
+          "files": [
+            "LightQuery.EntityFrameworkCore.csproj"
+          ],
+          "exclude": [
+            "**/bin/**",
+            "**/obj/**"
+          ],
+          "src": "./src/LightQuery.EntityFrameworkCore"
+        }
+      ],
+      "dest": "output/docs-markdown/efcore",
+      "outputFormat": "markdown"
     }
   ],
   "build":{
