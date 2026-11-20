@@ -20,7 +20,8 @@ After building your library with `npm run buildLibrary`, go to the dist folder `
 
 ## Running unit tests
 
-Run `ng test ng-lightquery` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Run `npm test` from the workspace directory to execute the unit tests via [Vitest](https://vitest.dev) with jsdom.
+Run `npm run test:ci` to also generate JUnit results and coverage reports.
 
 ## Further help
 

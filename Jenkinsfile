@@ -53,7 +53,7 @@ pipeline {
             }
             post {
                 always {
-                    junit '**/*karma-results.xml'
+                    junit 'src/ng-lightquery/vitest-results.xml'
                 }
             }
         }

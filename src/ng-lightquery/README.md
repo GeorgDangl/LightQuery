@@ -18,12 +18,11 @@ The publishable package will be stored in `dist/ng-lightquery/`.
 
 ## Running unit tests
 
-Run `npm test` to execute the unit tests via [Karma](https://karma-runner.github.io) in Chrome.
-Tests use the `@angular/build:karma` builder and Jasmine 6, which is compatible with Zone.js testing.
-Run `npm run test:ci` for a single test run that also produces `karma-results.xml` for CI.
-For headless execution, append `-- --browsers=ChromeHeadless`.
+Run `npm test` to execute the unit tests via [Vitest](https://vitest.dev) using the `@angular/build:unit-test` builder.
+Tests run in Node.js with jsdom and without Zone.js testing polyfills; no browser installation is required.
+Run `npm run test:ci` for a single test run that also produces `vitest-results.xml` for Jenkins and coverage reports in `coverage/ng-lightquery/`.
 
-To generate coverage reports, run `npm test -- --code-coverage`.
+To generate HTML, LCOV and text-summary coverage reports locally, run `npm test -- --coverage`.
 
 ## Further help
 
