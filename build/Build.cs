@@ -450,7 +450,7 @@ class Build : FalloutBuild
             var ngAppDir = SourceDirectory / "ng-lightquery";
             (ngAppDir / "dist").DeleteDirectory();
             (ngAppDir / "coverage").DeleteDirectory();
-            (ngAppDir / "karma-results.xml").DeleteFile();
+            (ngAppDir / "vitest-results.xml").DeleteFile();
 
             Npm("ci", ngAppDir);
             Npm("run test:ci", ngAppDir);

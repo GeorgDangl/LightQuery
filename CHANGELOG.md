@@ -5,6 +5,7 @@ All notable changes to **LightQuery** are documented here.
 ## v2.4.2:
 - **LightQuery** now also produces Markdown documentation. This can be easily accessed by AI agents via the MCP server implementation in **Dangl**Docu.
 - Updated the Angular client to Angular v22.3, TypeScript v6.0 and RxJS v7.8, and migrated library packaging and tests to the `@angular/build` builders.
+- Migrated Angular client tests from Karma and Jasmine to Vitest with jsdom, JUnit reporting and V8 coverage.
 - The Angular client now requires Angular v22 or later.
 - Added a dedicated target for .NET 11 and added tests for .NET 11
 - Migrated .NET tests to xUnit.v3 with all tests running in parallel, and updated the build to use Microsoft Testing Platform and Coverlet.MTP.
