@@ -13,8 +13,8 @@ It supports EntityFrameworkCores async query materialization with the optional `
 
 [![npm](https://img.shields.io/npm/v/ng-lightquery.svg)](https://www.npmjs.com/package/ng-lightquery)
 
-In addition to the C# client, there's also a client for Angular 5+ on npm: `ng-lightquery`  
-Version 1.2.0 and above are compatible with **Angular 6+ and rxjs >= 6.0.0**.
+In addition to the C# client, there's also a client for Angular on npm: `ng-lightquery`.
+The current client supports **Angular 22+ and RxJS `^6.5.3 || ^7.4.0`**. Historical version 1.2.0 supported Angular 6+ and RxJS 6.
 
 ## Installation
 [![NuGet](https://img.shields.io/nuget/v/LightQuery.svg)](https://www.nuget.org/packages/LightQuery)
@@ -192,7 +192,7 @@ to the TypeScript client.
 
 ## Documentation - TypeScript & Angular
 
-The npm package `ng-lightquery` contains client libraries for **LightQuery** that can be used in Angular 5+ projects. It has a generic `PaginationBaseService<T>` that your own services can inherit from. As of now, you have to provide a concrete implementation for each generic type argument that you want to use, since the dependency injection in Angular does not currently resolve generics. So if you want two **LightQuery** services - one to retrieve `users` and one to retrieve `values` - you need to create two services yourself.
+The npm package `ng-lightquery` contains client libraries for **LightQuery** that can be used in Angular 22+ projects. It has a generic `PaginationBaseService<T>` that your own services can inherit from. As of now, you have to provide a concrete implementation for each generic type argument that you want to use, since the dependency injection in Angular does not currently resolve generics. So if you want two **LightQuery** services - one to retrieve `users` and one to retrieve `values` - you need to create two services yourself.
 
 ### Example with Angular Material 2 DataTable
 

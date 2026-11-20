@@ -1,21 +1,22 @@
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed, inject } from '@angular/core/testing';
-import { skip, take } from 'rxjs/operators';
+import { firstValueFrom } from 'rxjs';
+import { skip } from 'rxjs/operators';
 
-import { HttpClient, provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { HttpClient, provideHttpClient, withInterceptorsFromDi, withXhr } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { PaginationBaseService } from './pagination-base.service';
 import { PaginationResult } from './pagination-result';
 
 describe('PaginationBaseService', () => {
   let getHttpMock: () => HttpTestingController = () =>
-    TestBed.get(HttpTestingController);
-  let getService: () => UserService = () => TestBed.get(UserService);
+    TestBed.inject(HttpTestingController);
+  let getService: () => UserService = () => TestBed.inject(UserService);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
     imports: [],
-    providers: [UserService, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
+    providers: [UserService, provideHttpClient(withXhr(), withInterceptorsFromDi()), provideHttpClientTesting()]
 });
   });
 
@@ -46,9 +47,7 @@ describe('PaginationBaseService', () => {
       totalCount: 1,
     };
     request.flush(paginationResponse);
-    const serviceResult = await service.paginationResult
-      .pipe(take(1))
-      .toPromise();
+    const serviceResult = await firstValueFrom(service.paginationResult);
     expect(serviceResult.totalCount).toBe(1);
     httpMock.verify();
   });
@@ -168,7 +167,7 @@ describe('PaginationBaseService', () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
-    service.getAll().toPromise();
+    firstValueFrom(service.getAll());
     await delay(1);
     let httpMock = getHttpMock();
     const req = httpMock.expectOne('/users?page=1&pageSize=500');
@@ -179,7 +178,7 @@ describe('PaginationBaseService', () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
-    const getAllPromise = service.getAll().toPromise();
+    const getAllPromise = firstValueFrom(service.getAll());
 
     await delay(1);
     let httpMock = getHttpMock();
@@ -212,7 +211,7 @@ describe('PaginationBaseService', () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
-    const getAllPromise = service.getAll().toPromise();
+    const getAllPromise = firstValueFrom(service.getAll());
 
     await delay(1);
     let httpMock = getHttpMock();
@@ -249,7 +248,7 @@ describe('PaginationBaseService', () => {
     let service = getService();
     service.baseUrl = '/users';
     await delay(1);
-    const getAllPromise = service.getAll({ userName: 'Alice' }).toPromise();
+    const getAllPromise = firstValueFrom(service.getAll({ userName: 'Alice' }));
 
     await delay(1);
     let httpMock = getHttpMock();
