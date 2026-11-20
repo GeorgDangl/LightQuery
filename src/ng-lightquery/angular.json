@@ -6,29 +6,41 @@
     "ng-lightquery": {
       "projectType": "library",
       "root": "projects/ng-lightquery",
-      "sourceRoot": "projects/ng-lightquery/src",
+      "sourceRoot": "projects/ng-lightquery",
       "prefix": "lib",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "builder": "@angular/build:library",
           "options": {
             "tsConfig": "projects/ng-lightquery/tsconfig.lib.json",
-            "project": "projects/ng-lightquery/ng-package.json"
+            "outputPath": "dist/ng-lightquery"
           },
           "configurations": {
             "production": {
               "tsConfig": "projects/ng-lightquery/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "compilationMode": "full"
             }
           }
         },
         "test": {
-          "builder": "@angular-devkit/build-angular:karma",
+          "builder": "@angular/build:unit-test",
           "options": {
-            "main": "projects/ng-lightquery/src/test.ts",
             "tsConfig": "projects/ng-lightquery/tsconfig.spec.json",
-            "karmaConfig": "projects/ng-lightquery/karma.conf.js"
+            "runner": "vitest",
+            "polyfills": [],
+            "coverageReporters": ["html", "lcovonly", "text-summary"]
+          },
+          "configurations": {
+            "ci": {
+              "coverage": true,
+              "reporters": ["default", "junit"],
+              "outputFile": "vitest-results.xml"
+            }
           }
         }
       }
-    }}
+    }
+  }
 }

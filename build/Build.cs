@@ -1,38 +1,36 @@
-using Nuke.Common;
-using Nuke.Common.CI.Jenkins;
-using Nuke.Common.Git;
-using Nuke.Common.IO;
-using Nuke.Common.ProjectModel;
-using Nuke.Common.Tooling;
-using Nuke.Common.Tools.AzureKeyVault;
-using Nuke.Common.Tools.Coverlet;
-using Nuke.Common.Tools.DocFX;
-using Nuke.Common.Tools.DotNet;
-using Nuke.Common.Tools.GitVersion;
-using Nuke.Common.Tools.ReportGenerator;
-using Nuke.Common.Tools.Teams;
-using Nuke.Common.Utilities;
-using Nuke.Common.Utilities.Collections;
-using Nuke.GitHub;
-using Nuke.WebDocu;
+using Fallout.Common;
+using Fallout.Common.CI.Jenkins;
+using Fallout.Common.Git;
+using Fallout.Common.IO;
+using Fallout.Common.ProjectModel;
+using Fallout.Common.Tooling;
+using Fallout.Common.Tools.AzureKeyVault;
+using Fallout.Common.Tools.DotNet;
+using Fallout.Common.Tools.GitVersion;
+using Fallout.Common.Tools.ReportGenerator;
+using Fallout.Common.Utilities;
+using Fallout.Common.Utilities.Collections;
+using Fallout.GitHub;
+using Fallout.WebDocu;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Xml.Linq;
 using System.Xml.XPath;
-using static Nuke.Common.ChangeLog.ChangelogTasks;
-using static Nuke.Common.IO.XmlTasks;
-using static Nuke.Common.Tools.DocFX.DocFXTasks;
-using static Nuke.Common.Tools.DotNet.DotNetTasks;
-using static Nuke.Common.Tools.Npm.NpmTasks;
-using static Nuke.Common.Tools.ReportGenerator.ReportGeneratorTasks;
-using static Nuke.GitHub.ChangeLogExtensions;
-using static Nuke.GitHub.GitHubTasks;
-using static Nuke.WebDocu.WebDocuTasks;
+using static Fallout.Common.ChangeLog.ChangelogTasks;
+using static Fallout.Common.IO.XmlTasks;
+using static Fallout.Common.Tools.DotNet.DotNetTasks;
+using static Fallout.Common.Tools.Npm.NpmTasks;
+using static Fallout.Common.Tools.ReportGenerator.ReportGeneratorTasks;
+using static Fallout.GitHub.ChangeLogExtensions;
+using static Fallout.GitHub.GitHubTasks;
+using static Fallout.WebDocu.WebDocuTasks;
 
-class Build : NukeBuild
+class Build : FalloutBuild
 {
     public static int Main () => Execute<Build>(x => x.Compile);
 
@@ -60,6 +58,7 @@ class Build : NukeBuild
     [AzureKeyVaultSecret("LightQuery-DocuApiKey")] readonly string DocuApiKey;
     [AzureKeyVaultSecret] readonly string GitHubAuthenticationToken;
     [AzureKeyVaultSecret] readonly string DanglCiCdTeamsWebhookUrl;
+    [AzureKeyVaultSecret("NpmDanglJenkinsAccessToken")] readonly string NpmAccessToken;
 
     [Parameter] readonly string Configuration = IsLocalBuild ? "Debug" : "Release";
 
@@ -76,22 +75,32 @@ class Build : NukeBuild
     {
         if (IsServerBuild)
         {
-            SendTeamsMessage("Build Failed", $"Target {target} failed for LightQuery, " +
+            SendTeamsMessage(DanglCiCdTeamsWebhookUrl, "Build Failed", $"Target {target} failed for LightQuery, " +
                         $"Branch: {GitRepository.Branch}", true);
         }
     }
 
-    void SendTeamsMessage(string title, string message, bool isError)
+    static void SendTeamsMessage(string webhookUrl, string title, string message, bool isError)
     {
-        if (!string.IsNullOrWhiteSpace(DanglCiCdTeamsWebhookUrl))
+        if (!string.IsNullOrWhiteSpace(webhookUrl))
         {
             var themeColor = isError ? "f44336" : "00acc1";
-            TeamsTasks
-                .SendTeamsMessage(m => m
-                    .SetTitle(title)
-                    .SetText(message)
-                    .SetThemeColor(themeColor),
-                    DanglCiCdTeamsWebhookUrl);
+
+            Serilog.Log.Information("Sending Teams message with title {Title}", title);
+            var payload = JsonConvert.SerializeObject(new Dictionary<string, string>
+            {
+                ["@type"] = "MessageCard",
+                ["themeColor"] = themeColor,
+                ["title"] = title,
+                ["text"] = message
+            });
+
+            using var httpClient = new HttpClient();
+            using var content = new StringContent(payload, System.Text.Encoding.UTF8, "application/json");
+            using var response = httpClient.PostAsync(webhookUrl, content).GetAwaiter().GetResult();
+
+            Assert.True(response.IsSuccessStatusCode,
+                $"Teams webhook failed with status {response.StatusCode}");
         }
     }
 
@@ -122,7 +131,7 @@ class Build : NukeBuild
             DotNetBuild(x => x
                 .SetConfiguration(Configuration)
                 .EnableNoRestore()
-                .SetProcessArgumentConfigurator(a => a.Add("-nodereuse:false"))
+                .AddProcessAdditionalArguments("-nodereuse:false")
                 .SetFileVersion(GitVersion.AssemblySemFileVer)
                 .SetAssemblyVersion($"{GitVersion.Major}.{GitVersion.Minor}.{GitVersion.Patch}.0")
                 .SetInformationalVersion(GitVersion.InformationalVersion));
@@ -156,39 +165,26 @@ class Build : NukeBuild
             try
             {
                 DotNetTest(c => c
-                    .SetDataCollector("XPlat Code Coverage")
+                    .SetConfiguration(Configuration)
                     .SetResultsDirectory(OutputDirectory)
-                    .AddRunSetting("DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format", "cobertura")
-                    .AddRunSetting("DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Include", "[LightQuery*]*")
-                    .AddRunSetting("DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Exclude", "[*Tests*]*")
-                    .AddRunSetting("DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.ExcludeByAttribute", "Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute")
                     .EnableNoBuild()
-                    .SetTestAdapterPath(".")
                     .CombineWith(cc => testProjects
                         .SelectMany(testProject =>
                         {
-                            var projectDirectory = Path.GetDirectoryName(testProject);
                             var projectName = Path.GetFileNameWithoutExtension(testProject);
                             var targetFrameworks = GetTestFrameworksForProjectFile(testProject);
                             return targetFrameworks
                             .Select(targetFramework => cc
                                 .SetProjectFile(testProject)
                                 .SetFramework(targetFramework)
-                                .SetLoggers($"xunit;LogFilePath={OutputDirectory / projectName}_testresults-{targetFramework}.xml")
-                                .SetCoverletOutput($"{OutputDirectory / projectName}_coverage.xml")
-                                .SetProcessArgumentConfigurator(a => a
-                                    .Add("-nodereuse:false")
-                                    // This part is required to ensure that xUnit isn't using app domains or shadow copying, since coverlet
-                                    // needs to modify the dlls to collect coverage. See here for more information:
-                                    // https://github.com/coverlet-coverage/coverlet/issues/347
-                                    // Also, this argument must be at the end.
-                                    .Add("-- RunConfiguration.DisableAppDomain=true")));
+                                .AddProcessAdditionalArguments($"--coverlet --coverlet-output-format cobertura --coverlet-file-prefix {projectName}-{targetFramework} --coverlet-include [LightQuery*]* --coverlet-exclude [*Tests*]* --coverlet-exclude-by-attribute Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute -- --report-spekt-xunit --report-spekt-xunit-filename \"{OutputDirectory / projectName}_testresults-{targetFramework}.xml\""));
                         })),
                             degreeOfParallelism: Environment.ProcessorCount,
                             completeOnFailure: true);
             }
-            catch
+            catch (Exception exception)
             {
+                Serilog.Log.Error(exception, "Test execution failed; collecting available reports before failing the build");
                 hasFailedTests = true;
             }
 
@@ -198,7 +194,7 @@ class Build : NukeBuild
             // picked up by Jenkins
             ReportGenerator(c => c
                 .SetFramework("net6.0")
-                .SetReports(OutputDirectory / "**/*cobertura.xml")
+                .SetReports(OutputDirectory / "**/*.coverage.cobertura*.xml")
                 .SetTargetDirectory(OutputDirectory)
                 .SetReportTypes(ReportTypes.Cobertura));
 
@@ -244,6 +240,7 @@ class Build : NukeBuild
             basePath = sourcesEntry.Value;
         }
 
+        basePath = basePath.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
         Serilog.Log.Information($"Normalizing Cobertura report to base path: \"{basePath}\"");
 
         var filenameAttributes = xDoc
@@ -253,9 +250,10 @@ class Build : NukeBuild
             .Select(d => d.Attributes().First(a => a.Name.LocalName == "filename"));
         foreach (var filenameAttribute in filenameAttributes)
         {
-            if (filenameAttribute.Value.StartsWith(basePath))
+            var filename = filenameAttribute.Value.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            if (filename.StartsWith(basePath))
             {
-                filenameAttribute.Value = filenameAttribute.Value.Substring(basePath.Length);
+                filenameAttribute.Value = filename.Substring(basePath.Length);
             }
         }
 
@@ -305,17 +303,21 @@ class Build : NukeBuild
                     }
                 });
 
-            SendTeamsMessage("New Release", $"New release available for LightQuery: {GitVersion.NuGetVersion}", false);
+            SendTeamsMessage(DanglCiCdTeamsWebhookUrl, "New Release", $"New release available for LightQuery: {GitVersion.NuGetVersion}", false);
         });
 
     Target BuildDocFxMetadata => _ => _
         .DependsOn(Restore)
         .Executes(() =>
         {
-            DocFXMetadata(x => x
-                .SetProcessEnvironmentVariable("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName)
-                .AddProjects(DocFxFile));
+            var environmentVariables = EnvironmentInfo.Variables.ToDictionary();
+            environmentVariables.Add("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName);
+            var docFxPath = NuGetToolPathResolver.GetPackageExecutable("docfx", "tools/net10.0/any/docfx.dll");
+            DotNet($"{docFxPath} metadata {DocFxFile}", environmentVariables: environmentVariables);
         });
+
+    Target TestMarkdownDocumentation => _ => _
+        .Executes(() => MarkdownDocumentationTests.Run(OutputDirectory / "markdown-tests"));
 
     Target BuildDocumentation => _ => _
         .DependsOn(Clean)
@@ -330,16 +332,18 @@ class Build : NukeBuild
 
             File.Copy(SolutionDirectory / "README.md", SolutionDirectory / "index.md");
 
-            DocFXBuild(x => x
-                .SetProcessEnvironmentVariable("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName)
-                .SetConfigFile(DocFxFile));
+            var environmentVariables = EnvironmentInfo.Variables.ToDictionary();
+            environmentVariables.Add("DOCFX_SOURCE_BRANCH_NAME", GitVersion.BranchName);
+            var docFxPath = NuGetToolPathResolver.GetPackageExecutable("docfx", "tools/net10.0/any/docfx.dll");
+            DotNet($"{docFxPath} {DocFxFile}", environmentVariables: environmentVariables);
+            MarkdownDocumentation.Create(DocFxFile, OutputDirectory / "docs-markdown");
 
             File.Delete(SolutionDirectory / "index.md");
             Directory.Delete(SolutionDirectory / "lightquery", true);
             Directory.Delete(SolutionDirectory / "client", true);
             Directory.Delete(SolutionDirectory / "shared", true);
             Directory.Delete(SolutionDirectory / "efcore", true);
-            Directory.Delete(SolutionDirectory / "obj", true);
+
         });
 
     Target UploadDocumentation => _ => _
@@ -357,6 +361,7 @@ class Build : NukeBuild
                 .SetDocuBaseUrl(DocuBaseUrl)
                 .SetDocuApiKey(DocuApiKey)
                 .SetMarkdownChangelog(changeLog)
+                .SetMarkdownPackagePath(OutputDirectory / "docs-markdown.zip")
                 .SetSourceDirectory(OutputDirectory / "docs")
                 .SetVersion(GitVersion.NuGetVersion)
             );
@@ -391,7 +396,8 @@ class Build : NukeBuild
 
     void PrependFrameworkToTestresults()
     {
-        var testResults = OutputDirectory.GlobFiles("*testresults*.xml").ToList();
+        var testResults = OutputDirectory.GlobFiles("*_testresults-*.xml").ToList();
+        Assert.NotEmpty(testResults);
         Serilog.Log.Debug($"Found {testResults.Count} test result files on which to append the framework.");
         foreach (var testResultFile in testResults)
         {
@@ -456,13 +462,14 @@ class Build : NukeBuild
             var ngAppDir = SourceDirectory / "ng-lightquery";
             (ngAppDir / "dist").DeleteDirectory();
             (ngAppDir / "coverage").DeleteDirectory();
-            (ngAppDir / "karma-results.xml").DeleteFile();
+            (ngAppDir / "vitest-results.xml").DeleteFile();
 
             Npm("ci", ngAppDir);
             Npm("run test:ci", ngAppDir);
         });
 
     Target NgLibraryPublish => _ => _
+        .Requires(() => NpmAccessToken)
         .OnlyWhenDynamic(() => Jenkins.Instance == null
             || Jenkins.Instance.ChangeId == null)
         .Executes(() =>
@@ -488,6 +495,20 @@ class Build : NukeBuild
             ? "latest"
             : "next";
 
-            Npm($"publish --tag={npmTag}", ngLibraryDir);
+            PublishNpmPackage(ngLibraryDir, NpmAccessToken, npmTag);
         });
+
+    static void PublishNpmPackage(AbsolutePath packageDirectory, string accessToken, string tag)
+    {
+        var npmrcPath = packageDirectory / ".npmrc";
+        try
+        {
+            npmrcPath.WriteAllText($"registry=https://registry.npmjs.org/\n//registry.npmjs.org/:_authToken={accessToken}\n");
+            Npm($"publish --access public --tag={tag}", packageDirectory);
+        }
+        finally
+        {
+            npmrcPath.DeleteFile();
+        }
+    }
 }

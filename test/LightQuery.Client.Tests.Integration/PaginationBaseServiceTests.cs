@@ -32,7 +32,7 @@ namespace LightQuery.Client.Tests.Integration
 
         private UsersService GetService(DefaultPaginationOptions options = null)
         {
-            var service = new UsersService(url => _client.GetAsync(url), options);
+            var service = new UsersService(url => _client.GetAsync(url, TestContext.Current.CancellationToken), options);
             return service;
         }
 
@@ -130,8 +130,8 @@ namespace LightQuery.Client.Tests.Integration
 
             service.PaginationResult.Subscribe(_ => results++);
 
-            await Task.WhenAny(service.PaginationResult.FirstAsync().ToTask(),
-                 Task.Delay(10_000)); // Timeout
+            await service.PaginationResult.FirstAsync().ToTask(TestContext.Current.CancellationToken)
+                .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
 
             Assert.Equal(1, results);
             Assert.Equal(1, requestsSent);
@@ -139,8 +139,8 @@ namespace LightQuery.Client.Tests.Integration
             service.SetSortProperty("Email");
             service.SetSortProperty("UserName");
 
-            await Task.WhenAny(service.PaginationResult.Skip(1).FirstAsync().ToTask(),
-                Task.Delay(10_000)); // Timeout
+            await service.PaginationResult.Skip(1).FirstAsync().ToTask(TestContext.Current.CancellationToken)
+                .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
 
             Assert.Equal(2, results);
             Assert.Equal(3, requestsSent);
@@ -159,8 +159,8 @@ namespace LightQuery.Client.Tests.Integration
 
             service.PaginationResult.Subscribe(_ => results++);
 
-            await Task.WhenAny(service.PaginationResult.FirstAsync().ToTask(),
-                 Task.Delay(10_000)); // Timeout
+            await service.PaginationResult.FirstAsync().ToTask(TestContext.Current.CancellationToken)
+                .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
 
             Assert.Equal(1, results);
             Assert.Equal(1, requestsSent);
@@ -168,8 +168,8 @@ namespace LightQuery.Client.Tests.Integration
             service.Page++;
             service.Page++;
 
-            await Task.WhenAny(service.PaginationResult.Skip(1).FirstAsync().ToTask(),
-                Task.Delay(10_000)); // Timeout
+            await service.PaginationResult.Skip(1).FirstAsync().ToTask(TestContext.Current.CancellationToken)
+                .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
 
             Assert.Equal(2, results);
             Assert.Equal(3, requestsSent);
@@ -181,35 +181,33 @@ namespace LightQuery.Client.Tests.Integration
             var results = 0;
             var requestsSent = 0;
             var requestsCancelled = new bool[3];
-            var responseTasks = new List<Task>();
             var currentRequests = 0;
 
 
-            var service = new UsersService(async (url, cancellationToken) =>
+            using var service = new UsersService(async (url, cancellationToken) =>
             {
                 requestsSent++;
                 var currentRequest = currentRequests++;
+                using var registration = cancellationToken.Register(() => requestsCancelled[currentRequest] = true);
                 try
                 {
                     var resultTask = _client.GetAsync(url, cancellationToken);
-                    await Task.Delay(100); // Need a small delay in case the server responds too quickly,
+                    await Task.Delay(100, TestContext.Current.CancellationToken); // Need a small delay in case the server responds too quickly,
                     // thus the request not being cancelled while it's en-route and therefore not throwing
                     // an exception
                     var result = await resultTask;
-                    requestsCancelled[currentRequest] = false;
                     return result;
                 }
-                catch
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                 {
-                    requestsCancelled[currentRequest] = true;
                     return null;
                 }
             });
 
             service.PaginationResult.Subscribe(_ => results++);
 
-            await Task.WhenAny(service.PaginationResult.FirstAsync().ToTask(),
-                 Task.Delay(10_000)); // Timeout
+            await service.PaginationResult.FirstAsync().ToTask(TestContext.Current.CancellationToken)
+                .WaitAsync(_testResultTimeout, TestContext.Current.CancellationToken);
 
             Assert.Equal(1, results);
             Assert.Equal(1, requestsSent);
@@ -217,8 +215,8 @@ namespace LightQuery.Client.Tests.Integration
             service.Page++;
             service.Page++;
 
-            await Task.WhenAny(service.PaginationResult.Skip(1).FirstAsync().ToTask(),
-                Task.Delay(10_000)); // Timeout
+            await service.PaginationResult.Skip(1).FirstAsync().ToTask(TestContext.Current.CancellationToken)
+                .WaitAsync(_testResultTimeout, TestContext.Current.CancellationToken);
 
             Assert.Equal(2, results);
             Assert.Equal(3, requestsSent);

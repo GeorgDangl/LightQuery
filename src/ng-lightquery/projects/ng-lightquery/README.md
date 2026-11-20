@@ -1,6 +1,7 @@
 # NgLightquery
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.7.
+This library is built with Angular CLI 22.3 and supports Angular 22 or later.
+Its RxJS peer dependency supports `^6.5.3 || ^7.4.0`.
 
 ## Code scaffolding
 
@@ -9,15 +10,18 @@ Run `ng generate component component-name --project ng-lightquery` to generate a
 
 ## Build
 
-Run `ng build ng-lightquery` to build the project. The build artifacts will be stored in the `dist/` directory.
+From the workspace directory, run `npm run buildLibrary` to build the publishable package.
+The build uses `@angular/build:library` and Angular partial compilation.
+The build artifacts will be stored in `dist/ng-lightquery/`.
 
 ## Publishing
 
-After building your library with `ng build ng-lightquery`, go to the dist folder `cd dist/ng-lightquery` and run `npm publish`.
+After building your library with `npm run buildLibrary`, go to the dist folder `cd dist/ng-lightquery` and run `npm publish`.
 
 ## Running unit tests
 
-Run `ng test ng-lightquery` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Run `npm test` from the workspace directory to execute the unit tests via [Vitest](https://vitest.dev) with jsdom.
+Run `npm run test:ci` to also generate JUnit results and coverage reports.
 
 ## Further help
 

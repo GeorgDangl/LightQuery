@@ -1,10 +1,11 @@
 # NgLightqueryWorkspace
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.6.
+This workspace builds the `ng-lightquery` library with Angular CLI 22.3 and TypeScript 6.0.
 
-## Development server
+## Requirements
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Use Node.js 22.22.3 or later in the 22.x line, 24.15.0 or later in the 24.x line, or 26.0.0 or later.
+Run `npm ci` in this directory to install dependencies.
 
 ## Code scaffolding
 
@@ -12,15 +13,16 @@ Run `ng generate component component-name` to generate a new component. You can 
 
 ## Build
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Run `npm run buildLibrary` for a production build using the `@angular/build:library` builder.
+The publishable package will be stored in `dist/ng-lightquery/`.
 
 ## Running unit tests
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Run `npm test` to execute the unit tests via [Vitest](https://vitest.dev) using the `@angular/build:unit-test` builder.
+Tests run in Node.js with jsdom and without Zone.js testing polyfills; no browser installation is required.
+Run `npm run test:ci` for a single test run that also produces `vitest-results.xml` for Jenkins and coverage reports in `coverage/ng-lightquery/`.
 
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+To generate HTML, LCOV and text-summary coverage reports locally, run `npm test -- --coverage`.
 
 ## Further help
 

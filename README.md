@@ -13,8 +13,8 @@ It supports EntityFrameworkCores async query materialization with the optional `
 
 [![npm](https://img.shields.io/npm/v/ng-lightquery.svg)](https://www.npmjs.com/package/ng-lightquery)
 
-In addition to the C# client, there's also a client for Angular 5+ on npm: `ng-lightquery`  
-Version 1.2.0 and above are compatible with **Angular 6+ and rxjs >= 6.0.0**.
+In addition to the C# client, there's also a client for Angular on npm: `ng-lightquery`.
+The current client supports **Angular 22+ and RxJS `^6.5.3 || ^7.4.0`**. Historical version 1.2.0 supported Angular 6+ and RxJS 6.
 
 ## Installation
 [![NuGet](https://img.shields.io/nuget/v/LightQuery.svg)](https://www.nuget.org/packages/LightQuery)
@@ -37,11 +37,16 @@ Includes support for EntityFramework.Core async query materialization
 
 Includes LightQuery models and the QueryBuilder utility
 
-**NETStandard 2.0** and **.Net 4.6.1** are supported.
+Starting with **LightQuery 3.0**, server packages require **.NET 10 or .NET 11**. Server-side .NET Standard 2.0 and .NET Framework support have been removed, along with .NET 6/7/8 targets.
+**LightQuery.Client** continues to support **.NET Standard 2.0**, alongside dedicated .NET 10 and .NET 11 targets.
 
 ## Testing
 
-Tests are run via `powershell ./build.ps1 Coverage` (or `build.sh Coverage`) in the root directory.
+Tests are run via `powershell .\build.ps1 Coverage` (or `build.sh Coverage`) in the root directory.
+The .NET tests use xUnit.v3 and Microsoft Testing Platform on .NET 10 and .NET 11.
+Each test assembly enables `ParallelMode.All` in `AssemblyInfo.cs`, allowing all tests to run in parallel.
+The `Coverage` target collects Cobertura coverage with Coverlet.MTP and merges xUnit XML results for Jenkins.
+To run tests without coverage, use `dotnet test` in the root directory. Building requires the .NET 11 SDK or later; running the full test suite also requires the .NET 10 and .NET 11 runtimes.
 
 ## Documentation - Server
 
@@ -171,6 +176,8 @@ The `LightQuery.EntityFrameworkCore` package provides an `AsyncLightQueryAttribu
 
 So, to return a paginatable list of users that is asynchronously materialized, just return something like `OK(context.Users)`.
 
+`AsyncLightQueryAttribute` passes `HttpContext.RequestAborted` to the count and materialization queries, including requests without pagination. Database providers that honor cancellation can stop query execution when the request is aborted. Cancellation exceptions propagate to ASP.NET Core rather than being converted into a pagination result.
+
 ## Documentation - C# Client
 
 The `LightQuery.Client` package contains the `PaginationResult<T>` base class as well as a `QueryBuilder` utlity class to construct queries.
@@ -192,7 +199,7 @@ to the TypeScript client.
 
 ## Documentation - TypeScript & Angular
 
-The npm package `ng-lightquery` contains client libraries for **LightQuery** that can be used in Angular 5+ projects. It has a generic `PaginationBaseService<T>` that your own services can inherit from. As of now, you have to provide a concrete implementation for each generic type argument that you want to use, since the dependency injection in Angular does not currently resolve generics. So if you want two **LightQuery** services - one to retrieve `users` and one to retrieve `values` - you need to create two services yourself.
+The npm package `ng-lightquery` contains client libraries for **LightQuery** that can be used in Angular 22+ projects. It has a generic `PaginationBaseService<T>` that your own services can inherit from. As of now, you have to provide a concrete implementation for each generic type argument that you want to use, since the dependency injection in Angular does not currently resolve generics. So if you want two **LightQuery** services - one to retrieve `users` and one to retrieve `values` - you need to create two services yourself.
 
 ### Example with Angular Material 2 DataTable
 
@@ -353,3 +360,14 @@ security or provide tamper-proof binaries, as the key is available in the source
 ---
 
 [MIT Licence](LICENCE.md)
+
+
+## Build and Markdown documentation
+
+Build automation uses [Fallout](https://github.com/GeorgDangl/Fallout) with the .NET 10 SDK or newer. The bootstrap scripts use `.fallout` configuration and install .NET 10 when a compatible SDK is unavailable.
+
+`BuildDocumentation` generates the HTML site in `output/docs` and native DocFX Markdown API documentation, articles and assets in `output/docs-markdown`, with an adjacent ZIP archive. Start at `index.md`; API reference directories follow the HTML documentation's project scopes.
+
+`TestMarkdownDocumentation` checks native API preservation, archive layout, article links, resource globs, exclusions and missing entry-point errors without publishing.
+
+`UploadDocumentation` uses `Dangl.Fallout.WebDocu` to upload the Markdown archive after HTML for the same explicit version. Existing API keys, branch gates, downloadable assets and version-conflict policies are preserved. Markdown documentation is available to AI agents through the DanglDocu MCP server.

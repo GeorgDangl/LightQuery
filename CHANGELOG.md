@@ -2,6 +2,22 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## v3.0.0:
+- **Breaking:** Server packages now require .NET 10 or .NET 11. Removed .NET Standard 2.0 and .NET 6/7/8 server targets, including .NET Framework compatibility.
+- `LightQuery.Client` continues to support .NET Standard 2.0, alongside dedicated .NET 10 and .NET 11 targets.
+- Removed vulnerable legacy ASP.NET Core dependencies and updated .NET 10 Entity Framework Core and test providers to 10.0.15.
+- Tests now run on .NET 10 and .NET 11, and building requires the .NET 11 SDK or later.
+- **LightQuery** now also produces Markdown documentation. This can be easily accessed by AI agents via the MCP server implementation in **Dangl**Docu.
+- Updated the Angular client to Angular v22.3, TypeScript v6.0 and RxJS v7.8, and migrated library packaging and tests to the `@angular/build` builders.
+- Migrated Angular client tests from Karma and Jasmine to Vitest with jsdom, JUnit reporting and V8 coverage.
+- The Angular client now requires Angular v22 or later.
+- Added a dedicated target for .NET 11 and added tests for .NET 11
+- Migrated .NET tests to xUnit.v3 with all tests running in parallel, and updated the build to use Microsoft Testing Platform and Coverlet.MTP.
+- Dropped .NET 6 and .NET 7 test targets because xUnit.v3 requires .NET 8 or later; library targets remain unchanged.
+- `AsyncLightQueryAttribute` now propagates request cancellation to Entity Framework Core count and materialization queries.
+- Updated CI Teams notifications to send JSON webhook messages directly and accept successful HTTP responses without requiring a legacy response body.
+- Fixed xUnit analyzer warnings and migrated integration tests from deprecated web-host APIs to the generic host.
+
 ## v2.4.1:
 - The Angular client now has a `removeQueryParameter` method
 

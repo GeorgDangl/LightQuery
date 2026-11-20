@@ -17,16 +17,16 @@ namespace LightQuery.Client.Tests.Integration
         [Fact]
         public async Task CanGetSwaggerDocument()
         {
-            var swaggerDocResponse = await _client.GetAsync("/nswag/swagger20.json");
-            var swaggerDoc = await swaggerDocResponse.Content.ReadAsStringAsync();
+            var swaggerDocResponse = await _client.GetAsync("/nswag/swagger20.json", TestContext.Current.CancellationToken);
+            var swaggerDoc = await swaggerDocResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             Assert.True(swaggerDoc.Length > 0);
         }
 
         [Fact]
         public async Task CanGetOpenApiDocument()
         {
-            var swaggerDocResponse = await _client.GetAsync("/nswag/openapi30.json");
-            var swaggerDoc = await swaggerDocResponse.Content.ReadAsStringAsync();
+            var swaggerDocResponse = await _client.GetAsync("/nswag/openapi30.json", TestContext.Current.CancellationToken);
+            var swaggerDoc = await swaggerDocResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             Assert.True(swaggerDoc.Length > 0);
         }
 
@@ -112,8 +112,8 @@ namespace LightQuery.Client.Tests.Integration
 
         private async Task<JObject> GetSwaggerDocAsync(string specUrl)
         {
-            var swaggerDocResponse = await _client.GetAsync(specUrl);
-            var swaggerDoc = await swaggerDocResponse.Content.ReadAsStringAsync();
+            var swaggerDocResponse = await _client.GetAsync(specUrl, TestContext.Current.CancellationToken);
+            var swaggerDoc = await swaggerDocResponse.Content.ReadAsStringAsync(TestContext.Current.CancellationToken);
             return JObject.Parse(swaggerDoc);
         }
     }

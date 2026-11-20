@@ -2,27 +2,28 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace LightQuery.IntegrationTestsServer
 {
     public class IntegrationTestServer
     {
-        private static TestServer _testServer;
+        private static IHost _testHost;
         private static readonly object _initializationLock = new object();
 
         public static TestServer GetTestServer()
         {
-            if (_testServer == null)
+            if (_testHost == null)
             {
                 InitializeTestServer();
             }
-            return _testServer;
+            return _testHost.GetTestServer();
         }
 
         public static LightQueryContext GetNewContext()
         {
-            using (var serviceScope = GetTestServer().Host.Services.CreateScope())
+            using (var serviceScope = GetTestServer().Services.CreateScope())
             {
                 var serviceProvider = serviceScope.ServiceProvider;
                 var context = serviceProvider.GetRequiredService<LightQueryContext>();
@@ -34,24 +35,24 @@ namespace LightQuery.IntegrationTestsServer
         {
             lock (_initializationLock)
             {
-                if (_testServer != null)
+                if (_testHost != null)
                 {
                     return;
                 }
-                var webHostBuilder = new WebHostBuilder()
-                    .ConfigureLogging(logging => logging.AddDebug())
-                    .UseStartup<Startup>();
-                var testServer = new TestServer(webHostBuilder);
-                var initializationTask = InitializeDatabase(testServer);
-                initializationTask.ConfigureAwait(false);
-                initializationTask.Wait();
-                _testServer = testServer;
+                var host = new HostBuilder()
+                    .ConfigureWebHost(webHostBuilder => webHostBuilder
+                        .UseTestServer()
+                        .ConfigureLogging(logging => logging.AddDebug())
+                        .UseStartup<Startup>())
+                    .Start();
+                InitializeDatabase(host.GetTestServer()).GetAwaiter().GetResult();
+                _testHost = host;
             }
         }
 
         private static async Task InitializeDatabase(TestServer testServer)
         {
-            using (var serviceScope = testServer.Host.Services.CreateScope())
+            using (var serviceScope = testServer.Services.CreateScope())
             {
                 var serviceProvider = serviceScope.ServiceProvider;
                 var context = serviceProvider.GetRequiredService<LightQueryContext>();

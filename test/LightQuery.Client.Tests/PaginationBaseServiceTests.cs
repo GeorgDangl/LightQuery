@@ -92,13 +92,13 @@ namespace LightQuery.Client.Tests
                 Func<string, Task<HttpResponseMessage>> getHttpAsync = async _ =>
                 {
                     requestsSent++;
-                    return (await GetResponseWithDelay(CancellationToken.None)).Item1;
+                    return (await GetResponseWithDelay(TestContext.Current.CancellationToken)).Item1;
                 };
                 var paginationService = new PaginationBaseService<User>("https://example.com", getHttpAsync);
                 paginationService.PaginationResult.Subscribe(_ => results++);
 
-                await Task.WhenAny(paginationService.PaginationResult.FirstAsync().ToTask(),
-                     Task.Delay(10_000)); // Timeout
+                await paginationService.PaginationResult.FirstAsync().ToTask(TestContext.Current.CancellationToken)
+                    .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
 
                 Assert.Equal(1, results);
                 Assert.Equal(1, requestsSent);
@@ -106,8 +106,8 @@ namespace LightQuery.Client.Tests
                 paginationService.SetSortProperty("Email");
                 paginationService.SetSortProperty("UserName");
 
-                await Task.WhenAny(paginationService.PaginationResult.Skip(1).FirstAsync().ToTask(),
-                    Task.Delay(10_000)); // Timeout
+                await paginationService.PaginationResult.Skip(1).FirstAsync().ToTask(TestContext.Current.CancellationToken)
+                    .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
 
                 Assert.Equal(2, results);
                 Assert.Equal(3, requestsSent);
@@ -121,13 +121,13 @@ namespace LightQuery.Client.Tests
                 Func<string, Task<HttpResponseMessage>> getHttpAsync = async _ =>
                 {
                     requestsSent++;
-                    return (await GetResponseWithDelay(CancellationToken.None)).Item1;
+                    return (await GetResponseWithDelay(TestContext.Current.CancellationToken)).Item1;
                 };
                 var paginationService = new PaginationBaseService<User>("https://example.com", getHttpAsync);
                 paginationService.PaginationResult.Subscribe(_ => results++);
 
-                await Task.WhenAny(paginationService.PaginationResult.FirstAsync().ToTask(),
-                     Task.Delay(10_000)); // Timeout
+                await paginationService.PaginationResult.FirstAsync().ToTask(TestContext.Current.CancellationToken)
+                    .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
 
                 Assert.Equal(1, results);
                 Assert.Equal(1, requestsSent);
@@ -135,8 +135,8 @@ namespace LightQuery.Client.Tests
                 paginationService.Page++;
                 paginationService.Page++;
 
-                await Task.WhenAny(paginationService.PaginationResult.Skip(1).FirstAsync().ToTask(),
-                    Task.Delay(10_000)); // Timeout
+                await paginationService.PaginationResult.Skip(1).FirstAsync().ToTask(TestContext.Current.CancellationToken)
+                    .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
 
                 Assert.Equal(2, results);
                 Assert.Equal(3, requestsSent);
@@ -148,23 +148,21 @@ namespace LightQuery.Client.Tests
                 var results = 0;
                 var requestsSent = 0;
                 var requestsCancelled = new bool[3];
-                var responseTasks = new List<Task>();
                 var currentRequests = 0;
                 Func<string, CancellationToken, Task<HttpResponseMessage>> getHttpAsync = async (_, token) =>
                 {
                     requestsSent++;
                     var currentRequest = currentRequests++;
+                    using var registration = token.Register(() => requestsCancelled[currentRequest] = true);
                     var responseTask = GetResponseWithDelay(token);
-                    responseTasks.Add(responseTask);
                     var response = await responseTask;
-                    requestsCancelled[currentRequest] = response.Item2;
                     return response.Item1;
                 };
-                var paginationService = new PaginationBaseService<User>("https://example.com", getHttpAsync);
+                using var paginationService = new PaginationBaseService<User>("https://example.com", getHttpAsync);
                 paginationService.PaginationResult.Subscribe(_ => results++);
 
-                await Task.WhenAny(paginationService.PaginationResult.FirstAsync().ToTask(),
-                     Task.Delay(10_000)); // Timeout
+                await paginationService.PaginationResult.FirstAsync().ToTask(TestContext.Current.CancellationToken)
+                    .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
 
                 Assert.Equal(1, results);
                 Assert.Equal(1, requestsSent);
@@ -172,8 +170,8 @@ namespace LightQuery.Client.Tests
                 paginationService.Page++;
                 paginationService.Page++;
 
-                await Task.WhenAny(paginationService.PaginationResult.Skip(1).FirstAsync().ToTask(),
-                    Task.Delay(10_000)); // Timeout
+                await paginationService.PaginationResult.Skip(1).FirstAsync().ToTask(TestContext.Current.CancellationToken)
+                    .WaitAsync(TimeSpan.FromSeconds(10), TestContext.Current.CancellationToken);
 
                 Assert.Equal(2, results);
                 Assert.Equal(3, requestsSent);
@@ -192,7 +190,7 @@ namespace LightQuery.Client.Tests
             private async Task<(HttpResponseMessage, bool)> GetResponseWithDelay(CancellationToken cancellationToken)
             {
                 // Adding a short delay to simulate a long running operation, e.g. a web request
-                await Task.Delay(1_000);
+                await Task.Delay(100, TestContext.Current.CancellationToken);
 
                 var httpResponse = new HttpResponseMessage(System.Net.HttpStatusCode.OK);
                 var memStream = new MemoryStream();
