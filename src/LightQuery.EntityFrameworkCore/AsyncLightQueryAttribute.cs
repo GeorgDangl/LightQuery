@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace LightQuery.EntityFrameworkCore
@@ -48,22 +49,22 @@ namespace LightQuery.EntityFrameworkCore
             }
             if (_forcePagination || queryContainer.QueryOptions.QueryRequestsPagination)
             {
-                queryContainer.ObjectResult.Value = await GetPaginationResult(queryContainer);
+                queryContainer.ObjectResult.Value = await GetPaginationResult(queryContainer, context.HttpContext.RequestAborted);
             }
             else
             {
-                queryContainer.ObjectResult.Value = await queryContainer.Queryable.Cast<object>().ToListAsync();
+                queryContainer.ObjectResult.Value = await queryContainer.Queryable.Cast<object>().ToListAsync(context.HttpContext.RequestAborted);
             }
             await next.Invoke();
         }
 
-        private async Task<PaginationResult<object>> GetPaginationResult(QueryContainer queryContainer)
+        private async Task<PaginationResult<object>> GetPaginationResult(QueryContainer queryContainer, CancellationToken cancellationToken)
         {
             var queryOptions = queryContainer.QueryOptions;
             var queryable = queryContainer.Queryable;
 
             dynamic dynamicQueryable = queryable;
-            var totalCount = await EntityFrameworkQueryableExtensions.CountAsync(dynamicQueryable);
+            var totalCount = await EntityFrameworkQueryableExtensions.CountAsync(dynamicQueryable, cancellationToken);
             if (totalCount <= ((queryOptions.Page - 1) * queryOptions.PageSize))
             {
                 queryOptions.Page = (int)System.Math.Ceiling((decimal)totalCount / queryOptions.PageSize);
@@ -75,7 +76,7 @@ namespace LightQuery.EntityFrameworkCore
                 Page = queryOptions.Page,
                 PageSize = queryOptions.PageSize,
                 TotalCount = totalCount,
-                Data = await queryable.Cast<object>().Skip((queryOptions.Page - 1) * queryOptions.PageSize).Take(queryOptions.PageSize).ToListAsync()
+                Data = await queryable.Cast<object>().Skip((queryOptions.Page - 1) * queryOptions.PageSize).Take(queryOptions.PageSize).ToListAsync(cancellationToken)
             };
         }
     }

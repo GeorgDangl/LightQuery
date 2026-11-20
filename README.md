@@ -175,6 +175,8 @@ The `LightQuery.EntityFrameworkCore` package provides an `AsyncLightQueryAttribu
 
 So, to return a paginatable list of users that is asynchronously materialized, just return something like `OK(context.Users)`.
 
+`AsyncLightQueryAttribute` passes `HttpContext.RequestAborted` to the count and materialization queries, including requests without pagination. Database providers that honor cancellation can stop query execution when the request is aborted. Cancellation exceptions propagate to ASP.NET Core rather than being converted into a pagination result.
+
 ## Documentation - C# Client
 
 The `LightQuery.Client` package contains the `PaginationResult<T>` base class as well as a `QueryBuilder` utlity class to construct queries.
