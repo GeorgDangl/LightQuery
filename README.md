@@ -37,15 +37,16 @@ Includes support for EntityFramework.Core async query materialization
 
 Includes LightQuery models and the QueryBuilder utility
 
-**NETStandard 2.0** and **.Net 4.6.1** are supported.
+Starting with **LightQuery 3.0**, server packages require **.NET 10 or .NET 11**. Server-side .NET Standard 2.0 and .NET Framework support have been removed, along with .NET 6/7/8 targets.
+**LightQuery.Client** continues to support **.NET Standard 2.0**, alongside dedicated .NET 10 and .NET 11 targets.
 
 ## Testing
 
 Tests are run via `powershell .\build.ps1 Coverage` (or `build.sh Coverage`) in the root directory.
-The .NET tests use xUnit.v3 and Microsoft Testing Platform on .NET 8 and .NET 11.
+The .NET tests use xUnit.v3 and Microsoft Testing Platform on .NET 10 and .NET 11.
 Each test assembly enables `ParallelMode.All` in `AssemblyInfo.cs`, allowing all tests to run in parallel.
 The `Coverage` target collects Cobertura coverage with Coverlet.MTP and merges xUnit XML results for Jenkins.
-To run tests without coverage, use `dotnet test` in the root directory (requires the .NET 10 SDK or later).
+To run tests without coverage, use `dotnet test` in the root directory. Building requires the .NET 11 SDK or later; running the full test suite also requires the .NET 10 and .NET 11 runtimes.
 
 ## Documentation - Server
 
