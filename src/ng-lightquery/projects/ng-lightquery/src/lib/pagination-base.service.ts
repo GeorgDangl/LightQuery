@@ -20,7 +20,7 @@ export abstract class PaginationBaseService<T> implements OnDestroy {
   paginationResult = this.paginationResultSource.asObservable();
   private requestUrl = new Subject<string>();
   private forceRefreshUrl = new Subject<string>();
-  private $destroyed = new Subject();
+  private $destroyed = new Subject<void>();
 
   constructor(protected http: HttpClient) {
     merge(this.requestUrl.pipe(distinctUntilChanged()), this.forceRefreshUrl)

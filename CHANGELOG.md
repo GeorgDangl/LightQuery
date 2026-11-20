@@ -2,6 +2,10 @@
 
 All notable changes to **LightQuery** are documented here.
 
+## Unreleased
+- Updated the Angular client to Angular v22.3, TypeScript v6.0 and RxJS v7.8, and migrated library packaging and tests to the `@angular/build` builders.
+- The Angular client now requires Angular v22 or later.
+
 ## v2.4.2:
 - The Angular client was updated to Angular v18
 - **LightQuery** now also produces Markdown documentation. This can be easily accessed by AI agents via the MCP server implementation in **Dangl**Docu.
